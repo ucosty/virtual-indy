@@ -17,13 +17,14 @@ private:
 	// 29		$sp		stack pointer Points to last location on the stack.
 	// 30		$s8/$fp		saved value / frame pointer Preserved across procedure calls
 	// 31		$ra		return address
-	int registers[32], pc;
+	int registers[32], PC, HI, LO;
 
 	void i_type(int opcode, int instruction);
 	void j_type(int opcode, int instruction);
 	void r_type(int opcode, int instruction);
 	void special2(int opcode, int instruction);
 	void ipco(int opcode, int instruction);
+	void BNEL(int instruction);
 
 public:
 	processor(memory_bus *pmb_in);

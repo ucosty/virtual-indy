@@ -8,7 +8,7 @@ processor::processor(memory_bus *pmb_in) : pmb(pmb_in)
 {
 	memset(registers, 0x00, sizeof registers);
 
-	pc = 0;
+	HI = LO = PC = 0;
 }
 
 processor::~processor()
@@ -19,18 +19,23 @@ void processor::tick()
 {
 	int instruction = -1;
 
-	if (!pmb -> read_32b(pc, &instruction))
+	if (PC & 0x03)
+	{
+		// address exception
+	}
+
+	if (!pmb -> read_32b(PC, &instruction))
 	{
 		// processor exception FIXME
 	}
 
-	pc += 4;
+	PC += 4;
 
 	int opcode = (instruction >> 26) & MASK_6B;
 
 	switch(opcode)
 	{
-		case 0x00:		// R-type
+		case 0x00:		// R-type / SPECIAL
 			r_type(opcode, instruction);
 			break;
 
@@ -71,6 +76,10 @@ void processor::tick()
 			ipco(opcode, instruction);
 			break;
 
+		case 0x15:
+			BNEL(instruction);
+			break;
+
 		case 0x1c:		// SPECIAL2
 			special2(opcode, instruction);
 			break;
@@ -85,9 +94,9 @@ void processor::tick()
 void processor::j_type(int opcode, int instruction)
 {
 	if (opcode == 3)	// JAL
-		registers[31] = pc;
+		registers[31] = PC;
 
-	pc = (instruction & MASK_26B) | (pc & 0x3c);
+	PC = (instruction & MASK_26B) | (PC & 0x3c);
 }
 
 void processor::ipco(int opcode, int instruction)
@@ -99,7 +108,7 @@ void processor::ipco(int opcode, int instruction)
 	fprintf(stderr, "IPCO(%d) format %d function %d\n", co_processor, format, function);
 }
 
-void processor::r_type(int opcode, int instruction)
+void processor::r_type(int opcode, int instruction) // SPECIAL
 {
 	int function = instruction & MASK_6B;
 	int sa = (instruction >> 6) & MASK_5B;
@@ -109,6 +118,9 @@ void processor::r_type(int opcode, int instruction)
 
 	switch(function)
 	{
+		case 0x00:		// NOP
+			break;
+
 		case 0x02:		// SRL / ROTR
 			if (IS_BIT_OFF0_SET(21, instruction))
 				registers[rd] = rotate_right(registers[rt] & MASK_32B, sa, 32);
@@ -123,8 +135,45 @@ void processor::r_type(int opcode, int instruction)
 				registers[rd] = (registers[rt] & MASK_32B) >> (registers[rs] & MASK_5B);
 			break;
 
+		case 0x08:		// JR
+			tick();	// need to execute the next instruction - what if it is a JR as well? FIXME
+			PC = registers[rs];
+			break;
+
+		case 0x09:		// JALR
+			tick();
+			registers[rd] = PC + 4;
+			PC = registers[rs];
+			break;
+
+		case 0x0a:		// MOVZ
+			if (registers[rt] == 0)
+				registers[rd] = registers[rs];
+			break;
+
+		case 0x0b:		// MOVN
+			if (registers[rt])
+				registers[rd] = registers[rs];
+			break;
+
 		case 0x0d:		// BREAK for debugging FIXME
 			fprintf(stderr, "BREAK\n");
+			break;
+
+		case 0x10:		// MFHI
+			registers[rd] = HI;
+			break;
+
+		case 0x11:		// MTHI
+			HI = registers[rs];
+			break;
+
+		case 0x12:		// MFLO
+			registers[rd] = LO;
+			break;
+
+		case 0x13:		// MTLO
+			LO = registers[rs];
 			break;
 
 		case 0x24:		// AND
@@ -154,7 +203,7 @@ void processor::i_type(int opcode, int instruction)
 	int rt = (instruction >> 16) & MASK_5B;
 
 	int offset = immediate << 2;
-	int b18_signed_offset = twos_complement(offset, 18);
+	int b18_signed_offset = untwos_complement(offset, 18);
 
 	int bgezal = (instruction >> 16) & MASK_5B;
 
@@ -163,9 +212,9 @@ void processor::i_type(int opcode, int instruction)
 		case 0x01:		// BAL
 			if (bgezal == 0x10)
 			{
-				registers[31] = pc + 4;
+				registers[31] = PC + 4;
 
-				pc += b18_signed_offset;
+				PC += b18_signed_offset;
 			}
 			else
 			{
@@ -174,7 +223,7 @@ void processor::i_type(int opcode, int instruction)
 			break;
 			
 		case 0x04:		// BEQ
-			pc += b18_signed_offset;
+			PC += b18_signed_offset;
 			break;
 
 		case 0x0c:		// ANDI
@@ -203,8 +252,17 @@ void processor::special2(int opcode, int instruction)
 	int rt = (instruction >> 16) & MASK_5B;
 	int rs = (instruction >> 21) & MASK_5B;
 
+	long long int temp_64b = -1;
+
 	switch(clo)
 	{
+		case 0x02:		// MUL
+			temp_64b = int(registers[rs]) * int(registers[rt]);
+			registers[rd] = temp_64b & MASK_32B;
+			HI = temp_64b >> 32;	// LO & HI should be unpredictable; let's not
+			LO = temp_64b & MASK_32B;
+			break;
+
 		case 0x1C:		// CLZ
 			registers[rd] = count_leading_zeros(32, registers[rs]);
 			// FIXME also in rt?
@@ -218,5 +276,24 @@ void processor::special2(int opcode, int instruction)
 		default:
 			fprintf(stderr, "special2 clo %02x not supported\n", clo);
 			break;
+	}
+}
+
+void processor::BNEL(int instruction)
+{
+	int rt = (instruction >> 16) & MASK_5B;
+	int rs = (instruction >> 21) & MASK_5B;
+	int immediate = instruction & MASK_16B;
+
+	int offset = immediate << 2;
+	int b18_signed_offset = untwos_complement(offset, 18);
+
+	if (rt != rs)
+	{
+		int new_PC = PC + b18_signed_offset;
+
+		tick();
+
+		PC = new_PC;
 	}
 }

@@ -2,7 +2,7 @@
 
 #include "processor_utils.h"
 
-int twos_complement(int value, int bits)
+int untwos_complement(int value, int bits)
 {
 	assert(bits >= 1 && bits <= 64);
 
@@ -12,6 +12,16 @@ int twos_complement(int value, int bits)
 		return (1 << bits) - value;
 
 	return value;
+}
+
+int twos_complement(int value, int bits)
+{
+	assert(bits >= 1 && bits <= 64);
+
+	if (value >= 0)
+		return value;
+
+	return ((value ^ MASK_32B) + 1) & MASK_32B;
 }
 
 int count_leading_ones(int n_bits, int value)
