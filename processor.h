@@ -6,8 +6,12 @@ private:
 	memory_bus *pmb;
 	int registers[32], pc;
 
+	void i_type(int opcode, int instruction);
 	void j_type(int opcode, int instruction);
+	void r_type(int opcode, int instruction);
 	void ipco(int opcode, int instruction);
+
+	int twos_complement(int value, int bits);
 
 public:
 	processor(memory_bus *pmb_in);
