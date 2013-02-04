@@ -115,15 +115,28 @@ void processor::i_type(int opcode, int instruction)
 {
 	int immediate = instruction & 0xffff;
 
+	int offset = immediate << 2;
+	int b18_signed_offset = twos_complement(offset, 18);
+
 	switch(opcode)
 	{
 		case 0x04:		// BEQ
-			offset = immediate << 2;
-			break; // FIXME
+			pc += b18_signed_offset;
+			break;
 
 		default:
 			// throw invalid
 			fprintf(stderr, "i-type unsupported function %02x\n", opcode);
 			break;
 	}
+}
+
+int processor::twos_complement(int value, int bits)
+{
+	int sign_bit = 1 << (bits - 1);
+
+	if (sign_bit)
+		return (1 << bits) - value;
+
+	return value;
 }
