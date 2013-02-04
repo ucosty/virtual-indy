@@ -28,6 +28,10 @@ void processor::tick()
 
 	switch(opcode)
 	{
+		case 0x00:		// R-type
+			r_type(opcode, instruction);
+			break;
+
 		case 0x02:		// J-type
 		case 0x03:
 			j_type(opcode, instruction);
@@ -104,6 +108,10 @@ void processor::r_type(int opcode, int instruction)
 			fprintf(stderr, "BREAK\n");
 			break;
 
+		case 0x24:		// AND
+			registers[rd] = registers[rs] & registers[rt];
+			break;
+
 		default:
 			// throw invalid
 			fprintf(stderr, "r-type unsupported function %02x\n", function);
@@ -115,13 +123,35 @@ void processor::i_type(int opcode, int instruction)
 {
 	int immediate = instruction & 0xffff;
 
+	int rs = (instruction >> 21) & 0x1f;
+	int rt = (instruction >> 16) & 0x1f;
+
 	int offset = immediate << 2;
 	int b18_signed_offset = twos_complement(offset, 18);
 
+	int bgezal = (instruction >> 16) & 0x1f;
+
 	switch(opcode)
 	{
+		case 0x01:		// BAL
+			if (bgezal == 0x10)
+			{
+				registers[31] = pc + 4;
+
+				pc += b18_signed_offset;
+			}
+			else
+			{
+				fprintf(stderr, "i-type, opcode 0x01, bgezal 0x%02x\n", bgezal);
+			}
+			break;
+			
 		case 0x04:		// BEQ
 			pc += b18_signed_offset;
+			break;
+
+		case 0x0c:		// ANDI
+			registers[rt] = registers[rs] & immediate;
 			break;
 
 		default:
