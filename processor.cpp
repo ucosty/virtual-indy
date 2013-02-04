@@ -26,7 +26,7 @@ void processor::tick()
 
 	pc += 4;
 
-	int opcode = (instruction >> 26) & 0x3f;
+	int opcode = (instruction >> 26) & MASK_6B;
 
 	switch(opcode)
 	{
@@ -87,29 +87,43 @@ void processor::j_type(int opcode, int instruction)
 	if (opcode == 3)	// JAL
 		registers[31] = pc;
 
-	pc = (instruction & 0x3FFFFFF) | (pc & 0x3c);
+	pc = (instruction & MASK_26B) | (pc & 0x3c);
 }
 
 void processor::ipco(int opcode, int instruction)
 {
 	int co_processor = opcode & 0x03;
-	int format = (instruction >> 21) & 0x1f;
-	int function = instruction & 0x3f;
+	int format = (instruction >> 21) & MASK_5B;
+	int function = instruction & MASK_6B;
 
 	fprintf(stderr, "IPCO(%d) format %d function %d\n", co_processor, format, function);
 }
 
 void processor::r_type(int opcode, int instruction)
 {
-	int function = instruction & 0x3f;
-	int sa = (instruction >> 6) & 0x1f;
-	int rd = (instruction >> 11) & 0x1f;
-	int rt = (instruction >> 16) & 0x1f;
-	int rs = (instruction >> 21) & 0x1f;
+	int function = instruction & MASK_6B;
+	int sa = (instruction >> 6) & MASK_5B;
+	int rd = (instruction >> 11) & MASK_5B;
+	int rt = (instruction >> 16) & MASK_5B;
+	int rs = (instruction >> 21) & MASK_5B;
 
 	switch(function)
 	{
-		case 0x0d:		// BREAK for debugging
+		case 0x02:		// SRL / ROTR
+			if (IS_BIT_OFF0_SET(21, instruction))
+				registers[rd] = rotate_right(registers[rt] & MASK_32B, sa, 32);
+			else
+				registers[rd] = (registers[rt] & MASK_32B) >> sa;
+			break;
+
+		case 0x06:		// SRLV / ROTRV
+			if (IS_BIT_OFF0_SET(21, instruction))
+				registers[rd] = rotate_right(registers[rt] & MASK_32B, registers[rs] & MASK_5B, 32);
+			else
+				registers[rd] = (registers[rt] & MASK_32B) >> (registers[rs] & MASK_5B);
+			break;
+
+		case 0x0d:		// BREAK for debugging FIXME
 			fprintf(stderr, "BREAK\n");
 			break;
 
@@ -126,15 +140,15 @@ void processor::r_type(int opcode, int instruction)
 
 void processor::i_type(int opcode, int instruction)
 {
-	int immediate = instruction & 0xffff;
+	int immediate = instruction & MAX_16B;
 
-	int rs = (instruction >> 21) & 0x1f;
-	int rt = (instruction >> 16) & 0x1f;
+	int rs = (instruction >> 21) & MASK_5B;
+	int rt = (instruction >> 16) & MASK_5B;
 
 	int offset = immediate << 2;
 	int b18_signed_offset = twos_complement(offset, 18);
 
-	int bgezal = (instruction >> 16) & 0x1f;
+	int bgezal = (instruction >> 16) & MASK_5B;
 
 	switch(opcode)
 	{
@@ -168,15 +182,21 @@ void processor::i_type(int opcode, int instruction)
 
 void processor::special2(int opcode, int instruction)
 {
-	int clo = instruction & 0x3f;
-	int rd = (instruction >> 11) & 0x1f;
-	int rt = (instruction >> 16) & 0x1f;
-	int rs = (instruction >> 21) & 0x1f;
+	int clo = instruction & MASK_6B;
+	int rd = (instruction >> 11) & MASK_5B;
+	int rt = (instruction >> 16) & MASK_5B;
+	int rs = (instruction >> 21) & MASK_5B;
 
 	switch(clo)
 	{
+		case 0x1C:		// CLZ
+			registers[rd] = count_leading_zeros(32, registers[rs]);
+			// FIXME also in rt?
+			break;
+
 		case 0x21:		// CLO
 			registers[rd] = count_leading_ones(32, registers[rs]);
+			// FIXME also in rt?
 			break;
 
 		default:
