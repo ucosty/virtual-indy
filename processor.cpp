@@ -41,6 +41,7 @@ void processor::tick()
 			break;
 
 		default:
+			fprintf(stderr, "unsupported opcode %02x\n", opcode);
 			// throw invalid
 			break;
 	}
@@ -61,4 +62,25 @@ void processor::ipco(int opcode, int instruction)
 	int function = instruction 0x3f;
 
 	fprintf(stderr, "IPCO(%d) format %d function %d\n", co_processor, format, function);
+}
+
+void processor::r_type(int opcode, int instruction)
+{
+	int function = instruction & 0x3f;
+	int sa = (instruction >> 6) & 0x1f;
+	int rd = (instruction >> 11) & 0x1f;
+	int rt = (instruction >> 16) & 0x1f;
+	int rs = (instruction >> 21) & 0x1f;
+
+	switch(function)
+	{
+		case 0x0d;		// BREAK for debugging
+			fprintf(stderr, "BREAK\n";
+			break;
+
+		default:
+			// throw invalid
+			fprintf(stderr, "r-type unsupported function %02x\n", function);
+			break;
+	}
 }
