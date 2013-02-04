@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include "processor.h"
+#include "processor_utils.h"
 
 processor::processor(memory_bus *pmb_in) : pmb(pmb_in)
 {
@@ -68,6 +69,10 @@ void processor::tick()
 		case 0x12:
 		case 0x13:
 			ipco(opcode, instruction);
+			break;
+
+		case 0x1c:		// SPECIAL2
+			special2(opcode, instruction);
 			break;
 
 		default:
@@ -161,12 +166,21 @@ void processor::i_type(int opcode, int instruction)
 	}
 }
 
-int processor::twos_complement(int value, int bits) const
+void processor::special2(int opcode, int instruction)
 {
-	int sign_bit = 1 << (bits - 1);
+	int clo = instruction & 0x3f;
+	int rd = (instruction >> 11) & 0x1f;
+	int rt = (instruction >> 16) & 0x1f;
+	int rs = (instruction >> 21) & 0x1f;
 
-	if (sign_bit)
-		return (1 << bits) - value;
+	switch(clo)
+	{
+		case 0x21:		// CLO
+			registers[rd] = count_leading_ones(32, registers[rs]);
+			break;
 
-	return value;
+		default:
+			fprintf(stderr, "special2 clo %02x not supported\n", clo);
+			break;
+	}
 }

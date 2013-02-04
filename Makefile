@@ -4,7 +4,7 @@ DEBUG=-g # -pg
 CXXFLAGS+=-O3 -pedantic -Wall -DVERSION=\"$(VERSION)\" $(DEBUG)
 LDFLAGS=$(DEBUG)
 
-OBJS=memory_bus.o memory.o processor.o
+OBJS=memory_bus.o memory.o processor.o graphics_lg1.o processor_utils.o
 
 all: miep
 
