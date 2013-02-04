@@ -20,11 +20,11 @@ void memory_bus::register_memory(int offset, int mask, memory *target)
 // r/w might overlap segments? FIXME
 memory_segment_t * memory_bus::find_segment(int offset)
 {
-	for(int segment = 0; segment < list.size(); segment++)
+	for(unsigned int segment = 0; segment < list.size(); segment++)
 	{
 		memory_segment_t *psegment = &list.at(segment);
 
-		if (offset &  psegment -> mask == psegment -> offset)
+		if ((offset &  psegment -> mask) == psegment -> offset)
 			return psegment;
 	}
 

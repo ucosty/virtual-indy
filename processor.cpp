@@ -82,7 +82,7 @@ void processor::j_type(int opcode, int instruction)
 	if (opcode == 3)	// JAL
 		registers[31] = pc;
 
-	pc = instruction & 0x3FFFFFF | (pc & 0x3c);
+	pc = (instruction & 0x3FFFFFF) | (pc & 0x3c);
 }
 
 void processor::ipco(int opcode, int instruction)
