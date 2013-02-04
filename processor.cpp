@@ -131,6 +131,14 @@ void processor::r_type(int opcode, int instruction)
 			registers[rd] = registers[rs] & registers[rt];
 			break;
 
+		case 0x25:		// OR
+			registers[rd] = registers[rs] | registers[rt];
+			break;
+
+		case 0x26:		// XOR
+			registers[rd] = registers[rs] ^ registers[rt];
+			break;
+
 		default:
 			// throw invalid
 			fprintf(stderr, "r-type unsupported function %02x\n", function);
@@ -171,6 +179,14 @@ void processor::i_type(int opcode, int instruction)
 
 		case 0x0c:		// ANDI
 			registers[rt] = registers[rs] & immediate;
+			break;
+
+		case 0x0d:		// ORI
+			registers[rt] = registers[rs] | immediate;
+			break;
+
+		case 0x0e:		// XORI
+			registers[rt] = registers[rs] ^ immediate;
 			break;
 
 		default:
