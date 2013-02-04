@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <string.h>
 
 #include "processor.h"
@@ -44,7 +45,6 @@ void processor::tick()
 		case 0x07:
 		case 0x08:
 		case 0x09:
-		case 0x09:
 		case 0x0b:
 		case 0x0c:
 		case 0x0d:
@@ -89,7 +89,7 @@ void processor::ipco(int opcode, int instruction)
 {
 	int co_processor = opcode & 0x03;
 	int format = (instruction >> 21) & 0x1f;
-	int function = instruction 0x3f;
+	int function = instruction & 0x3f;
 
 	fprintf(stderr, "IPCO(%d) format %d function %d\n", co_processor, format, function);
 }
@@ -104,7 +104,7 @@ void processor::r_type(int opcode, int instruction)
 
 	switch(function)
 	{
-		case 0x0d;		// BREAK for debugging
+		case 0x0d:		// BREAK for debugging
 			fprintf(stderr, "BREAK\n");
 			break;
 
