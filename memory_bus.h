@@ -13,6 +13,9 @@ class memory_bus
 {
 private:
 	std::vector<memory_segment_t> list;
+
+	memory_segment_t * find_segment(int offset);
+
 public:
 	memory_bus();
 	~memory_bus();
@@ -21,4 +24,8 @@ public:
 
 	bool read_32b(int offset, int *data);
 	bool write_32b(int offset, int data);
+	bool read_16b(int offset, int *data);
+	bool write_16b(int offset, int data);
+	bool read_8b(int offset, int *data);
+	bool write_8b(int offset, int data);
 };

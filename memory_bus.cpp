@@ -1,3 +1,5 @@
+#include <string.h>
+
 #include "memory_bus.h"
 
 memory_bus::memory_bus()
@@ -15,28 +17,70 @@ void memory_bus::register_memory(int offset, int mask, memory *target)
 	list.push_back(segment);
 }
 
-bool memory_bus::read_32b(int offset, int *data)
+// r/w might overlap segments? FIXME
+memory_segment_t * memory_bus::find_segment(int offset)
 {
 	for(int segment = 0; segment < list.size(); segment++)
 	{
-		memory_segment_t *cur = &list.at(segment);
+		memory_segment_t *psegment = &list.at(segment);
 
-		if (offset &  cur -> mask == cur -> offset)
-			return cur -> target -> read_32b(offset - cur -> offset, data);
+		if (offset &  psegment -> mask == psegment -> offset)
+			return psegment;
 	}
 
-	return false;
+	return NULL;
+}
+
+bool memory_bus::read_32b(int offset, int *data)
+{
+	memory_segment_t * segment = find_segment(offset);
+	if (!segment)
+		return false;
+
+	return segment -> target -> read_32b(offset - segment -> offset, data);
 }
 
 bool memory_bus::write_32b(int offset, int data)
 {
-	for(int segment = 0; segment < list.size(); segment++)
-	{
-		memory_segment_t *cur = &list.at(segment);
+	memory_segment_t * segment = find_segment(offset);
+	if (!segment)
+		return false;
 
-		if (offset &  cur -> mask == cur -> offset)
-			return cur -> target -> write_32b(offset - cur -> offset, data);
-	}
+	return segment -> target -> write_32b(offset - segment -> offset, data);
+}
 
-	return false;
+bool memory_bus::read_16b(int offset, int *data)
+{
+	memory_segment_t * segment = find_segment(offset);
+	if (!segment)
+		return false;
+
+	return segment -> target -> read_16b(offset - segment -> offset, data);
+}
+
+bool memory_bus::write_16b(int offset, int data)
+{
+	memory_segment_t * segment = find_segment(offset);
+	if (!segment)
+		return false;
+
+	return segment -> target -> write_16b(offset - segment -> offset, data);
+}
+
+bool memory_bus::read_8b(int offset, int *data)
+{
+	memory_segment_t * segment = find_segment(offset);
+	if (!segment)
+		return false;
+
+	return segment -> target -> read_8b(offset - segment -> offset, data);
+}
+
+bool memory_bus::write_8b(int offset, int data)
+{
+	memory_segment_t * segment = find_segment(offset);
+	if (!segment)
+		return false;
+
+	return segment -> target -> write_8b(offset - segment -> offset, data);
 }
