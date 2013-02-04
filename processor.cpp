@@ -140,7 +140,7 @@ void processor::r_type(int opcode, int instruction)
 
 void processor::i_type(int opcode, int instruction)
 {
-	int immediate = instruction & MAX_16B;
+	int immediate = instruction & MASK_16B;
 
 	int rs = (instruction >> 21) & MASK_5B;
 	int rt = (instruction >> 16) & MASK_5B;
