@@ -17,7 +17,7 @@ void processor::tick()
 {
 	int instruction = -1;
 
-	if (!pbm -> read_32b(pc, &instruction))
+	if (!pmb -> read_32b(pc, &instruction))
 	{
 		// processor exception FIXME
 	}
@@ -28,7 +28,21 @@ void processor::tick()
 
 	switch(opcode)
 	{
+		case 2:		// J-type
+		case 3:		// J-type
+			j_type(opcode, instruction);
+			break;
+
 		default:
 			// throw invalid
+			break;
 	}
+}
+
+void processor::j_type(int opcode, int instruction)
+{
+	if (opcode == 3)	// JAL
+		registers[31] = pc;
+
+	pc = instruction & 0x3FFFFFF | (pc & 0x3c);
 }
