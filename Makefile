@@ -27,3 +27,6 @@ package: clean
 	cp *.cpp *.h Makefile readme.txt license.txt miep-$(VERSION)
 	tar czf miep-$(VERSION).tgz miep-$(VERSION)
 	rm -rf miep-$(VERSION)
+
+check:
+	cppcheck -v --enable=all --std=c++11 --inconclusive -I. . 2> err.txt

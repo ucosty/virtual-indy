@@ -1,6 +1,6 @@
 #include "memory.h"
 
-memory::memory(int size)
+memory::memory(int size) : len(0)
 {
 	if (size < 0)
 		throw "memory::memory invalid size"; // format() met size er in FIXME
@@ -13,7 +13,7 @@ memory::~memory()
 	delete [] pm;
 }
 
-bool memory::read_32b(int offset, int *data)
+bool memory::read_32b(int offset, int *data) const
 {
 	// TODO: if big endin processor, read directly from memory
 
@@ -28,7 +28,7 @@ bool memory::read_32b(int offset, int *data)
 	return true;
 }
 
-bool memory::read_16b(int offset, int *data)
+bool memory::read_16b(int offset, int *data) const
 {
 	// TODO: if big endin processor, read directly from memory
 
@@ -41,7 +41,7 @@ bool memory::read_16b(int offset, int *data)
 	return true;
 }
 
-bool memory::read_8b(int offset, int *data)
+bool memory::read_8b(int offset, int *data) const
 {
 	// TODO: if big endin processor, read directly from memory
 

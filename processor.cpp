@@ -161,7 +161,7 @@ void processor::i_type(int opcode, int instruction)
 	}
 }
 
-int processor::twos_complement(int value, int bits)
+int processor::twos_complement(int value, int bits) const
 {
 	int sign_bit = 1 << (bits - 1);
 
