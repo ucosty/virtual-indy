@@ -76,6 +76,10 @@ void processor::tick()
 			i_type(opcode, instruction);
 			break;
 
+		case 0x0a:
+			SLTI(instruction);
+			break;
+
 		case 0x10:		// co processor instructions
 		case 0x11:
 		case 0x12:
@@ -89,6 +93,10 @@ void processor::tick()
 
 		case 0x1c:		// SPECIAL2
 			special2(opcode, instruction);
+			break;
+
+		case 0x1f:		// SPECIAL3
+			special3(opcode, instruction);
 			break;
 
 		default:
@@ -126,7 +134,8 @@ void processor::r_type(int opcode, int instruction) // SPECIAL
 
 	switch(function)
 	{
-		case 0x00:		// NOP
+		case 0x00:		// NOP / SLL
+			registers[rd] = (registers[rt] & MASK_16B) << sa;
 			break;
 
 		case 0x02:		// SRL / ROTR
@@ -134,6 +143,14 @@ void processor::r_type(int opcode, int instruction) // SPECIAL
 				registers[rd] = rotate_right(registers[rt] & MASK_32B, sa, 32);
 			else
 				registers[rd] = (registers[rt] & MASK_32B) >> sa;
+			break;
+
+		case 0x03:		// SRA
+			registers[rd] = sign_extend(registers[rt] >> sa, 32 - sa);
+			break;
+
+		case 0x04:		// SLLV
+			registers[rd] = registers[rt] << sa;
 			break;
 
 		case 0x06:		// SRLV / ROTRV
@@ -196,6 +213,20 @@ void processor::r_type(int opcode, int instruction) // SPECIAL
 			registers[rd] = registers[rs] ^ registers[rt];
 			break;
 
+		case 0x2a:		// SLT
+			if (untwos_complement(registers[rs], 32) < untwos_complement(registers[rt], 32))
+				registers[rd] = 1;
+			else
+				registers[rd] = 0;
+			break;
+
+		case 0x2b:		// SLTU
+			if (registers[rs] < registers[rt])
+				registers[rd] = 1;
+			else
+				registers[rd] = 0;
+			break;
+
 		default:
 			// throw invalid
 			pdc -> log("r-type unsupported function %02x", function);
@@ -208,12 +239,16 @@ void processor::i_type(int opcode, int instruction)
 	int immediate = instruction & MASK_16B;
 
 	int rs = (instruction >> 21) & MASK_5B;
+	int base = rs;
 	int rt = (instruction >> 16) & MASK_5B;
 
-	int offset = immediate << 2;
-	int b18_signed_offset = untwos_complement(offset, 18);
+	int offset = immediate;
+	int offset_s = untwos_complement(offset, 16);
+	int b18_signed_offset = untwos_complement(offset << 2, 18);
 
 	int bgezal = (instruction >> 16) & MASK_5B;
+
+	int temp_32b = -1, address = -1;
 
 	switch(opcode)
 	{
@@ -234,6 +269,13 @@ void processor::i_type(int opcode, int instruction)
 			PC += b18_signed_offset;
 			break;
 
+		case 0x0b:		// SLTIU
+			if (registers[rs] < sign_extend_16b(immediate))
+				registers[rt] = 1;
+			else
+				registers[rt] = 0;
+			break;
+
 		case 0x0c:		// ANDI
 			registers[rt] = registers[rs] & immediate;
 			break;
@@ -244,6 +286,92 @@ void processor::i_type(int opcode, int instruction)
 
 		case 0x0e:		// XORI
 			registers[rt] = registers[rs] ^ immediate;
+			break;
+
+		case 0x0f:		// LUI
+			registers[rt] = immediate << 16;
+			break;
+
+		case 0x20:		// LB
+			address = registers[base] + offset_s;
+			if (!pmb -> read_8b(address, &temp_32b))
+				pdc -> log("i-type read 8b from %08x failed", address);
+			registers[rt] = sign_extend_8b(temp_32b);
+			break;
+
+		case 0x21:		// LH
+			address = registers[base] + offset_s;
+			if (address & 1)
+			{
+				pdc -> log("i-type read 16b from %08x: unaligned", address);
+				// FIXME throw address error exception
+			}
+			else
+			{
+				if (!pmb -> read_16b(address, &temp_32b))
+					pdc -> log("i-type read 16b from %08x failed", address);
+				registers[rt] = sign_extend_16b(temp_32b);
+			}
+			break;
+
+		case 0x24:		// LBU
+			address = registers[base] + offset_s;
+			if (!pmb -> read_8b(address, &temp_32b))
+				pdc -> log("i-type read 8b from %08x failed", address);
+			registers[rt] = temp_32b;
+			break;
+
+		case 0x25:		// LHU
+			address = registers[base] + offset_s;
+			if (address & 1)
+			{
+				pdc -> log("i-type read 16b from %08x: unaligned", address);
+				// FIXME throw address error exception
+			}
+			else
+			{
+				if (!pmb -> read_16b(address, &temp_32b))
+					pdc -> log("i-type read 16b from %08x failed", address);
+				registers[rt] = temp_32b;
+			}
+			break;
+
+		case 0x23:		// LW
+		case 0x30:		// LL
+			address = registers[base] + offset_s;
+			if (address & 3)
+			{
+				pdc -> log("i-type read 32b from %08x: unaligned", address);
+				// FIXME throw address error exception
+			}
+			else
+			{
+				if (!pmb -> read_32b(address, &temp_32b))
+					pdc -> log("i-type read 32b from %08x failed", address);
+				registers[rt] = temp_32b;
+			}
+			break;
+
+		case 0x28:		// SB
+			address = registers[base] + offset_s;
+			temp_32b = registers[rt];
+			if (!pmb -> write_8b(address, temp_32b))
+				pdc -> log("i-type write 8b to %08x failed", address);
+			break;
+
+		case 0x29:		// SH
+			address = registers[base] + offset_s;
+			if (address & 1)
+			{
+				pdc -> log("i-type write 16b to %08x: unaligned", address);
+				// FIXME throw address error exception
+			}
+			else
+			{
+				temp_32b = registers[rt];
+				if (!pmb -> write_16b(address, temp_32b))
+					pdc -> log("i-type write 16b to %08x failed", address);
+			}
 			break;
 
 		default:
@@ -317,4 +445,39 @@ void processor::set_register(int nr, int value)
 	assert(nr >=0 && nr <= 31);
 
 	registers[nr] = value;
+}
+
+void processor::special3(int opcode, int instruction)
+{
+	int function = instruction & MASK_6B;
+	int sub_function = (instruction >> 6) & MASK_5B;
+	int rd = (instruction >> 11) & MASK_5B;
+	int rt = (instruction >> 16) & MASK_5B;
+
+	switch(function)
+	{
+		case 0x20:
+			if (sub_function == 0x18)	// SEH
+				registers[rt] = sign_extend_16b(registers[rd] & MASK_16B);
+			else if (sub_function == 0x10)	// SEB
+				registers[rt] = sign_extend_8b(registers[rd] & MASK_8B);
+			break;
+
+		default:
+			pdc -> log("special3 function %02x not supported", function);
+			break;
+	}
+}
+
+void processor::SLTI(int instruction)
+{
+	int rt = (instruction >> 16) & MASK_5B;
+	int rs = (instruction >> 21) & MASK_5B;
+	int immediate = instruction & MASK_16B;
+
+	// FIXME use register as 32B?
+	if (untwos_complement(registers[rs], 32) < untwos_complement(immediate, 16))
+		registers[rt] = 1;
+	else
+		registers[rt] = 0;
 }

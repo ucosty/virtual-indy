@@ -28,8 +28,11 @@ private:
 	void j_type(int opcode, int instruction);
 	void r_type(int opcode, int instruction);
 	void special2(int opcode, int instruction);
+	void special3(int opcode, int instruction);
 	void ipco(int opcode, int instruction);
+	// not in a group? FIXME
 	void BNEL(int instruction);
+	void SLTI(int instruction);
 
 public:
 	processor(debug_console *pdc_in, memory_bus *pmb_in);

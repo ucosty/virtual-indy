@@ -1,5 +1,6 @@
 #define MASK_5B		0x1f
 #define MASK_6B		0x3f
+#define MASK_8B		0xff
 #define MASK_16B	0xffff
 #define MASK_26B	0x3FFFFFF
 #define MASK_32B	0xffffffff
@@ -12,6 +13,9 @@ int untwos_complement(int value, int bits);
 int count_leading_ones(int n_bits, int value);
 int count_leading_zeros(int n_bits, int value);
 int rotate_right(int value, int n, int width);
+int sign_extend_8b(int value);
+int sign_extend_16b(int value);
+int sign_extend(int value, int bits);
 
 int make_cmd_I_TYPE(int rs, int rt, int function, int immediate);
 int make_cmd_SPECIAL(int rt, int rd, int sa, int function, int extra);

@@ -9,7 +9,7 @@ int untwos_complement(int value, int bits)
 	int sign_bit = 1 << (bits - 1);
 
 	if (sign_bit)
-		return (1 << bits) - value;
+		return -((1 << bits) - value + 1);
 
 	return value;
 }
@@ -72,6 +72,40 @@ int rotate_right(int value, int n, int width)
 	value >>= n;
 
 	value |= right_bits << (width - n);
+
+	return value;
+}
+
+int sign_extend_8b(int value)
+{
+	if (value & 128)
+		return value | 0xffffff00;
+
+	return value;
+}
+
+int sign_extend_16b(int value)
+{
+	if (value & 32768)
+		return value | 0xffff0000;
+
+	return value;
+}
+
+int sign_extend(int value, int bits)
+{
+	int mask = 1 << (bits - 1);
+
+	if (value & mask)
+	{
+		while(bits <= 32)
+		{
+			value |= mask;
+
+			bits++;
+			mask <<= 1;
+		}
+	}
 
 	return value;
 }

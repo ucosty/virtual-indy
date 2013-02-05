@@ -44,6 +44,7 @@ int main(int argc, char *argv[])
 	{
 		dc -> tick(p);
 		p -> tick();
+getch();
 	}
 
 	delete dc;
