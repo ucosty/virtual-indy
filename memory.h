@@ -8,7 +8,7 @@ private:
 	int len;
 
 public:
-	memory(int size);
+	memory(int size, bool init);
 	memory(unsigned char *p, int len);
 	~memory();
 

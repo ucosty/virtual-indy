@@ -1,11 +1,16 @@
+#include <string.h>
+
 #include "memory.h"
 
-memory::memory(int size) : len(size)
+memory::memory(int size, bool init) : len(size)
 {
 	if (size < 0)
 		throw "memory::memory invalid size"; // format() met size er in FIXME
 
 	pm = new unsigned char[size];
+
+	if (init)
+		memset(pm, 0x00, size);
 }
 
 memory::memory(unsigned char *p, int size) : pm(p), len(size)
