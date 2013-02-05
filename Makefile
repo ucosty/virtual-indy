@@ -23,7 +23,7 @@ uninstall: clean
 	rm -f $(DESTDIR)/usr/local/bin/miep
 
 clean:
-	rm -f $(OBJS) miep core
+	rm -f $(OBJS) $(OBJSmain) miep $(OBJStest) testcases core
 
 package: clean
 	# source package
