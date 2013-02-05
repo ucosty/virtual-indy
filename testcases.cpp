@@ -40,6 +40,93 @@ void test_untows_complement()
 		error_exit("untwos_complement failed 32b (b) %d expected 1073741824", rc);
 }
 
+void test_LW(memory *m, processor *p)
+{
+	// unsigned offset
+	{
+		p -> reset();
+
+		int base = 1;
+		int base_val = 9;
+		p -> set_register(base, base_val);
+
+		int rt = 2;
+
+		int offset = 0xff;
+
+		int function = 0x23;	// LW
+
+		int instr = make_cmd_I_TYPE(base, rt, function, offset);
+		if (!m -> write_32b(0, instr))
+			error_exit("failed to write to memory @ 0");
+		// printf("instruction: %08x\n", instr);
+
+		int addr_val = 0xdeafbeef;
+		int addr = base_val + untwos_complement(offset, 16);
+		if (!m -> write_32b(addr, addr_val))
+			error_exit("failed to write to memory @ 0");
+
+		int temp_32b;
+		if (!m -> read_32b(0, &temp_32b))
+			error_exit("failed to read from memory @ 0");
+		if (temp_32b != instr)
+			error_exit("read from/write to memory differ");
+
+		p -> tick();
+
+		temp_32b = p -> get_register(rt);
+
+		int expected = addr_val;
+		if (temp_32b != expected)
+			error_exit("LW: rt (%d) != %d", temp_32b, expected);
+	}
+
+	// signed offset
+	{
+		p -> reset();
+
+		int base = 1;
+		int base_val = 0xf0000;
+		p -> set_register(base, base_val);
+
+		int rt = 2;
+
+		int offset = 0x9014;
+
+		int function = 0x23;	// LW
+
+		int temp_32b = -1;
+
+		int instr = make_cmd_I_TYPE(base, rt, function, offset);
+		if (!m -> write_32b(0, instr))
+			error_exit("failed to write to memory @ 0");
+		// printf("instruction: %08x\n", instr);
+		if (!m -> read_32b(0, &temp_32b))
+			error_exit("failed to read from memory @ 0");
+		if (temp_32b != instr)
+			error_exit("read from/write to memory differ");
+
+		int addr_val = 0xdeafbeef;
+		int addr = base_val + untwos_complement(offset, 16);
+		if (!m -> write_32b(addr, addr_val))
+			error_exit("failed to write to memory @ 0");
+		if (!m -> read_32b(addr, &temp_32b))
+			error_exit("failed to read from memory @ 0");
+		if (temp_32b != addr_val)
+			error_exit("read from/write to memory differ");
+
+	// FIXME move memory validation to seperate testcase
+
+		p -> tick();
+
+		temp_32b = p -> get_register(rt);
+
+		int expected = addr_val;
+		if (temp_32b != expected)
+			error_exit("LW: rt (%x) != %x", temp_32b, expected);
+	}
+}
+
 void test_SLL(memory *m, processor *p)
 {
 	p -> reset();
@@ -116,13 +203,15 @@ int main(int argc, char *argv[])
 	dc -> init();
 
 	memory_bus *mb = new memory_bus();
-	memory *m = new memory(4 * 1024);
+	memory *m = new memory(0x100000, true);
 
 	mb -> register_memory(0, 0xfff, m);
 
 	processor *p = new processor(dc, mb);
 
 	test_untows_complement();
+
+	test_LW(m, p);
 
 	test_SLL(m, p);
 
