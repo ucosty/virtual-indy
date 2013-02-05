@@ -1,6 +1,9 @@
+#include <stdio.h>
 #include <string.h>
 
+#include "error.h"
 #include "memory_bus.h"
+#include "processor_utils.h"
 
 memory_bus::memory_bus()
 {
@@ -24,7 +27,10 @@ memory_segment_t * memory_bus::find_segment(int offset)
 	{
 		memory_segment_t *psegment = &list.at(segment);
 
-		if ((offset & psegment -> mask) == psegment -> offset)
+		int seg_offset = psegment -> offset;
+		int seg_mask   = psegment -> mask ^ MASK_32B;
+
+		if ((offset & seg_mask) == seg_offset)
 			return psegment;
 	}
 
