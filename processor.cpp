@@ -135,7 +135,8 @@ void processor::r_type(int opcode, int instruction) // SPECIAL
 	switch(function)
 	{
 		case 0x00:		// NOP / SLL
-			registers[rd] = (registers[rt] & MASK_16B) << sa;
+			if (sa) // if sa==0 then NOP
+				registers[rd] = registers[rt] << sa;
 			break;
 
 		case 0x02:		// SRL / ROTR

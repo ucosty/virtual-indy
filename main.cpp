@@ -7,6 +7,8 @@
 #include "utils.h"
 #include "debug_console.h"
 
+bool step = true;
+
 volatile bool terminate = false;
 
 void sig_handler(int sig)
@@ -38,13 +40,16 @@ int main(int argc, char *argv[])
 	mb -> register_memory(0xbfc00000, 0x7ffff, m_prom); // IP20, 32bit
 
 	processor *p = new processor(dc, mb);
-	p -> set_PC(0xbfc00000 + 0x0b80); // offset 0xb80 entry point is a guess
+	//p -> set_PC(0xbfc00000 + 0x0b80); // offset 0xb80 entry point is a guess
+	p -> set_PC(0xbfc00000 + 0x884); // guess
 
 	for(;!terminate;)
 	{
 		dc -> tick(p);
 		p -> tick();
-getch();
+
+		if (step)
+			getch();
 	}
 
 	delete dc;
