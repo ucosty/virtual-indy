@@ -269,6 +269,11 @@ void processor::i_type(int opcode, int instruction)
 			PC += b18_signed_offset;
 			break;
 
+		case 0x05:		// BNE
+			if (registers[rs] != registers[rt])
+				PC += b18_signed_offset;
+			break;
+
 		case 0x0b:		// SLTIU
 			if (registers[rs] < sign_extend_16b(immediate))
 				registers[rt] = 1;
