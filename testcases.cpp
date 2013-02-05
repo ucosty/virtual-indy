@@ -5,19 +5,43 @@
 #include "processor.h"
 #include "processor_utils.h"
 
-int main(int argc, char *argv[])
+void test_untows_complement()
 {
-	debug_console *dc = new debug_console_simple();
+	/* int untwos_complement(int value, int bits) */
+	int value = 0x80, bits = 8;
+	int rc = untwos_complement(value, bits);
+	if (rc != -128)
+		error_exit("untwos_complement failed 8b (a): %d expected -128", rc);
 
-	dc -> init();
+	value = 0x8000, bits = 16;
+	rc = untwos_complement(value, bits);
+	if (rc != -32768)
+		error_exit("untwos_complement failed 16b (a) %d expected -32768", rc);
 
-	memory_bus *mb = new memory_bus();
-	memory *m = new memory(4 * 1024);
+	value = 0x80000000, bits = 32;
+	rc = untwos_complement(value, bits);
+	if (rc != -2147483648)
+		error_exit("untwos_complement failed 32b (a) %d expected -2147483648", rc);
 
-	mb -> register_memory(0, 0xfff, m);
+	value = 0x40;
+	bits = 8;
+	rc = untwos_complement(value, bits);
+	if (rc != 64)
+		error_exit("untwos_complement failed 8b (b) %d expected 64", rc);
 
-	processor *p = new processor(dc, mb);
+	value = 0x4000, bits = 16;
+	rc = untwos_complement(value, bits);
+	if (rc != 16384)
+		error_exit("untwos_complement failed 16b (b) %d expected 16384", rc);
 
+	value = 0x40000000, bits = 32;
+	rc = untwos_complement(value, bits);
+	if (rc != 1073741824)
+		error_exit("untwos_complement failed 32b (b) %d expected 1073741824", rc);
+}
+
+void test_SRL(memory *m, processor *p)
+{
 	/* SRL */
 	p -> set_register(1, 13);
 	int input_val = 191;
@@ -39,7 +63,24 @@ int main(int argc, char *argv[])
 	int expected = 23;
 	if (temp_32b != expected)
 		error_exit("SRL: rd (%d) != %d", temp_32b, expected);
+}
 
+int main(int argc, char *argv[])
+{
+	debug_console *dc = new debug_console_simple();
+
+	dc -> init();
+
+	memory_bus *mb = new memory_bus();
+	memory *m = new memory(4 * 1024);
+
+	mb -> register_memory(0, 0xfff, m);
+
+	processor *p = new processor(dc, mb);
+
+	test_untows_complement();
+
+	test_SRL(m, p);
 
 	delete p;
 	delete mb;

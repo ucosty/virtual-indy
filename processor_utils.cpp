@@ -8,8 +8,8 @@ int untwos_complement(int value, int bits)
 
 	int sign_bit = 1 << (bits - 1);
 
-	if (sign_bit)
-		return -((1 << bits) - value + 1);
+	if (value & sign_bit)
+		return -((1ll << bits) - value);
 
 	return value;
 }
