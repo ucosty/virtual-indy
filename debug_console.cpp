@@ -6,6 +6,7 @@
 #include "debug_console.h"
 #include "processor.h"
 #include "processor_utils.h"
+#include "log.h"
 
 bool term_change = false;
 
@@ -136,7 +137,7 @@ void debug_console::tick(processor *p)
 			y = registers - 16;
 		}
 
-		mvwprintw(win_regs, y, x, "R%02d %08x", registers, p -> get_register(registers));
+		mvwprintw(win_regs, y, x, "R%02x %08x", registers, p -> get_register(registers));
 	}
 
 	int PC = p -> get_PC();
@@ -166,6 +167,11 @@ void debug_console::tick(processor *p)
 	mvwprintw(win_regs, 12, 44, "im: %04x", immediate);
 	mvwprintw(win_regs, 13, 44, "of: %d", b18_signed_offset);
 
+	char *decoded = p -> decode_to_text(temp_32b);
+	mvwprintw(win_regs, 14, 44, "  : %s", decoded);
+
+	dolog("PC: %08x, %08x, op: %02x rs: %02x [%08x] rt: %02x rd: %02x sa: %02x fu: %02x im: %04x of: %d\t%s", PC, temp_32b, opcode, rs, p -> get_register(rs), rt, rd, sa, function, immediate, b18_signed_offset, decoded);
+
 	wnoutrefresh(win_regs);
 	doupdate();
 }
@@ -183,4 +189,6 @@ void debug_console::log(const char *fmt, ...)
 
 	wnoutrefresh(win_logs);
 	doupdate();
+
+	dolog("%s", buffer);
 }

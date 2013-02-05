@@ -6,6 +6,7 @@
 #include "processor_utils.h"
 #include "utils.h"
 #include "debug_console.h"
+#include "log.h"
 
 bool step = true;
 
@@ -18,6 +19,8 @@ void sig_handler(int sig)
 
 int main(int argc, char *argv[])
 {
+	dolog("*** START ***");
+
 	signal(SIGHUP , SIG_IGN);
 	signal(SIGTERM, sig_handler);
 	signal(SIGINT , sig_handler);
@@ -57,6 +60,8 @@ int main(int argc, char *argv[])
 	delete p;
 	delete mb;
 	delete m;
+
+	dolog("--- END ---");
 
 	return 0;
 }

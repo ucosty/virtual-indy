@@ -507,3 +507,141 @@ void processor::SLTI(int instruction)
 	else
 		registers[rt] = 0;
 }
+
+char * processor::decode_to_text(int instr)
+{
+	int opcode = (instr >> 26) & MASK_26B;
+
+	// NOTE: the conversion to a char-pointer is because in the future
+	// this code might disassemble the whole instruction with parameters and all
+
+	if (opcode == 0)			// R-type
+	{
+		int function = instr & MASK_6B;
+
+		switch(function)
+		{
+			case 0x00:
+				return (char *)"SLL/NOP";
+			case 0x02:
+				return (char *)"SRL";
+			case 0x03:
+				return (char *)"SRA";
+			case 0x04:
+				return (char *)"SLLV";
+			case 0x06:
+				return (char *)"SRLV";
+			case 0x07:
+				return (char *)"SRAV";
+			case 0x08:
+				return (char *)"JR";
+			case 0x09:
+				return (char *)"JALR";
+			case 0x0c:
+				return (char *)"SYSCALL";
+			case 0x0d:
+				return (char *)"BREAK";
+			case 0x10:
+				return (char *)"MFHI";
+			case 0x11:
+				return (char *)"MTHI";
+			case 0x12:
+				return (char *)"MFLO";
+			case 0x13:
+				return (char *)"MTLO";
+			case 0x18:
+				return (char *)"MULT";
+			case 0x19:
+				return (char *)"MULTU";
+			case 0x1a:
+				return (char *)"DIV";
+			case 0x1b:
+				return (char *)"DIVU";
+			case 0x20:
+				return (char *)"ADD";
+			case 0x21:
+				return (char *)"ADDU";
+			case 0x22:
+				return (char *)"SUB";
+			case 0x23:
+				return (char *)"SUBU";
+			case 0x24:
+				return (char *)"AND";
+			case 0x25:
+				return (char *)"OR";
+			case 0x26:
+				return (char *)"XOR";
+			case 0x27:
+				return (char *)"NOR";
+			case 0x2a:
+				return (char *)"SLT";
+			case 0x2b:
+				return (char *)"SLTU";
+			default:
+				return (char *)"R/???";
+		}
+	}
+	else if (opcode == 2 || opcode == 3)	// J-type
+	{
+		if (opcode == 2)
+			return (char *)"J";
+
+		return (char *)"JAL";
+	}
+	else if (opcode != 16 && opcode != 17 && opcode != 18 && opcode != 19) // I-type
+	{
+		switch(opcode)
+		{
+			case 0x01:
+				return (char *)"BLTZ/BGEZ";
+			case 0x04:
+				return (char *)"BEQ";
+			case 0x05:
+				return (char *)"BNE";
+			case 0x06:
+				return (char *)"BLEZ";
+			case 0x07:
+				return (char *)"BGTZ";
+			case 0x08:
+				return (char *)"ADDI";
+			case 0x09:
+				return (char *)"ADDIU";
+			case 0x0a:
+				return (char *)"SLTI";
+			case 0x0b:
+				return (char *)"SLTIU";
+			case 0x0c:
+				return (char *)"ANDI";
+			case 0x0d:
+				return (char *)"ORI";
+			case 0x0e:
+				return (char *)"XORI";
+			case 0x0f:
+				return (char *)"LUI";
+			case 0x20:
+				return (char *)"LB";
+			case 0x21:
+				return (char *)"LH";
+			case 0x23:
+				return (char *)"LW";
+			case 0x24:
+				return (char *)"LBU";
+			case 0x25:
+				return (char *)"LHU";
+			case 0x28:
+				return (char *)"SB";
+			case 0x29:
+				return (char *)"SH";
+			case 0x2b:
+				return (char *)"SW";
+			case 0x31:
+				return (char *)"LWCL";
+			case 0x39:
+				return (char *)"SWCL";
+			default:
+				return (char *)"I/???";
+		}
+	}
+
+	return (char *)"???";
+}

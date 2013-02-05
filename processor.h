@@ -52,6 +52,8 @@ public:
 
 	void reset();
 	void tick();
+
+	static char * decode_to_text(int instr);
 };
 
 #endif
