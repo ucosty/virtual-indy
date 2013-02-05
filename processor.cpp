@@ -374,6 +374,21 @@ void processor::i_type(int opcode, int instruction)
 			}
 			break;
 
+		case 0x2b:		// SW
+			address = registers[base] + offset_s;
+			if (address & 3)
+			{
+				pdc -> log("i-type write 32b to %08x: unaligned", address);
+				// FIXME throw address error exception
+			}
+			else
+			{
+				temp_32b = registers[rt];
+				if (!pmb -> write_32b(address, temp_32b))
+					pdc -> log("i-type write 32b to %08x failed", address);
+			}
+			break;
+
 		default:
 			// throw invalid
 			pdc -> log("i-type unsupported function %02x", opcode);
