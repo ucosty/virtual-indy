@@ -48,6 +48,7 @@ void determine_terminal_size(int *max_y, int *max_x)
 
 debug_console::debug_console()
 {
+	nc = false;
 }
 
 void debug_console::init()
