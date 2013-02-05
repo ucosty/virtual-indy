@@ -32,7 +32,7 @@ int count_leading_ones(int n_bits, int value)
 
 	for(int nr=0; nr<n_bits; nr++)
 	{
-		if ((value & 0x80000000) == 0)
+		if (!(value & 0x80000000))
 			break;
 
 		n_bits_1++;
