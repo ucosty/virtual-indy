@@ -5,6 +5,7 @@
 
 #include "debug_console.h"
 #include "processor.h"
+#include "processor_utils.h"
 
 bool term_change = false;
 
@@ -147,6 +148,7 @@ void debug_console::tick(processor *p)
 	int temp_32b = -1;
 	bool r_ok = p -> get_mem_32b(PC, &temp_32b);
 	mvwprintw(win_regs, 5, 44, "mem: %d/%08x", r_ok, temp_32b);
+	mvwprintw(win_regs, 6, 44, "h/l: %02x/%02x", (unsigned char)(temp_32b >> 26), temp_32b & MASK_6B);
 
 	wnoutrefresh(win_regs);
 	doupdate();
