@@ -238,13 +238,14 @@ void processor::r_type(int opcode, int instruction) // SPECIAL
 void processor::i_type(int opcode, int instruction)
 {
 	int immediate = instruction & MASK_16B;
+	int immediate_s = untwos_complement(immediate, 16);
 
 	int rs = (instruction >> 21) & MASK_5B;
 	int base = rs;
 	int rt = (instruction >> 16) & MASK_5B;
 
 	int offset = immediate;
-	int offset_s = untwos_complement(offset, 16);
+	int offset_s = immediate_s;
 	int b18_signed_offset = untwos_complement(offset << 2, 18);
 
 	int bgezal = (instruction >> 16) & MASK_5B;
@@ -273,6 +274,10 @@ void processor::i_type(int opcode, int instruction)
 		case 0x05:		// BNE
 			if (registers[rs] != registers[rt])
 				PC += b18_signed_offset;
+			break;
+
+		case 0x09:		// ADDIU
+			registers[rt] = registers[rs] + immediate_s;
 			break;
 
 		case 0x0b:		// SLTIU
@@ -510,7 +515,7 @@ void processor::SLTI(int instruction)
 
 char * processor::decode_to_text(int instr)
 {
-	int opcode = (instr >> 26) & MASK_26B;
+	int opcode = (instr >> 26) & MASK_6B;
 
 	// NOTE: the conversion to a char-pointer is because in the future
 	// this code might disassemble the whole instruction with parameters and all
