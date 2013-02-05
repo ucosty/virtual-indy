@@ -2,11 +2,14 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <ncurses.h>
 #include <sys/types.h>
 
 void error_exit(const char *format, ...)
 {
 	va_list ap;
+
+	endwin();
 
 	va_start(ap, format);
 	(void)vfprintf(stderr, format, ap);
