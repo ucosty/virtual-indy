@@ -1,3 +1,6 @@
+#ifndef __MEMORY_BUS__H__
+#define __MEMORY_BUS__H__
+
 #include <vector>
 
 #include "memory.h"
@@ -29,3 +32,4 @@ public:
 	bool read_8b(int offset, int *data);
 	bool write_8b(int offset, int data);
 };
+#endif

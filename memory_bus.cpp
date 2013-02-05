@@ -24,7 +24,7 @@ memory_segment_t * memory_bus::find_segment(int offset)
 	{
 		memory_segment_t *psegment = &list.at(segment);
 
-		if ((offset &  psegment -> mask) == psegment -> offset)
+		if ((offset & psegment -> mask) == psegment -> offset)
 			return psegment;
 	}
 
