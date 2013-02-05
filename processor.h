@@ -43,6 +43,7 @@ public:
 	int get_HI() { return HI; }
 	int get_LO() { return LO; }
 	int get_SR() { return status_register; }
+	bool get_mem_32b(int offset, int *value);
 
 	void set_register(int nr, int value);
 	void set_PC(int value) { PC = value; }

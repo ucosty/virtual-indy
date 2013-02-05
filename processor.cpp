@@ -447,6 +447,11 @@ void processor::set_register(int nr, int value)
 	registers[nr] = value;
 }
 
+bool processor::get_mem_32b(int offset, int *value)
+{
+	return pmb -> read_32b(offset, value);
+}
+
 void processor::special3(int opcode, int instruction)
 {
 	int function = instruction & MASK_6B;

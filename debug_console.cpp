@@ -138,10 +138,15 @@ void debug_console::tick(processor *p)
 		mvwprintw(win_regs, y, x, "R%02d %08x", registers, p -> get_register(registers));
 	}
 
-	mvwprintw(win_regs, 0, 44, "PC: %08x", p -> get_PC());
+	int PC = p -> get_PC();
+	mvwprintw(win_regs, 0, 44, "PC: %08x", PC);
 	mvwprintw(win_regs, 1, 44, "LO: %08x", p -> get_LO());
 	mvwprintw(win_regs, 2, 44, "HI: %08x", p -> get_HI());
 	mvwprintw(win_regs, 3, 44, "SR: %08x", p -> get_SR());
+
+	int temp_32b = -1;
+	bool r_ok = p -> get_mem_32b(PC, &temp_32b);
+	mvwprintw(win_regs, 5, 44, "mem: %d/%08x", r_ok, temp_32b);
 
 	wnoutrefresh(win_regs);
 	doupdate();
