@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
 
 	memory_bus *mb = new memory_bus();
 
-	memory *m = new memory(4 * 1024);
+	memory *m = new memory(64 * 1024 * 1024, true);
 	mb -> register_memory(0, 0xfff, m);
 
 	unsigned char *prom = NULL;
