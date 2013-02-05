@@ -1,6 +1,6 @@
 #include "memory.h"
 
-memory::memory(int size) : len(0)
+memory::memory(int size) : len(size)
 {
 	if (size < 0)
 		throw "memory::memory invalid size"; // format() met size er in FIXME

@@ -12,3 +12,7 @@ int untwos_complement(int value, int bits);
 int count_leading_ones(int n_bits, int value);
 int count_leading_zeros(int n_bits, int value);
 int rotate_right(int value, int n, int width);
+
+int make_cmd_I_TYPE(int rs, int rt, int function, int immediate);
+int make_cmd_SPECIAL(int rt, int rd, int sa, int function, int extra);
+int make_cmd_J_TYPE(int function, int target);

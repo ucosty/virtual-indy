@@ -4,12 +4,15 @@ DEBUG=-g # -pg
 CXXFLAGS+=-O3 -pedantic -Wall -DVERSION=\"$(VERSION)\" $(DEBUG)
 LDFLAGS=$(DEBUG)
 
-OBJS=memory_bus.o memory.o processor.o graphics_lg1.o processor_utils.o
+OBJS=memory_bus.o memory.o processor.o graphics_lg1.o processor_utils.o error.o
 
-all: miep
+all: testcases miep
+
+testcases: $(OBJS)
+	$(CXX) -Wall -W $(OBJS) $(LDFLAGS) testcases.cpp -o testcases
 
 miep: $(OBJS)
-	$(CXX) -Wall -W $(OBJS) $(LDFLAGS) -o miep
+	$(CXX) -Wall -W $(OBJS) $(LDFLAGS) main.cpp -o miep
 
 install: miep
 	cp miep $(DESTDIR)/usr/local/bin

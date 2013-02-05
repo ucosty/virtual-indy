@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -85,7 +86,7 @@ void processor::tick()
 			break;
 
 		default:
-			fprintf(stderr, "unsupported opcode %02x\n", opcode);
+			fprintf(stderr, "tick: unsupported opcode %02x\n", opcode);
 			// throw invalid
 			break;
 	}
@@ -296,4 +297,18 @@ void processor::BNEL(int instruction)
 
 		PC = new_PC;
 	}
+}
+
+int processor::get_register(int nr)
+{
+	assert(nr >=0 && nr <= 31);
+
+	return registers[nr];
+}
+
+void processor::set_register(int nr, int value)
+{
+	assert(nr >=0 && nr <= 31);
+
+	registers[nr] = value;
 }

@@ -30,5 +30,15 @@ public:
 	processor(memory_bus *pmb_in);
 	~processor();
 
+	int get_register(int nr);
+	int get_PC() { return PC; }
+	int get_HI() { return HI; }
+	int get_LO() { return LO; }
+
+	void set_register(int nr, int value);
+	void set_PC(int value) { PC = value; }
+	void set_HI(int value) { HI = value; }
+	void set_LO(int value) { LO = value; }
+
 	void tick();
 };

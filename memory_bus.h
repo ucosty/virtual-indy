@@ -20,7 +20,7 @@ public:
 	memory_bus();
 	~memory_bus();
 
-	void register_memory(int offset, int length, memory *target);
+	void register_memory(int offset, int mask, memory *target);
 
 	bool read_32b(int offset, int *data);
 	bool write_32b(int offset, int data);
