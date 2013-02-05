@@ -148,7 +148,23 @@ void debug_console::tick(processor *p)
 	int temp_32b = -1;
 	bool r_ok = p -> get_mem_32b(PC, &temp_32b);
 	mvwprintw(win_regs, 5, 44, "mem: %d/%08x", r_ok, temp_32b);
-	mvwprintw(win_regs, 6, 44, "h/l: %02x/%02x", (unsigned char)(temp_32b >> 26), temp_32b & MASK_6B);
+
+	int opcode = (temp_32b >> 26) & MASK_6B;
+        int function = temp_32b & MASK_6B;
+        int sa = (temp_32b >> 6) & MASK_5B;
+        int rd = (temp_32b >> 11) & MASK_5B;
+        int rt = (temp_32b >> 16) & MASK_5B;
+        int rs = (temp_32b >> 21) & MASK_5B;
+	int immediate = temp_32b & MASK_16B;
+        int b18_signed_offset = untwos_complement(immediate << 2, 18);
+	mvwprintw(win_regs,  6, 44, "op: %02x", opcode);
+	mvwprintw(win_regs,  7, 44, "rs: %02x", rs);
+	mvwprintw(win_regs,  8, 44, "rt: %02x", rt);
+	mvwprintw(win_regs,  9, 44, "rd: %02x", rd);
+	mvwprintw(win_regs, 10, 44, "sa: %02x", sa);
+	mvwprintw(win_regs, 11, 44, "fu: %02x", function);
+	mvwprintw(win_regs, 12, 44, "im: %04x", immediate);
+	mvwprintw(win_regs, 13, 44, "of: %d", b18_signed_offset);
 
 	wnoutrefresh(win_regs);
 	doupdate();
