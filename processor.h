@@ -38,12 +38,12 @@ public:
 	processor(debug_console *pdc_in, memory_bus *pmb_in);
 	~processor();
 
-	int get_register(int nr);
-	int get_PC() { return PC; }
-	int get_HI() { return HI; }
-	int get_LO() { return LO; }
-	int get_SR() { return status_register; }
-	bool get_mem_32b(int offset, int *value);
+	int get_register(int nr) const;
+	int get_PC() const { return PC; }
+	int get_HI() const { return HI; }
+	int get_LO() const { return LO; }
+	int get_SR() const { return status_register; }
+	bool get_mem_32b(int offset, int *value) const;
 
 	void set_register(int nr, int value);
 	void set_PC(int value) { PC = value; }

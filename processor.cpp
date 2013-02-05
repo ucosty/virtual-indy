@@ -459,7 +459,7 @@ void processor::BNEL(int instruction)
 	}
 }
 
-int processor::get_register(int nr)
+int processor::get_register(int nr) const
 {
 	assert(nr >=0 && nr <= 31);
 
@@ -473,7 +473,7 @@ void processor::set_register(int nr, int value)
 	registers[nr] = value;
 }
 
-bool processor::get_mem_32b(int offset, int *value)
+bool processor::get_mem_32b(int offset, int *value) const
 {
 	return pmb -> read_32b(offset, value);
 }
