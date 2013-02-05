@@ -17,7 +17,7 @@ class memory_bus
 private:
 	std::vector<memory_segment_t> list;
 
-	memory_segment_t * find_segment(int offset);
+	const memory_segment_t * find_segment(int offset) const;
 
 public:
 	memory_bus();
@@ -25,11 +25,11 @@ public:
 
 	void register_memory(int offset, int mask, memory *target);
 
-	bool read_32b(int offset, int *data);
+	bool read_32b(int offset, int *data) const;
 	bool write_32b(int offset, int data);
-	bool read_16b(int offset, int *data);
+	bool read_16b(int offset, int *data) const;
 	bool write_16b(int offset, int data);
-	bool read_8b(int offset, int *data);
+	bool read_8b(int offset, int *data) const;
 	bool write_8b(int offset, int data);
 };
 #endif
