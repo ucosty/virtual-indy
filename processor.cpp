@@ -7,13 +7,18 @@
 
 processor::processor(memory_bus *pmb_in) : pmb(pmb_in)
 {
-	memset(registers, 0x00, sizeof registers);
-
-	HI = LO = PC = 0;
+	reset();
 }
 
 processor::~processor()
 {
+}
+
+void processor::reset()
+{
+	memset(registers, 0x00, sizeof registers);
+
+	status_register = HI = LO = PC = 0;
 }
 
 void processor::tick()
@@ -97,6 +102,7 @@ void processor::j_type(int opcode, int instruction)
 	if (opcode == 3)	// JAL
 		registers[31] = PC;
 
+	// FIXME shift 2 bits?
 	PC = (instruction & MASK_26B) | (PC & 0x3c);
 }
 
@@ -260,8 +266,7 @@ void processor::special2(int opcode, int instruction)
 		case 0x02:		// MUL
 			temp_64b = int(registers[rs]) * int(registers[rt]);
 			registers[rd] = temp_64b & MASK_32B;
-			HI = temp_64b >> 32;	// LO & HI should be unpredictable; let's not
-			LO = temp_64b & MASK_32B;
+			// LO/HI are said to be unpredictable after this command
 			break;
 
 		case 0x1C:		// CLZ

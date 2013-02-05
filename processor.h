@@ -1,3 +1,6 @@
+#ifndef __PROCESSOR__H__
+#define __PROCESSOR__H__
+
 #include "memory_bus.h"
 
 class processor
@@ -17,7 +20,7 @@ private:
 	// 29		$sp		stack pointer Points to last location on the stack.
 	// 30		$s8/$fp		saved value / frame pointer Preserved across procedure calls
 	// 31		$ra		return address
-	int registers[32], PC, HI, LO;
+	int registers[32], PC, HI, LO, status_register;
 
 	void i_type(int opcode, int instruction);
 	void j_type(int opcode, int instruction);
@@ -40,5 +43,8 @@ public:
 	void set_HI(int value) { HI = value; }
 	void set_LO(int value) { LO = value; }
 
+	void reset();
 	void tick();
 };
+
+#endif
