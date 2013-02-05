@@ -1,17 +1,22 @@
 #include <stdio.h>
 
 #include "error.h"
+#include "debug_console_simple.h"
 #include "processor.h"
 #include "processor_utils.h"
 
 int main(int argc, char *argv[])
 {
+	debug_console *dc = new debug_console_simple();
+
+	dc -> init();
+
 	memory_bus *mb = new memory_bus();
 	memory *m = new memory(4 * 1024);
 
 	mb -> register_memory(0, 0xfff, m);
 
-	processor *p = new processor(mb);
+	processor *p = new processor(dc, mb);
 
 	/* SRL */
 	p -> set_register(1, 13);

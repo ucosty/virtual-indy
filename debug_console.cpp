@@ -1,8 +1,10 @@
 #include <signal.h>
+#include <stdarg.h>
 #include <stdlib.h>
 #include <sys/ioctl.h>
 
 #include "debug_console.h"
+#include "processor.h"
 
 bool term_change = false;
 
@@ -42,7 +44,11 @@ void determine_terminal_size(int *max_y, int *max_x)
         }
 }
 
-debug_console::debug_console(processor *p_in) : p(p_in)
+debug_console::debug_console()
+{
+}
+
+void debug_console::init()
 {
         initscr();
 	start_color();
@@ -64,20 +70,21 @@ debug_console::debug_console(processor *p_in) : p(p_in)
 	init_pair(C_YELLOW, COLOR_YELLOW, COLOR_BLACK);
 	init_pair(C_GREEN, COLOR_GREEN, COLOR_BLACK);
 	init_pair(C_RED, COLOR_RED, COLOR_BLACK);
+
+	recreate_terminal();
+
+	nc = true;
 }
 
 debug_console::~debug_console()
 {
-	delwin(win);
+	if (nc)
+	{
+		delwin(win_regs);
+		delwin(win_logs);
 
-	endwin();
-}
-
-void debug_console::update_terminal()
-{
-	wmove(win, 0, 0);
-	wnoutrefresh(win);
-	doupdate();
+		endwin();
+	}
 }
 
 void debug_console::recreate_terminal()
@@ -96,16 +103,61 @@ void debug_console::recreate_terminal()
 
 void debug_console::create_windows()
 {
-	if (win)
-		delwin(win);
+	if (win_regs)
+		delwin(win_regs);
 
-	win = newwin(80, 25, 0, 0);
+	if (win_logs)
+		delwin(win_logs);
+
+	win_regs = newwin(16, 80,  0, 0);
+	scrollok(win_regs, false);
+
+	win_logs = newwin( 9, 80, 16, 0);
+	scrollok(win_logs, true);
 }
 
-void debug_console::tick()
+void debug_console::tick(processor *p)
 {
 	if (term_change)
 		recreate_terminal();
 
-	// FIXME
+	int x = -1, y = -1;
+	for(int registers=0; registers<32; registers++)
+	{
+		if (registers < 16)
+		{
+			x = 0;
+			y = registers;
+		}
+		else
+		{
+			x = 22;
+			y = registers - 16;
+		}
+
+		mvwprintw(win_regs, y, x, "R%02d %08x", registers, p -> get_register(registers));
+	}
+
+	mvwprintw(win_regs, 0, 44, "PC: %08x", p -> get_PC());
+	mvwprintw(win_regs, 1, 44, "LO: %08x", p -> get_LO());
+	mvwprintw(win_regs, 2, 44, "HI: %08x", p -> get_HI());
+	mvwprintw(win_regs, 3, 44, "SR: %08x", p -> get_SR());
+
+	wnoutrefresh(win_regs);
+	doupdate();
+}
+
+void debug_console::log(const char *fmt, ...)
+{
+	char buffer[4096];
+	va_list ap;
+
+	va_start(ap, fmt);
+	(void)vsnprintf(buffer, sizeof buffer, fmt, ap);
+	va_end(ap);
+
+	wprintw(win_logs, "%s\n", buffer);
+
+	wnoutrefresh(win_logs);
+	doupdate();
 }

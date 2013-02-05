@@ -1,11 +1,13 @@
 #ifndef __PROCESSOR__H__
 #define __PROCESSOR__H__
 
+#include "debug_console.h"
 #include "memory_bus.h"
 
 class processor
 {
 private:
+	debug_console *pdc;
 	memory_bus *pmb;
 
 	// 0		zero
@@ -30,13 +32,14 @@ private:
 	void BNEL(int instruction);
 
 public:
-	processor(memory_bus *pmb_in);
+	processor(debug_console *pdc_in, memory_bus *pmb_in);
 	~processor();
 
 	int get_register(int nr);
 	int get_PC() { return PC; }
 	int get_HI() { return HI; }
 	int get_LO() { return LO; }
+	int get_SR() { return status_register; }
 
 	void set_register(int nr, int value);
 	void set_PC(int value) { PC = value; }

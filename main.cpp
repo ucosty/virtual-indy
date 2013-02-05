@@ -22,6 +22,10 @@ int main(int argc, char *argv[])
 	signal(SIGQUIT, sig_handler);
 	signal(SIGPIPE, SIG_IGN);
 
+	debug_console *dc = new debug_console();
+
+	dc -> init();
+
 	memory_bus *mb = new memory_bus();
 
 	memory *m = new memory(4 * 1024);
@@ -33,14 +37,12 @@ int main(int argc, char *argv[])
 	memory *m_prom = new memory(prom, prom_len);
 	mb -> register_memory(0xbfc00000, 0x7ffff, m_prom); // IP20, 32bit
 
-	processor *p = new processor(mb);
+	processor *p = new processor(dc, mb);
 	p -> set_PC(0xbfc00000 + 0x0b80); // offset 0xb80 entry point is a guess
-
-	debug_console *dc = new debug_console(p);
 
 	for(;!terminate;)
 	{
-		dc -> tick();
+		dc -> tick(p);
 		p -> tick();
 	}
 

@@ -2,10 +2,11 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "debug_console.h"
 #include "processor.h"
 #include "processor_utils.h"
 
-processor::processor(memory_bus *pmb_in) : pmb(pmb_in)
+processor::processor(debug_console *pdc_in, memory_bus *pmb_in) : pdc(pdc_in), pmb(pmb_in)
 {
 	reset();
 }
@@ -91,7 +92,7 @@ void processor::tick()
 			break;
 
 		default:
-			fprintf(stderr, "tick: unsupported opcode %02x\n", opcode);
+			pdc -> log("tick: unsupported opcode %02x", opcode);
 			// throw invalid
 			break;
 	}
@@ -112,7 +113,7 @@ void processor::ipco(int opcode, int instruction)
 	int format = (instruction >> 21) & MASK_5B;
 	int function = instruction & MASK_6B;
 
-	fprintf(stderr, "IPCO(%d) format %d function %d\n", co_processor, format, function);
+	pdc -> log("IPCO(%d) format %d function %d", co_processor, format, function);
 }
 
 void processor::r_type(int opcode, int instruction) // SPECIAL
@@ -164,7 +165,7 @@ void processor::r_type(int opcode, int instruction) // SPECIAL
 			break;
 
 		case 0x0d:		// BREAK for debugging FIXME
-			fprintf(stderr, "BREAK\n");
+			pdc -> log("BREAK");
 			break;
 
 		case 0x10:		// MFHI
@@ -197,7 +198,7 @@ void processor::r_type(int opcode, int instruction) // SPECIAL
 
 		default:
 			// throw invalid
-			fprintf(stderr, "r-type unsupported function %02x\n", function);
+			pdc -> log("r-type unsupported function %02x", function);
 			break;
 	}
 }
@@ -225,7 +226,7 @@ void processor::i_type(int opcode, int instruction)
 			}
 			else
 			{
-				fprintf(stderr, "i-type, opcode 0x01, bgezal 0x%02x\n", bgezal);
+				pdc -> log("i-type, opcode 0x01, bgezal 0x%02x", bgezal);
 			}
 			break;
 			
@@ -247,7 +248,7 @@ void processor::i_type(int opcode, int instruction)
 
 		default:
 			// throw invalid
-			fprintf(stderr, "i-type unsupported function %02x\n", opcode);
+			pdc -> log("i-type unsupported function %02x", opcode);
 			break;
 	}
 }
@@ -280,7 +281,7 @@ void processor::special2(int opcode, int instruction)
 			break;
 
 		default:
-			fprintf(stderr, "special2 clo %02x not supported\n", clo);
+			pdc -> log("special2 clo %02x not supported", clo);
 			break;
 	}
 }

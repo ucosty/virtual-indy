@@ -1,23 +1,31 @@
+#ifndef __DEBUG_CONSOLE__H__
+#define __DEBUG_CONSOLE__H__
+
 #include <ncurses.h>
 
-#include "processor.h"
+class processor;
 
 typedef enum { C_WHITE = 0, C_GREEN, C_YELLOW, C_BLUE, C_MAGENTA, C_CYAN, C_RED } dc_color_t;
 
 class debug_console
 {
 private:
-	processor *p;
-	WINDOW *win;
+	WINDOW *win_regs, *win_logs;
 	int max_x, max_y;
+	bool nc;
 
-	void update_terminal();
 	void recreate_terminal();
 	void create_windows();
 
 public:
-	debug_console(processor *p_in);
-	~debug_console();
+	debug_console();
+	virtual ~debug_console();
 
-	void tick();
+	virtual void init();
+
+	virtual void tick(processor *p);
+
+	virtual void log(const char *fmt, ...);
 };
+
+#endif
