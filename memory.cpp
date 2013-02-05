@@ -8,6 +8,12 @@ memory::memory(int size) : len(size)
 	pm = new unsigned char[size];
 }
 
+memory::memory(unsigned char *p, int size) : pm(p), len(size)
+{
+	if (size < 0)
+		throw "memory::memory invalid size"; // format() met size er in FIXME
+}
+
 memory::~memory()
 {
 	delete [] pm;
