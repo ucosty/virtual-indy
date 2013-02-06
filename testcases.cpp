@@ -114,7 +114,21 @@ void test_count_leading()
 
 void test_rotate_right()
 {
-	// FIXME
+	int value = 2;
+	int n = 2; 
+	int width = 3;
+	int expected = 4;
+	int rc = rotate_right(value, n, width);
+	if (rc != expected)
+		error_exit("rotate_right: width %d, expected %x, got %x", width, expected, rc);
+
+	value = 0xdeadbeef;
+	n = 4;
+	width = 32;
+	expected = 0xfdeadbee;
+	rc = rotate_right(value, n, width);
+	if (rc != expected)
+		error_exit("rotate_right: width %d, expected %x, got %x", width, expected, rc);
 }
 
 void test_processor()

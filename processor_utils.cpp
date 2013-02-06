@@ -69,7 +69,6 @@ int count_leading_zeros(int n_bits, int value)
 int rotate_right(int value, int n, int width)
 {
 	assert(n >= 0 && n <= 64);
-	assert(width == 32 || width == 64);
 
 	int right_bits = value & MASK_N(n);
 
