@@ -467,6 +467,32 @@ void test_SRL()
 	free_system(mb, m1, m2, p);
 }
 
+void test_LUI()
+{
+	memory_bus *mb = NULL;
+	memory *m1 = NULL, *m2 = NULL;
+	processor *p = NULL;
+	create_system(&mb, &m1, &m2, &p);
+
+	p -> reset();
+
+	int rt = 4;
+	int function = 0x0f;
+	int immediate = 0xabcd;
+	int expected = immediate << 16;
+	int instr = make_cmd_I_TYPE(0, rt, function, immediate);
+
+	if (!m1 -> write_32b(0, instr))
+		error_exit("failed to write to memory @ 0");
+	p -> tick();
+
+	int rc = p -> get_register(rt);
+	if (rc != expected)
+		error_exit("LUI failed: expected %x got %x", expected, rc);
+
+	free_system(mb, m1, m2, p);
+}
+
 int main(int argc, char *argv[])
 {
 	test_untows_complement();
@@ -486,6 +512,8 @@ int main(int argc, char *argv[])
 	test_memory_bus();
 
 	test_processor();
+
+	test_LUI();
 
 	test_LW();
 
