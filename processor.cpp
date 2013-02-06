@@ -777,6 +777,8 @@ std::string processor::decode_to_text(int instruction)
 		{
 			int function = (instruction >> 21) & MASK_5B;
 			int sel = instruction & MASK_3B;
+			int rd = (instruction >> 11) & MASK_5B;
+			int rt = (instruction >> 16) & MASK_5B;
 
 			switch(function)
 			{
