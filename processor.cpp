@@ -59,11 +59,13 @@ void processor::tick()
 		case 0x07:
 		case 0x08:
 		case 0x09:
+		case 0x0a:
 		case 0x0b:
 		case 0x0c:
 		case 0x0d:
 		case 0x0e:
 		case 0x0f:
+		case 0x15:
 		case 0x20:
 		case 0x21:
 		case 0x23:
@@ -77,19 +79,11 @@ void processor::tick()
 			i_type(opcode, instruction);
 			break;
 
-		case 0x0a:
-			SLTI(instruction);
-			break;
-
 		case 0x10:		// co processor instructions
 		case 0x11:
 		case 0x12:
 		case 0x13:
 			ipco(opcode, instruction);
-			break;
-
-		case 0x15:
-			BNEL(instruction);
 			break;
 
 		case 0x1c:		// SPECIAL2
@@ -249,7 +243,6 @@ void processor::i_type(int opcode, int instruction)
 	int rs = (instruction >> 21) & MASK_5B;
 	int base = rs;
 	int rt = (instruction >> 16) & MASK_5B;
-	int regimm_func = rt;
 
 	int offset = immediate;
 	int offset_s = immediate_s;
@@ -266,16 +259,17 @@ void processor::i_type(int opcode, int instruction)
 		case 0x04:		// BEQ
 			if (registers[rs] == registers[rt])
 			{
-				int new_PC += b18_signed_offset;
+				int new_PC = PC + b18_signed_offset;
 				tick();
 				PC = new_PC;
 			}
 			break;
 
 		case 0x05:		// BNE
+		case 0x15:		// BNEL
 			if (registers[rs] != registers[rt])
 			{
-				int new_PC += b18_signed_offset;
+				int new_PC = PC + b18_signed_offset;
 				tick();
 				PC = new_PC;
 			}
@@ -283,6 +277,13 @@ void processor::i_type(int opcode, int instruction)
 
 		case 0x09:		// ADDIU
 			set_register(rt, registers[rs] + immediate_s);
+			break;
+
+		case 0x0a:		// SLTI
+			if (untwos_complement(registers[rs], 32) < untwos_complement(immediate, 16))
+				set_register(rt, 1);
+			else
+				set_register(rt, 0);
 			break;
 
 		case 0x0b:		// SLTIU
@@ -434,15 +435,12 @@ void processor::special2(int opcode, int instruction)
 void processor::regimm(int instruction)
 {
 	int immediate = instruction & MASK_16B;
-	int immediate_s = untwos_complement(immediate, 16);
 
 	int rs = (instruction >> 21) & MASK_5B;
-	int base = rs;
 	int rt = (instruction >> 16) & MASK_5B;
-	int regimm_func = rt;
+	int function = rt;
 
 	int offset = immediate;
-	int offset_s = immediate_s;
 	int b18_signed_offset = untwos_complement(offset << 2, 18);
 
 	switch(function)
@@ -467,25 +465,6 @@ void processor::regimm(int instruction)
 
 		default:
 			pdc -> log("i-type, opcode 0x01, REGIMM 0x%02x unknown", function);
-	}
-}
-
-void processor::BNEL(int instruction)
-{
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
-	int immediate = instruction & MASK_16B;
-
-	int offset = immediate << 2;
-	int b18_signed_offset = untwos_complement(offset, 18);
-
-	if (rt != rs)
-	{
-		int new_PC = PC + b18_signed_offset;
-
-		tick();
-
-		PC = new_PC;
 	}
 }
 
@@ -531,19 +510,6 @@ void processor::special3(int opcode, int instruction)
 			pdc -> log("special3 function %02x not supported", function);
 			break;
 	}
-}
-
-void processor::SLTI(int instruction)
-{
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
-	int immediate = instruction & MASK_16B;
-
-	// FIXME use register as 32B?
-	if (untwos_complement(registers[rs], 32) < untwos_complement(immediate, 16))
-		set_register(rt, 1);
-	else
-		set_register(rt, 0);
 }
 
 const char * processor::reg_to_name(int reg)
@@ -720,7 +686,6 @@ std::string processor::decode_to_text(int instr)
 		int immediate_s = untwos_complement(immediate, 16);
 
 		int rs = (instr >> 21) & MASK_5B;
-		int base = rs;
 		int rt = (instr >> 16) & MASK_5B;
 
 		switch(opcode)

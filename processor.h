@@ -33,8 +33,8 @@ private:
 	void special3(int opcode, int instruction);
 	void ipco(int opcode, int instruction);
 	// not in a group? FIXME
-	void BNEL(int instruction);
 	void SLTI(int instruction);
+	void regimm(int instruction);
 
 public:
 	processor(debug_console *pdc_in, memory_bus *pmb_in);
