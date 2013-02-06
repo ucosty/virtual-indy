@@ -29,10 +29,11 @@ int count_leading_ones(int n_bits, int value)
 	assert(n_bits >= 1 && n_bits <= 64);
 
 	int n_bits_1 = 0;
+	int mask = 1 << (n_bits - 1);
 
 	for(int nr=0; nr<n_bits; nr++)
 	{
-		if (!(value & 0x80000000))
+		if (!(value & mask))
 			break;
 
 		n_bits_1++;
@@ -48,10 +49,11 @@ int count_leading_zeros(int n_bits, int value)
 	assert(n_bits >= 1 && n_bits <= 64);
 
 	int n_bits_0 = 0;
+	int mask = 1 << (n_bits - 1);
 
 	for(int nr=0; nr<n_bits; nr++)
 	{
-		if (value & 0x80000000)
+		if (value & mask)
 			break;
 
 		n_bits_0++;
