@@ -423,7 +423,7 @@ void test_SLL()
 
 	int expected = input_val << sa;
 	if (temp_32b != expected)
-		error_exit("SRL: rd (%d) != %d", temp_32b, expected);
+		error_exit("SLL: rd (%d) != %d", temp_32b, expected);
 
 	free_system(mb, m1, m2, p);
 }
