@@ -783,7 +783,7 @@ std::string processor::decode_to_text(int instruction)
 			switch(function)
 			{
 				case 4:
-					return format("MTC0 %s,%s,%d", reg_to_name(rt), reg_to_name(rd), sel);
+					return format("MTC0 %s,%d,%d", reg_to_name(rt), rd, sel);
 				default:
 					return format("COP0_0/%02x", function);
 			}
