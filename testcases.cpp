@@ -149,7 +149,7 @@ void test_processor()
 	if (p -> get_PC() != 4)
 		error_exit("failed: pc != 4 after 1 tick");
 
-	for(int reg=0; reg<32; reg++)
+	for(int reg=1; reg<32; reg++)
 		p -> set_register(reg, cmp_val);
 
 	p -> reset();
@@ -160,15 +160,19 @@ void test_processor()
 			error_exit("register %d has a value after a reset", reg);
 	}
 
-	for(int reg=0; reg<32; reg++)
+	for(int reg=1; reg<32; reg++)
 		p -> set_register(reg, cmp_val);
 
-	for(int reg=0; reg<32; reg++)
+	for(int reg=1; reg<32; reg++)
 	{
 		int val = p -> get_register(reg);
 		if (val != cmp_val)
 			error_exit("register %d has invalid value %x", val);
 	}
+
+	p -> set_register(0, cmp_val);
+	if (p -> get_register(0))
+		error_exit("register 0 changed value!");
 
 	free_system(mb, m1, m2, p);
 }

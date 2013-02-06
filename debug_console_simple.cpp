@@ -27,4 +27,6 @@ void debug_console_simple::log(const char *fmt, ...)
 	va_start(ap, fmt);
 	vprintf(fmt, ap);
 	va_end(ap);
+
+	printf("\n");
 }

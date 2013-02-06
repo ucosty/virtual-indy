@@ -111,7 +111,7 @@ void processor::j_type(int opcode, int instruction)
 	ASSERT(opcode == 2 || opcode == 3);
 
 	if (opcode == 3)	// JAL
-		registers[31] = PC;
+		set_register(31, PC);
 
 	// FIXME shift 2 bits?
 	PC = (instruction & MASK_26B) | (PC & 0x3c); // FIXME alignment test?
@@ -138,29 +138,29 @@ void processor::r_type(int opcode, int instruction) // SPECIAL
 	{
 		case 0x00:		// NOP / SLL
 			if (sa) // if sa==0 then NOP
-				registers[rd] = registers[rt] << sa;
+				set_register(rd, registers[rt] << sa);
 			break;
 
 		case 0x02:		// SRL / ROTR
 			if (IS_BIT_OFF0_SET(21, instruction))
-				registers[rd] = rotate_right(registers[rt] & MASK_32B, sa, 32);
+				set_register(rd, rotate_right(registers[rt] & MASK_32B, sa, 32));
 			else
-				registers[rd] = (registers[rt] & MASK_32B) >> sa;
+				set_register(rd, (registers[rt] & MASK_32B) >> sa);
 			break;
 
 		case 0x03:		// SRA
-			registers[rd] = sign_extend(registers[rt] >> sa, 32 - sa);
+			set_register(rd, sign_extend(registers[rt] >> sa, 32 - sa));
 			break;
 
 		case 0x04:		// SLLV
-			registers[rd] = registers[rt] << sa;
+			set_register(rd, registers[rt] << sa);
 			break;
 
 		case 0x06:		// SRLV / ROTRV
 			if (IS_BIT_OFF0_SET(21, instruction))
-				registers[rd] = rotate_right(registers[rt] & MASK_32B, registers[rs] & MASK_5B, 32);
+				set_register(rd, rotate_right(registers[rt] & MASK_32B, registers[rs] & MASK_5B, 32));
 			else
-				registers[rd] = (registers[rt] & MASK_32B) >> (registers[rs] & MASK_5B);
+				set_register(rd, (registers[rt] & MASK_32B) >> (registers[rs] & MASK_5B));
 			break;
 
 		case 0x08:		// JR
@@ -170,18 +170,18 @@ void processor::r_type(int opcode, int instruction) // SPECIAL
 
 		case 0x09:		// JALR
 			tick();
-			registers[rd] = PC + 4;
+			set_register(rd, PC + 4);
 			PC = registers[rs];
 			break;
 
 		case 0x0a:		// MOVZ
 			if (registers[rt] == 0)
-				registers[rd] = registers[rs];
+				set_register(rd, registers[rs]);
 			break;
 
 		case 0x0b:		// MOVN
 			if (registers[rt])
-				registers[rd] = registers[rs];
+				set_register(rd, registers[rs]);
 			break;
 
 		case 0x0d:		// BREAK for debugging FIXME
@@ -189,7 +189,7 @@ void processor::r_type(int opcode, int instruction) // SPECIAL
 			break;
 
 		case 0x10:		// MFHI
-			registers[rd] = HI;
+			set_register(rd, HI);
 			break;
 
 		case 0x11:		// MTHI
@@ -197,7 +197,7 @@ void processor::r_type(int opcode, int instruction) // SPECIAL
 			break;
 
 		case 0x12:		// MFLO
-			registers[rd] = LO;
+			set_register(rd, LO);
 			break;
 
 		case 0x13:		// MTLO
@@ -205,29 +205,29 @@ void processor::r_type(int opcode, int instruction) // SPECIAL
 			break;
 
 		case 0x24:		// AND
-			registers[rd] = registers[rs] & registers[rt];
+			set_register(rd, registers[rs] & registers[rt]);
 			break;
 
 		case 0x25:		// OR
-			registers[rd] = registers[rs] | registers[rt];
+			set_register(rd, registers[rs] | registers[rt]);
 			break;
 
 		case 0x26:		// XOR
-			registers[rd] = registers[rs] ^ registers[rt];
+			set_register(rd, registers[rs] ^ registers[rt]);
 			break;
 
 		case 0x2a:		// SLT
 			if (untwos_complement(registers[rs], 32) < untwos_complement(registers[rt], 32))
-				registers[rd] = 1;
+				set_register(rd, 1);
 			else
-				registers[rd] = 0;
+				set_register(rd, 0);
 			break;
 
 		case 0x2b:		// SLTU
 			if (registers[rs] < registers[rt])
-				registers[rd] = 1;
+				set_register(rd, 1);
 			else
-				registers[rd] = 0;
+				set_register(rd, 0);
 			break;
 
 		default:
@@ -259,7 +259,7 @@ void processor::i_type(int opcode, int instruction)
 		case 0x01:		// BAL
 			if (bgezal == 0x10)
 			{
-				registers[31] = PC + 4;
+				set_register(31, PC + 4);
 
 				PC += b18_signed_offset;
 			}
@@ -279,30 +279,30 @@ void processor::i_type(int opcode, int instruction)
 			break;
 
 		case 0x09:		// ADDIU
-			registers[rt] = registers[rs] + immediate_s;
+			set_register(rt, registers[rs] + immediate_s);
 			break;
 
 		case 0x0b:		// SLTIU
 			if (registers[rs] < sign_extend_16b(immediate))
-				registers[rt] = 1;
+				set_register(rt, 1);
 			else
-				registers[rt] = 0;
+				set_register(rt, 0);
 			break;
 
 		case 0x0c:		// ANDI
-			registers[rt] = registers[rs] & immediate;
+			set_register(rt, registers[rs] & immediate);
 			break;
 
 		case 0x0d:		// ORI
-			registers[rt] = registers[rs] | immediate;
+			set_register(rt, registers[rs] | immediate);
 			break;
 
 		case 0x0e:		// XORI
-			registers[rt] = registers[rs] ^ immediate;
+			set_register(rt, registers[rs] ^ immediate);
 			break;
 
 		case 0x0f:		// LUI
-			registers[rt] = immediate << 16;
+			set_register(rt, immediate << 16);
 			break;
 
 		case 0x20:		// LB
@@ -311,9 +311,9 @@ void processor::i_type(int opcode, int instruction)
 			if (!pmb -> read_8b(address, &temp_32b))
 				pdc -> log("i-type read 8b from %08x failed", address);
 			if (opcode == 0x24)
-				registers[rt] = temp_32b;
+				set_register(rt, temp_32b);
 			else
-				registers[rt] = sign_extend_8b(temp_32b);
+				set_register(rt, sign_extend_8b(temp_32b));
 			break;
 
 		case 0x21:		// LH
@@ -329,9 +329,9 @@ void processor::i_type(int opcode, int instruction)
 				if (!pmb -> read_16b(address, &temp_32b))
 					pdc -> log("i-type read 16b from %08x failed", address);
 				if (opcode == 0x25)
-					registers[rt] = temp_32b;
+					set_register(rt, temp_32b);
 				else
-					registers[rt] = sign_extend_16b(temp_32b);
+					set_register(rt, sign_extend_16b(temp_32b));
 			}
 			break;
 
@@ -347,7 +347,7 @@ void processor::i_type(int opcode, int instruction)
 			{
 				if (!pmb -> read_32b(address, &temp_32b))
 					pdc -> log("i-type read 32b from %08x failed", address);
-				registers[rt] = temp_32b;
+				set_register(rt, temp_32b);
 			}
 			break;
 
@@ -408,17 +408,17 @@ void processor::special2(int opcode, int instruction)
 	{
 		case 0x02:		// MUL
 			temp_64b = int(registers[rs]) * int(registers[rt]);
-			registers[rd] = temp_64b & MASK_32B;
+			set_register(rd, temp_64b & MASK_32B);
 			// LO/HI are said to be unpredictable after this command
 			break;
 
 		case 0x1C:		// CLZ
-			registers[rd] = count_leading_zeros(32, registers[rs]);
+			set_register(rd, count_leading_zeros(32, registers[rs]));
 			// FIXME also in rt?
 			break;
 
 		case 0x21:		// CLO
-			registers[rd] = count_leading_ones(32, registers[rs]);
+			set_register(rd, count_leading_ones(32, registers[rs]));
 			// FIXME also in rt?
 			break;
 
@@ -449,16 +449,19 @@ void processor::BNEL(int instruction)
 
 int processor::get_register(int nr) const
 {
-	ASSERT(nr >=0 && nr <= 31);
+	ASSERT(nr >= 0 && nr <= 31);
 
 	return registers[nr];
 }
 
 void processor::set_register(int nr, int value)
 {
-	ASSERT(nr >=0 && nr <= 31);
+	ASSERT(nr >= 0 && nr <= 31);
 
-	registers[nr] = value;
+	if (nr == 0)
+		pdc -> log("trying to alter register 0! (%d)", nr);
+	else
+		registers[nr] = value;
 }
 
 bool processor::get_mem_32b(int offset, int *value) const
@@ -477,9 +480,9 @@ void processor::special3(int opcode, int instruction)
 	{
 		case 0x20:
 			if (sub_function == 0x18)	// SEH
-				registers[rt] = sign_extend_16b(registers[rd] & MASK_16B);
+				set_register(rt, sign_extend_16b(registers[rd] & MASK_16B));
 			else if (sub_function == 0x10)	// SEB
-				registers[rt] = sign_extend_8b(registers[rd] & MASK_8B);
+				set_register(rt, sign_extend_8b(registers[rd] & MASK_8B));
 			break;
 
 		default:
@@ -496,9 +499,9 @@ void processor::SLTI(int instruction)
 
 	// FIXME use register as 32B?
 	if (untwos_complement(registers[rs], 32) < untwos_complement(immediate, 16))
-		registers[rt] = 1;
+		set_register(rt, 1);
 	else
-		registers[rt] = 0;
+		set_register(rt, 0);
 }
 
 const char * processor::register_to_name(int reg)
