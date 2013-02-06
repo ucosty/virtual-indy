@@ -114,8 +114,11 @@ void processor::j_type(int opcode, int instruction)
 	if (opcode == 3)	// JAL
 		set_register(31, PC);
 
-	// FIXME shift 2 bits?
-	PC = (instruction & MASK_26B) | (PC & 0x3c); // FIXME alignment test?
+	int new_PC = ((instruction & MASK_26B) << 2) | (PC & 0xFC000000);
+
+	tick(); // delay slot
+
+	PC = new_PC;
 }
 
 void processor::ipco(int opcode, int instruction)
@@ -246,37 +249,36 @@ void processor::i_type(int opcode, int instruction)
 	int rs = (instruction >> 21) & MASK_5B;
 	int base = rs;
 	int rt = (instruction >> 16) & MASK_5B;
+	int regimm_func = rt;
 
 	int offset = immediate;
 	int offset_s = immediate_s;
 	int b18_signed_offset = untwos_complement(offset << 2, 18);
 
-	int bgezal = (instruction >> 16) & MASK_5B;
-
 	int temp_32b = -1, address = -1;
 
 	switch(opcode)
 	{
-		case 0x01:		// BAL
-			if (bgezal == 0x10)
-			{
-				set_register(31, PC + 4);
-
-				PC += b18_signed_offset;
-			}
-			else
-			{
-				pdc -> log("i-type, opcode 0x01, bgezal 0x%02x", bgezal);
-			}
+		case 0x01:		// BGEZAL
+			regimm(instruction);
 			break;
 			
 		case 0x04:		// BEQ
-			PC += b18_signed_offset;
+			if (registers[rs] == registers[rt])
+			{
+				int new_PC += b18_signed_offset;
+				tick();
+				PC = new_PC;
+			}
 			break;
 
 		case 0x05:		// BNE
 			if (registers[rs] != registers[rt])
-				PC += b18_signed_offset;
+			{
+				int new_PC += b18_signed_offset;
+				tick();
+				PC = new_PC;
+			}
 			break;
 
 		case 0x09:		// ADDIU
@@ -426,6 +428,45 @@ void processor::special2(int opcode, int instruction)
 		default:
 			pdc -> log("special2 clo %02x not supported", clo);
 			break;
+	}
+}
+
+void processor::regimm(int instruction)
+{
+	int immediate = instruction & MASK_16B;
+	int immediate_s = untwos_complement(immediate, 16);
+
+	int rs = (instruction >> 21) & MASK_5B;
+	int base = rs;
+	int rt = (instruction >> 16) & MASK_5B;
+	int regimm_func = rt;
+
+	int offset = immediate;
+	int offset_s = immediate_s;
+	int b18_signed_offset = untwos_complement(offset << 2, 18);
+
+	switch(function)
+	{
+		case 0x01:		// BGEZ
+		case 0x03:		// BGEZL
+			if (untwos_complement(registers[rs], 16) >= 0)
+				PC += b18_signed_offset;
+			break;
+
+		case 0x11:		// BAL / BGEZAL
+		case 0x13:		// BGEZALL
+			if (rs == 31)
+				pdc -> log("i-type / REGIMM / BGEZ using rs 31");
+			if (untwos_complement(registers[rs], 16) >= 0)
+			{
+				set_register(31, PC + 4);
+
+				PC += b18_signed_offset;
+			}
+			break;
+
+		default:
+			pdc -> log("i-type, opcode 0x01, REGIMM 0x%02x unknown", function);
 	}
 }
 
@@ -596,74 +637,82 @@ std::string processor::decode_to_text(int instr)
 		{
 			case 0x00:
 				if (sa == 0)
-					return "nop";
+					return "NOP";
 
-				return format("sll %s,%s,%d", reg_to_name(rd), reg_to_name(rt), sa);
+				return format("SLL %s,%s,%d", reg_to_name(rd), reg_to_name(rt), sa);
 
 			case 0x02:
-				return "SRL";
+				if ((rs & 1) == 0)
+					return format("SRL %s,%s,%d", reg_to_name(rd), reg_to_name(rt), sa);
+				else
+					return "SRL?";
 			case 0x03:
-				return "SRA";
+				if ((rs & 1) == 0)
+					return format("SRA %s,%s,%d", reg_to_name(rd), reg_to_name(rt), sa);
+				else
+					return "SRA?";
 			case 0x04:
-				return "SLLV";
+				return format("SLLV %s,%s,%d", reg_to_name(rd), reg_to_name(rt), reg_to_name(rs));
 			case 0x06:
-				return "SRLV";
+				return format("SRLV %s,%s,%d", reg_to_name(rd), reg_to_name(rt), reg_to_name(rs));
 			case 0x07:
-				return "SRAV";
+				return format("SRLV %s,%s,%d", reg_to_name(rd), reg_to_name(rt), reg_to_name(rs));
 			case 0x08:
-				return format("jr %s", reg_to_name(rs));
+				return format("JR %s", reg_to_name(rs));
 			case 0x09:
-				return "JALR";
+				return format("JALR %s,%s", reg_to_name(rd), reg_to_name(rs));
 			case 0x0c:
 				return "SYSCALL";
 			case 0x0d:
 				return "BREAK";
 			case 0x10:
-				return "MFHI";
+				return format("MFHI %s", reg_to_name(rd));
 			case 0x11:
-				return "MTHI";
+				return format("MTHI %s", reg_to_name(rs));
 			case 0x12:
-				return "MFLO";
+				return format("MFLO %s", reg_to_name(rd));
 			case 0x13:
-				return "MTLO";
+				return format("MTLO %s", reg_to_name(rs));
 			case 0x18:
-				return "MULT";
+				return format("MULT %s,%s", reg_to_name(rs), reg_to_name(rt));
 			case 0x19:
-				return "MULTU";
+				return format("MULTU %s,%s", reg_to_name(rs), reg_to_name(rt));
 			case 0x1a:
-				return "DIV";
+				return format("DIV %s,%s", reg_to_name(rs), reg_to_name(rt));
 			case 0x1b:
-				return "DIVU";
+				return format("DIVU %s,%s", reg_to_name(rs), reg_to_name(rt));
 			case 0x20:
-				return format("add %s,%s,%s", reg_to_name(rd), reg_to_name(rs), reg_to_name(rt));
+				return format("ADD %s,%s,%s", reg_to_name(rd), reg_to_name(rs), reg_to_name(rt));
 			case 0x21:
-				return "ADDU";
+				return format("ADDU %s,%s,%s", reg_to_name(rd), reg_to_name(rs), reg_to_name(rt));
 			case 0x22:
-				return "SUB";
+				return format("SUB %s,%s,%s", reg_to_name(rd), reg_to_name(rs), reg_to_name(rt));
 			case 0x23:
-				return "SUBU";
+				return format("SUBU %s,%s,%s", reg_to_name(rd), reg_to_name(rs), reg_to_name(rt));
 			case 0x24:
-				return "AND";
+				return format("AND %s,%s,%s", reg_to_name(rd), reg_to_name(rs), reg_to_name(rt));
 			case 0x25:
-				return "OR";
+				return format("OR %s,%s,%s", reg_to_name(rd), reg_to_name(rs), reg_to_name(rt));
 			case 0x26:
-				return "XOR";
+				return format("XOR %s,%s,%s", reg_to_name(rd), reg_to_name(rs), reg_to_name(rt));
 			case 0x27:
-				return "NOR";
+				return format("NOR %s,%s,%s", reg_to_name(rd), reg_to_name(rs), reg_to_name(rt));
 			case 0x2a:
-				return "SLT";
+				return format("SLT %s,%s,%s", reg_to_name(rd), reg_to_name(rs), reg_to_name(rt));
 			case 0x2b:
-				return "SLTU";
+				return format("SLTU %s,%s,%s", reg_to_name(rd), reg_to_name(rs), reg_to_name(rt));
 			default:
 				return "R/???";
 		}
 	}
 	else if (opcode == 2 || opcode == 3)	// J-type
 	{
-		if (opcode == 2)
-			return "J";
+		int offset = (instr & MASK_26B) << 2;
 
-		return "JAL";
+		if (opcode == 2)
+			format("J 0x%08x", offset);
+
+		return format("JAL 0x%08x", offset);
 	}
 	else if (opcode != 16 && opcode != 17 && opcode != 18 && opcode != 19) // I-type
 	{
@@ -679,45 +728,45 @@ std::string processor::decode_to_text(int instr)
 			case 0x01:
 				return "BLTZ/BGEZ";
 			case 0x04:
-				return "BEQ";
+				return format("BEQ %s,%s,%d", reg_to_name(rs), reg_to_name(rt), immediate_s);
 			case 0x05:
-				return "BNE";
+				return format("BNE %s,%s,%d", reg_to_name(rs), reg_to_name(rt), immediate_s);
 			case 0x06:
-				return "BLEZ";
+				return format("BLEZ %s,%d", reg_to_name(rs), immediate_s);
 			case 0x07:
-				return "BGTZ";
+				return format("BGTZ %s,%d", reg_to_name(rs), immediate_s);
 			case 0x08:
-				return "ADDI";
+				return format("ADDI %s,%s,%d", reg_to_name(rt), reg_to_name(rs), immediate_s);
 			case 0x09:
-				return "ADDIU";
+				return format("ADDIU %s,%s,%d", reg_to_name(rt), reg_to_name(rs), immediate_s);
 			case 0x0a:
-				return "SLTI";
+				return format("SLTI %s,%s,%d", reg_to_name(rt), reg_to_name(rs), immediate_s);
 			case 0x0b:
-				return "SLTIU";
+				return format("SLTIU %s,%s,%d", reg_to_name(rt), reg_to_name(rs), immediate_s);
 			case 0x0c:
-				return "ANDI";
+				return format("ANDI %s,%s,%d", reg_to_name(rt), reg_to_name(rs), immediate_s);
 			case 0x0d:
-				return "ORI";
+				return format("ORI %s,%s,%d", reg_to_name(rt), reg_to_name(rs), immediate_s);
 			case 0x0e:
-				return "XORI";
+				return format("XORI %s,%s,%d", reg_to_name(rt), reg_to_name(rs), immediate_s);
 			case 0x0f:
-				return format("lui %s, 0x%08x", reg_to_name(rt), immediate << 16);
+				return format("LUI %s, 0x%08x", reg_to_name(rt), immediate << 16);
 			case 0x20:
-				return "LB";
+				return format("LB %s, %d(%s)", reg_to_name(rt), immediate_s, reg_to_name(rs));
 			case 0x21:
-				return "LH";
+				return format("LH %s, %d(%s)", reg_to_name(rt), immediate_s, reg_to_name(rs));
 			case 0x23:
-				return format("lw %s, %d(%s)", reg_to_name(rt), immediate_s, reg_to_name(rs));
+				return format("LW %s, %d(%s)", reg_to_name(rt), immediate_s, reg_to_name(rs));
 			case 0x24:
-				return "LBU";
+				return format("LBU %s, %d(%s)", reg_to_name(rt), immediate_s, reg_to_name(rs));
 			case 0x25:
-				return "LHU";
+				return format("LHU %s, %d(%s)", reg_to_name(rt), immediate_s, reg_to_name(rs));
 			case 0x28:
-				return "SB";
+				return format("SB %d(%s), %s", immediate_s, reg_to_name(rs), reg_to_name(rt));
 			case 0x29:
-				return "SH";
+				return format("SH %d(%s), %s", immediate_s, reg_to_name(rs), reg_to_name(rt));
 			case 0x2b:
-				return format("sw %d(%s), %s", immediate_s, reg_to_name(rs), reg_to_name(rt));
+				return format("SW %d(%s), %s", immediate_s, reg_to_name(rs), reg_to_name(rt));
 			case 0x31:
 				return "LWCL";
 			case 0x39:
