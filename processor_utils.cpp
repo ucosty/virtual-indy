@@ -9,7 +9,7 @@ int untwos_complement(int value, int bits)
 	int sign_bit = 1 << (bits - 1);
 
 	if (value & sign_bit)
-		return -((1ll << bits) - value);
+		return -((1ll << bits) - value); // FIXME fails with 64 bit?
 
 	return value;
 }
@@ -69,6 +69,7 @@ int count_leading_zeros(int n_bits, int value)
 int rotate_right(int value, int n, int width)
 {
 	assert(n >= 0 && n <= 64);
+	assert(width >= 0 && width <= 64);
 
 	int right_bits = value & MASK_N(n);
 
@@ -81,6 +82,8 @@ int rotate_right(int value, int n, int width)
 
 int sign_extend_8b(int value)
 {
+	assert(value >= 0 && value <= 255);
+
 	if (value & 128)
 		return value | 0xffffff00;
 
@@ -89,6 +92,8 @@ int sign_extend_8b(int value)
 
 int sign_extend_16b(int value)
 {
+	assert(value >= 0 && value <= 65535);
+
 	if (value & 32768)
 		return value | 0xffff0000;
 
@@ -97,6 +102,8 @@ int sign_extend_16b(int value)
 
 int sign_extend(int value, int bits)
 {
+	assert(bits >= 1 && bits <= 64);
+
 	int mask = 1 << (bits - 1);
 
 	if (value & mask)
