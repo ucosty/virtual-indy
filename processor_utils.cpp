@@ -21,7 +21,9 @@ int twos_complement(int value, int bits)
 	if (value >= 0)
 		return value;
 
-	return ((value ^ MASK_32B) + 1) & MASK_32B;
+	int mask = MASK_N(bits);
+
+	return value & mask;
 }
 
 int count_leading_ones(int n_bits, int value)

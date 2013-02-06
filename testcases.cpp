@@ -41,6 +41,42 @@ void free_system(memory_bus *mb, memory *m1, memory *m2, processor *p)
 	delete m1;
 }
 
+void test_make_instruction()
+{
+	int rs = 13;
+	int rt = 4;
+	int function = 0x31;
+	int immediate = 0xabcd;
+
+	int expected = function << 26 |
+			rs << 21 |
+			rt << 16 |
+			immediate;
+	int rc = make_cmd_I_TYPE(rs, rt, function, immediate);
+	if (rc != expected)
+		error_exit("i-type failed: expected %x, got %x", expected, rc);
+
+	int address = 0x3FFFFFE;
+	function = 0x2;
+	expected = function << 26 | address;
+
+	rc = make_cmd_J_TYPE(function, address);
+	if (rc != expected)
+		error_exit("j-type failed: expected %x, got %x", expected, rc);
+
+	int rd = 31;
+	int sa = 17;
+	int extra = rs;
+	expected = extra << 21 |
+			rt << 16 |
+			rd << 11 |
+			sa << 6 |
+			function;
+	rc = make_cmd_SPECIAL(rt, rd, sa, function, extra); // R-type
+	if (rc != expected)
+		error_exit("r-type failed: expected %x, got %x", expected, rc);
+}
+
 void test_count_leading()
 {
 	// one
@@ -178,6 +214,28 @@ void test_memory_bus()
 		error_exit("failed: segment selection failure");
 
 	free_system(mb, m1, m2, p);
+}
+
+void test_twos_complement()
+{
+	int value = -1, bits = 8, expected = 255;
+	int rc = twos_complement(value, bits);
+	if (rc != expected)
+		error_exit("failed: twos_complement for -1/8, expected %d got %d", expected, rc);
+
+	value = -1;
+	bits = 5;
+	expected = 31;
+	rc = twos_complement(value, bits);
+	if (rc != expected)
+		error_exit("failed: twos_complement for -1/5, expected %d got %d", expected, rc);
+
+	value = 1;
+	bits = 16;
+	expected = 1;
+	rc = twos_complement(value, bits);
+	if (rc != expected)
+		error_exit("failed: twos_complement for -1/16, expected %d got %d", expected, rc);
 }
 
 void test_untows_complement()
@@ -394,23 +452,25 @@ int main(int argc, char *argv[])
 {
 	test_untows_complement();
 
+	test_twos_complement();
+
 	test_sign_extend();
 
 	test_count_leading();
 
-	test_processor();
+	test_make_instruction();
 
 	test_memory();
 
 	test_memory_bus();
+
+	test_processor();
 
 	test_LW();
 
 	test_SLL();
 
 	test_SRL();
-
-// TODO: make_(instruction)
 
 	printf("all fine\n");
 
