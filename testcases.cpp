@@ -5,6 +5,41 @@
 #include "processor.h"
 #include "processor_utils.h"
 
+void test_count_leading()
+{
+	// one
+	int value = 15, expected = 0;
+	int rc = count_leading_ones(32, value);
+	if (rc != expected)
+		error_exit("count_leading_ones failed (1), expecting %d, got %d", expected, rc);
+
+	expected = 4;
+	rc = count_leading_ones(4, value);
+	if (rc != expected)
+		error_exit("count_leading_ones failed (2), expecting %d, got %d", expected, rc);
+
+	expected = 0;
+	rc = count_leading_ones(5, value);
+	if (rc != expected)
+		error_exit("count_leading_ones failed (3), expecting %d, got %d", expected, rc);
+
+	// zero
+	value = 15, expected = 28;
+	rc = count_leading_zeros(32, value);
+	if (rc != expected)
+		error_exit("count_leading_zeros failed (1), expecting %d, got %d", expected, rc);
+
+	expected = 0;
+	rc = count_leading_zeros(4, value);
+	if (rc != expected)
+		error_exit("count_leading_zeros failed (2), expecting %d, got %d", expected, rc);
+
+	expected = 0;
+	rc = count_leading_zeros(3, value);
+	if (rc != expected)
+		error_exit("count_leading_zeros failed (3), expecting %d, got %d", expected, rc);
+}
+
 void test_processor(processor *p)
 {
 	int cmp_val = 0xdeafbeef;
@@ -295,15 +330,17 @@ int main(int argc, char *argv[])
 
 	processor *p = new processor(dc, mb);
 
+	test_untows_complement();
+
+	test_sign_extend();
+
+	test_count_leading();
+
 	test_processor(p);
 
 	test_memory(m, mem_size);
 
 	test_memory_bus(mb, o1, o2);
-
-	test_untows_complement();
-
-	test_sign_extend();
 
 	test_LW(m, p);
 
@@ -311,7 +348,7 @@ int main(int argc, char *argv[])
 
 	test_SRL(m, p);
 
-// TODO: count_leading_ones, make_(instruction)
+// TODO: make_(instruction)
 
 	delete p;
 	delete mb;
