@@ -5,6 +5,42 @@
 #include "processor.h"
 #include "processor_utils.h"
 
+debug_console *dc = new debug_console_simple();
+
+void create_system(memory_bus **mb, memory **m1, memory **m2, processor **p, int *m1s = NULL, int *m2s = NULL, int *po1 = NULL, int *po2 = NULL)
+{
+	*mb = new memory_bus();
+
+	int mem_size1 = 0x100000; // FIXME verify power2
+	*m1 = new memory(mem_size1, true);
+	int o1 = 0;
+	(*mb) -> register_memory(o1, mem_size1 - 1, *m1);
+
+	int mem_size2 = 0x200; // verify power2
+	*m2 = new memory(mem_size2, true);
+	int o2 = 0xf00000;
+	(*mb) -> register_memory(o2, mem_size2 - 1, *m2);
+
+	*p = new processor(dc, *mb);
+
+	if (m1s)
+		*m1s = mem_size1;
+	if (m2s)
+		*m2s = mem_size2;
+	if (po1)
+		*po1 = o1;
+	if (po2)
+		*po2 = o2;
+}
+
+void free_system(memory_bus *mb, memory *m1, memory *m2, processor *p)
+{
+	delete p;
+	delete mb;
+	delete m2;
+	delete m1;
+}
+
 void test_count_leading()
 {
 	// one
@@ -40,8 +76,13 @@ void test_count_leading()
 		error_exit("count_leading_zeros failed (3), expecting %d, got %d", expected, rc);
 }
 
-void test_processor(processor *p)
+void test_processor()
 {
+	memory_bus *mb = NULL;
+	memory *m1 = NULL, *m2 = NULL;
+	processor *p = NULL;
+	create_system(&mb, &m1, &m2, &p);
+
 	int cmp_val = 0xdeafbeef;
 
 	p -> reset();
@@ -73,37 +114,53 @@ void test_processor(processor *p)
 		if (val != cmp_val)
 			error_exit("register %d has invalid value %x", val);
 	}
+
+	free_system(mb, m1, m2, p);
 }
 
-void test_memory(memory *m, int size)
+void test_memory()
 {
+	memory_bus *mb = NULL;
+	memory *m1 = NULL, *m2 = NULL;
+	processor *p = NULL;
+	int size = -1;
+	create_system(&mb, &m1, &m2, &p, &size);
+
 	int value = 0x12345678;
-	if (m -> write_32b(-1, value))
+	if (m1 -> write_32b(-1, value))
 		error_exit("failed: write to negative address");
 
-	if (m -> write_32b(size - 1, value))
+	if (m1 -> write_32b(size - 1, value))
 		error_exit("failed: write to over maximum size");
 
 	int address = 8;
-	if (!m -> write_32b(address, value))
+	if (!m1 -> write_32b(address, value))
 		error_exit("failed to write");
 
 	int temp_32b = -1;
-	if (m -> read_32b(-1, &temp_32b))
+	if (m1 -> read_32b(-1, &temp_32b))
 		error_exit("failed: read from negative address");
 
-	if (m -> read_32b(size - 1, &temp_32b))
+	if (m1 -> read_32b(size - 1, &temp_32b))
 		error_exit("failed: read from over maximum size");
 
-	if (!m -> read_32b(address, &temp_32b))
+	if (!m1 -> read_32b(address, &temp_32b))
 		error_exit("failed to read");
 
 	if (temp_32b != value)
 		error_exit("failed to verify data");
+
+	free_system(mb, m1, m2, p);
 }
 
-void test_memory_bus(memory_bus *mb, int o1, int o2)
+void test_memory_bus()
 {
+	memory_bus *mb = NULL;
+	memory *m1 = NULL, *m2 = NULL;
+	processor *p = NULL;
+	int o1 = -1, o2 = -1, dummy = -2;
+	create_system(&mb, &m1, &m2, &p, &dummy, &dummy, &o1, &o2);
+
 	int value = 0x11223344;
 	if (!mb -> write_32b(o1, value))
 		error_exit("failed to write via bus");
@@ -119,6 +176,8 @@ void test_memory_bus(memory_bus *mb, int o1, int o2)
 
 	if (temp_32b == value)
 		error_exit("failed: segment selection failure");
+
+	free_system(mb, m1, m2, p);
 }
 
 void test_untows_complement()
@@ -172,8 +231,13 @@ void test_sign_extend()
 		error_exit("sign_extend mismatch (%x / %x)", cmp, rc);
 }
 
-void test_LW(memory *m, processor *p)
+void test_LW()
 {
+	memory_bus *mb = NULL;
+	memory *m1 = NULL, *m2 = NULL;
+	processor *p = NULL;
+	create_system(&mb, &m1, &m2, &p);
+
 	// unsigned offset
 	{
 		p -> reset();
@@ -189,13 +253,13 @@ void test_LW(memory *m, processor *p)
 		int function = 0x23;	// LW
 
 		int instr = make_cmd_I_TYPE(base, rt, function, offset);
-		if (!m -> write_32b(0, instr))
+		if (!m1 -> write_32b(0, instr))
 			error_exit("LW: failed to write to offset 0 in memory");
 		// printf("instruction: %08x\n", instr);
 
 		int addr_val = 0xdeafbeef;
 		int addr = base_val + untwos_complement(offset, 16);
-		if (!m -> write_32b(addr, addr_val))
+		if (!m1 -> write_32b(addr, addr_val))
 			error_exit("LW: failed to write to offset %x in memory", addr);
 
 		p -> tick();
@@ -224,13 +288,13 @@ void test_LW(memory *m, processor *p)
 		int temp_32b = -1;
 
 		int instr = make_cmd_I_TYPE(base, rt, function, offset);
-		if (!m -> write_32b(0, instr))
+		if (!m1 -> write_32b(0, instr))
 			error_exit("failed to write to memory @ 0");
 		// printf("instruction: %08x\n", instr);
 
 		int addr_val = 0xdeafbeef;
 		int addr = base_val + untwos_complement(offset, 16);
-		if (!m -> write_32b(addr, addr_val))
+		if (!m1 -> write_32b(addr, addr_val))
 			error_exit("failed to write to memory @ 0");
 
 		p -> tick();
@@ -241,10 +305,17 @@ void test_LW(memory *m, processor *p)
 		if (temp_32b != expected)
 			error_exit("LW: rt (%x) != %x", temp_32b, expected);
 	}
+
+	free_system(mb, m1, m2, p);
 }
 
-void test_SLL(memory *m, processor *p)
+void test_SLL()
 {
+	memory_bus *mb = NULL;
+	memory *m1 = NULL, *m2 = NULL;
+	processor *p = NULL;
+	create_system(&mb, &m1, &m2, &p);
+
 	p -> reset();
 
 	int rd = 1;
@@ -261,7 +332,7 @@ void test_SLL(memory *m, processor *p)
 	int instr = make_cmd_SPECIAL(rt, rd, sa, function, extra);
 
 	// printf("instruction: %08x\n", instr);
-	if (!m -> write_32b(0, instr))
+	if (!m1 -> write_32b(0, instr))
 		error_exit("failed to write to memory @ 0");
 	int temp_32b;
 
@@ -276,10 +347,17 @@ void test_SLL(memory *m, processor *p)
 	int expected = input_val << sa;
 	if (temp_32b != expected)
 		error_exit("SRL: rd (%d) != %d", temp_32b, expected);
+
+	free_system(mb, m1, m2, p);
 }
 
-void test_SRL(memory *m, processor *p)
+void test_SRL()
 {
+	memory_bus *mb = NULL;
+	memory *m1 = NULL, *m2 = NULL;
+	processor *p = NULL;
+	create_system(&mb, &m1, &m2, &p);
+
 	p -> reset();
 
 	int rd = 1;
@@ -295,7 +373,7 @@ void test_SRL(memory *m, processor *p)
 	int instr = make_cmd_SPECIAL(rt, rd, sa, function, extra);
 	// printf("instruction: %08x\n", instr);
 
-	if (!m -> write_32b(0, instr))
+	if (!m1 -> write_32b(0, instr))
 		error_exit("failed to write to memory @ 0");
 
 	p -> tick();
@@ -308,51 +386,31 @@ void test_SRL(memory *m, processor *p)
 	int expected = input_val >> sa;
 	if (temp_32b != expected)
 		error_exit("SRL: rd (%d) != %d", temp_32b, expected);
+
+	free_system(mb, m1, m2, p);
 }
 
 int main(int argc, char *argv[])
 {
-	debug_console *dc = new debug_console_simple();
-
-	dc -> init();
-
-	memory_bus *mb = new memory_bus();
-
-	int mem_size = 0x100000; // FIXME verify power2
-	memory *m = new memory(mem_size, true);
-	int o1 = 0;
-	mb -> register_memory(o1, mem_size - 1, m);
-
-	int mem_size2 = 0x200; // verify power2
-	memory *m2 = new memory(mem_size2, true);
-	int o2 = 0xf00000;
-	mb -> register_memory(o2, mem_size2 - 1, m2);
-
-	processor *p = new processor(dc, mb);
-
 	test_untows_complement();
 
 	test_sign_extend();
 
 	test_count_leading();
 
-	test_processor(p);
+	test_processor();
 
-	test_memory(m, mem_size);
+	test_memory();
 
-	test_memory_bus(mb, o1, o2);
+	test_memory_bus();
 
-	test_LW(m, p);
+	test_LW();
 
-	test_SLL(m, p);
+	test_SLL();
 
-	test_SRL(m, p);
+	test_SRL();
 
 // TODO: make_(instruction)
-
-	delete p;
-	delete mb;
-	delete m;
 
 	printf("all fine\n");
 
