@@ -24,6 +24,7 @@ void processor::reset()
 
 void processor::tick()
 {
+	ASSERT(PC >= 0);
 	int instruction = -1;
 
 	if (PC & 0x03)
@@ -108,11 +109,13 @@ void processor::tick()
 
 void processor::j_type(int opcode, int instruction)
 {
+	ASSERT(opcode == 2 || opcode == 3);
+
 	if (opcode == 3)	// JAL
 		registers[31] = PC;
 
 	// FIXME shift 2 bits?
-	PC = (instruction & MASK_26B) | (PC & 0x3c);
+	PC = (instruction & MASK_26B) | (PC & 0x3c); // FIXME alignment test?
 }
 
 void processor::ipco(int opcode, int instruction)
@@ -304,34 +307,17 @@ void processor::i_type(int opcode, int instruction)
 			break;
 
 		case 0x20:		// LB
-			address = registers[base] + offset_s;
-			if (!pmb -> read_8b(address, &temp_32b))
-				pdc -> log("i-type read 8b from %08x failed", address);
-			registers[rt] = sign_extend_8b(temp_32b);
-			break;
-
-		case 0x21:		// LH
-			address = registers[base] + offset_s;
-			if (address & 1)
-			{
-				pdc -> log("i-type read 16b from %08x: unaligned", address);
-				// FIXME throw address error exception
-			}
-			else
-			{
-				if (!pmb -> read_16b(address, &temp_32b))
-					pdc -> log("i-type read 16b from %08x failed", address);
-				registers[rt] = sign_extend_16b(temp_32b);
-			}
-			break;
-
 		case 0x24:		// LBU
 			address = registers[base] + offset_s;
 			if (!pmb -> read_8b(address, &temp_32b))
 				pdc -> log("i-type read 8b from %08x failed", address);
-			registers[rt] = temp_32b;
+			if (opcode == 0x24)
+				registers[rt] = temp_32b;
+			else
+				registers[rt] = sign_extend_8b(temp_32b);
 			break;
 
+		case 0x21:		// LH
 		case 0x25:		// LHU
 			address = registers[base] + offset_s;
 			if (address & 1)
@@ -343,7 +329,10 @@ void processor::i_type(int opcode, int instruction)
 			{
 				if (!pmb -> read_16b(address, &temp_32b))
 					pdc -> log("i-type read 16b from %08x failed", address);
-				registers[rt] = temp_32b;
+				if (opcode == 0x25)
+					registers[rt] = temp_32b;
+				else
+					registers[rt] = sign_extend_16b(temp_32b);
 			}
 			break;
 
