@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string>
 #include <unistd.h>
+#include <stdarg.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -26,4 +28,19 @@ void load_file(const char *filename, unsigned char **data, int *len)
         fclose(fh);
 
         (*data)[*len] = 0x00;
+}
+
+std::string format(const char *fmt, ...)
+{
+	char *buffer = NULL;
+        va_list ap;
+
+        va_start(ap, fmt);
+        (void)vasprintf(&buffer, fmt, ap);
+        va_end(ap);
+
+	std::string result = buffer;
+	free(buffer);
+
+	return result;
 }

@@ -501,6 +501,81 @@ void processor::SLTI(int instruction)
 		registers[rt] = 0;
 }
 
+const char * processor::register_to_name(int reg)
+{
+	ASSERT(reg >= 0 && reg <= 31);
+
+	switch(reg)
+	{
+		case 0:			// always zero
+			return "$zero";
+		case 1:			// reserved for assembler
+			return "$at";
+		case 2:			// first and second return value
+			return "$v0";
+		case 3:
+			return "$v1";
+		case 4:			// first four arguments for functions
+			return "$a0";
+		case 5:
+			return "$a1";
+		case 6:
+			return "$a2";
+		case 7:
+			return "$a3";
+		case 8:			// temporary registers
+			return "$t0";
+		case 9:
+			return "$t1";
+		case 10:
+			return "$t2";
+		case 11:
+			return "$t3";
+		case 12:
+			return "$t4";
+		case 13:
+			return "$t5";
+		case 14:
+			return "$t6";
+		case 15:
+			return "$t7";
+		case 16:		// saved registers
+			return "$s0";
+		case 17:
+			return "$s1";
+		case 18:
+			return "$s2";
+		case 19:
+			return "$s3";
+		case 20:
+			return "$s4";
+		case 21:
+			return "$s5";
+		case 22:
+			return "$s6";
+		case 23:
+			return "$s7";
+		case 24:
+			return "$s8";
+		case 25:
+			return "$s9";
+		case 26:		// reserved for kernel
+			return "$k0";
+		case 27:
+			return "$k1";
+		case 28:		// global pointer
+			return "$gp";
+		case 29:		// stack pointer
+			return "$sp";
+		case 30:		// frame pointer
+			return "$fp";
+		case 31:		// return address
+			return "$ra";
+	}
+
+	return "??";
+}
+
 char * processor::decode_to_text(int instr)
 {
 	int opcode = (instr >> 26) & MASK_6B;
@@ -511,6 +586,10 @@ char * processor::decode_to_text(int instr)
 	if (opcode == 0)			// R-type
 	{
 		int function = instr & MASK_6B;
+		int sa = (instr >> 6) & MASK_5B;
+		int rd = (instr >> 11) & MASK_5B;
+		int rt = (instr >> 16) & MASK_5B;
+		int rs = (instr >> 21) & MASK_5B;
 
 		switch(function)
 		{

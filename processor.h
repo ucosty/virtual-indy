@@ -53,6 +53,7 @@ public:
 	void reset();
 	void tick();
 
+	static const char * register_to_name(int reg);
 	static char * decode_to_text(int instr);
 };
 
