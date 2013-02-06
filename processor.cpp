@@ -611,7 +611,7 @@ std::string processor::decode_to_text(int instr)
 			case 0x07:
 				return "SRAV";
 			case 0x08:
-				return "JR";
+				return format("JR %s", reg_to_name(rs));
 			case 0x09:
 				return "JALR";
 			case 0x0c:
@@ -667,6 +667,13 @@ std::string processor::decode_to_text(int instr)
 	}
 	else if (opcode != 16 && opcode != 17 && opcode != 18 && opcode != 19) // I-type
 	{
+		int immediate = instr & MASK_16B;
+		int immediate_s = untwos_complement(immediate, 16);
+
+		int rs = (instr >> 21) & MASK_5B;
+		int base = rs;
+		int rt = (instr >> 16) & MASK_5B;
+
 		switch(opcode)
 		{
 			case 0x01:
@@ -694,13 +701,13 @@ std::string processor::decode_to_text(int instr)
 			case 0x0e:
 				return "XORI";
 			case 0x0f:
-				return "LUI";
+				return format("lui %s, 0x%08x", reg_to_name(rt), immediate << 16);
 			case 0x20:
 				return "LB";
 			case 0x21:
 				return "LH";
 			case 0x23:
-				return "LW";
+				return format("lw %s, %d(%s)", reg_to_name(rt), immediate_s, reg_to_name(rs));
 			case 0x24:
 				return "LBU";
 			case 0x25:
@@ -710,7 +717,7 @@ std::string processor::decode_to_text(int instr)
 			case 0x29:
 				return "SH";
 			case 0x2b:
-				return "SW";
+				return format("sw %d(%s), %s", immediate_s, reg_to_name(rs), reg_to_name(rt));
 			case 0x31:
 				return "LWCL";
 			case 0x39:

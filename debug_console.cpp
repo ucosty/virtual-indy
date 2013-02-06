@@ -170,11 +170,11 @@ void debug_console::tick(processor *p)
 	mvwprintw(win_regs, 12, 44, "im: %04x", immediate);
 	mvwprintw(win_regs, 13, 44, "of: %d", b18_signed_offset);
 
-	const char *decoded = p -> decode_to_text(temp_32b).c_str();
-	mvwprintw(win_regs, 14, 44, "  :         ");
-	mvwprintw(win_regs, 14, 44, "  : %s", decoded);
+	std::string decoded = p -> decode_to_text(temp_32b);
+	mvwprintw(win_regs, 14, 44, "  :                     ");
+	mvwprintw(win_regs, 14, 44, "  : %s", decoded.c_str());
 
-	dolog("PC: %08x, %08x, op: %02x rs: %02x [%08x] rt: %02x rd: %02x sa: %02x fu: %02x im: %04x of: %d\t%s", PC, temp_32b, opcode, rs, p -> get_register(rs), rt, rd, sa, function, immediate, b18_signed_offset, decoded);
+	dolog("PC: %08x, %08x, op: %02x rs: %02x [%08x] rt: %02x rd: %02x sa: %02x fu: %02x im: %04x of: %d\t%s", PC, temp_32b, opcode, rs, p -> get_register(rs), rt, rd, sa, function, immediate, b18_signed_offset, decoded.c_str());
 
 	wnoutrefresh(win_regs);
 	doupdate();
