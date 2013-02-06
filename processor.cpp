@@ -80,10 +80,13 @@ void processor::tick()
 			break;
 
 		case 0x10:		// co processor instructions
-		case 0x11:
-		case 0x12:
-		case 0x13:
-			ipco(opcode, instruction);
+			COP0(opcode, instruction);
+			break;
+
+		//case 0x11:
+		//	COP1(opcode, instruction);
+		//case 0x12:
+		//case 0x13:
 			break;
 
 		case 0x1c:		// SPECIAL2
@@ -115,13 +118,27 @@ void processor::j_type(int opcode, int instruction)
 	PC = new_PC;
 }
 
-void processor::ipco(int opcode, int instruction)
+void processor::COP0(int opcode, int instruction)
 {
-	int co_processor = opcode & 0x03;
-	int format = (instruction >> 21) & MASK_5B;
-	int function = instruction & MASK_6B;
+	if (IS_BIT_OFF0_SET(21, instruction))	//
+	{
+		int function = instruction & MASK_6B;
 
-	pdc -> log("IPCO(%d) format %d function %d", co_processor, format, function);
+		pdc -> log("COP0: don't know how to handle function %02x", function);
+	}
+	else
+	{
+		int function = (instruction >> 21) & MASK_5B;
+		int rd = (instruction >> 11) & MASK_5B;
+		int rt = (instruction >> 16) & MASK_5B;
+
+		int sel = instruction & MASK_3B;
+
+		/*switch(function)
+		{
+			case 0x04: */
+				
+	}
 }
 
 void processor::r_type(int opcode, int instruction) // SPECIAL
@@ -200,6 +217,14 @@ void processor::r_type(int opcode, int instruction) // SPECIAL
 
 		case 0x13:		// MTLO
 			LO = registers[rs];
+			break;
+
+		case 0x21:		// ADDU
+			set_register(rd, (registers[rs] + registers[rt]) & MASK_32B);
+			break;
+
+		case 0x23:		// SUBU
+			set_register(rd, (registers[rs] - registers[rt]) & MASK_32B);
 			break;
 
 		case 0x24:		// AND
@@ -587,17 +612,17 @@ const char * processor::reg_to_name(int reg)
 	return "??";
 }
 
-std::string processor::decode_to_text(int instr)
+std::string processor::decode_to_text(int instruction)
 {
-	int opcode = (instr >> 26) & MASK_6B;
+	int opcode = (instruction >> 26) & MASK_6B;
 
 	if (opcode == 0)			// R-type
 	{
-		int function = instr & MASK_6B;
-		int sa = (instr >> 6) & MASK_5B;
-		int rd = (instr >> 11) & MASK_5B;
-		int rt = (instr >> 16) & MASK_5B;
-		int rs = (instr >> 21) & MASK_5B;
+		int function = instruction & MASK_6B;
+		int sa = (instruction >> 6) & MASK_5B;
+		int rd = (instruction >> 11) & MASK_5B;
+		int rt = (instruction >> 16) & MASK_5B;
+		int rs = (instruction >> 21) & MASK_5B;
 
 		switch(function)
 		{
@@ -673,7 +698,7 @@ std::string processor::decode_to_text(int instr)
 	}
 	else if (opcode == 2 || opcode == 3)	// J-type
 	{
-		int offset = (instr & MASK_26B) << 2;
+		int offset = (instruction & MASK_26B) << 2;
 
 		if (opcode == 2)
 			format("J 0x%08x", offset);
@@ -682,11 +707,11 @@ std::string processor::decode_to_text(int instr)
 	}
 	else if (opcode != 16 && opcode != 17 && opcode != 18 && opcode != 19) // I-type
 	{
-		int immediate = instr & MASK_16B;
+		int immediate = instruction & MASK_16B;
 		int immediate_s = untwos_complement(immediate, 16);
 
-		int rs = (instr >> 21) & MASK_5B;
-		int rt = (instr >> 16) & MASK_5B;
+		int rs = (instruction >> 21) & MASK_5B;
+		int rt = (instruction >> 16) & MASK_5B;
 
 		switch(opcode)
 		{
@@ -738,6 +763,28 @@ std::string processor::decode_to_text(int instr)
 				return "SWCL";
 			default:
 				return "I/???";
+		}
+	}
+	else if (opcode == 16)	// COP0
+	{
+		if (IS_BIT_OFF0_SET(21, instruction))	//
+		{
+			int function = instruction & MASK_6B;
+
+			return format("COP0_1/%02x", function);
+		}
+		else
+		{
+			int function = (instruction >> 21) & MASK_5B;
+			int sel = instruction & MASK_3B;
+
+			switch(function)
+			{
+				case 4:
+					return format("MTC0 %s,%s,%d", reg_to_name(rt), reg_to_name(rd), sel);
+				default:
+					return format("COP0_0/%02x", function);
+			}
 		}
 	}
 

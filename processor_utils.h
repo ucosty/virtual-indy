@@ -1,3 +1,4 @@
+#define MASK_3B		0x07
 #define MASK_5B		0x1f
 #define MASK_6B		0x3f
 #define MASK_8B		0xff

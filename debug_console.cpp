@@ -140,7 +140,7 @@ void debug_console::tick(processor *p)
 			y = registers - 16;
 		}
 
-		mvwprintw(win_regs, y, x, "R%02x %08x", registers, p -> get_register(registers));
+		mvwprintw(win_regs, y, x, "%s %08x", processor::reg_to_name(registers), p -> get_register(registers));
 	}
 
 	int PC = p -> get_PC();
