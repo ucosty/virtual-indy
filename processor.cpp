@@ -1,7 +1,7 @@
-#include <assert.h>
 #include <stdio.h>
 #include <string.h>
 
+#include "debug.h"
 #include "debug_console.h"
 #include "processor.h"
 #include "processor_utils.h"
@@ -461,14 +461,14 @@ void processor::BNEL(int instruction)
 
 int processor::get_register(int nr) const
 {
-	assert(nr >=0 && nr <= 31);
+	ASSERT(nr >=0 && nr <= 31);
 
 	return registers[nr];
 }
 
 void processor::set_register(int nr, int value)
 {
-	assert(nr >=0 && nr <= 31);
+	ASSERT(nr >=0 && nr <= 31);
 
 	registers[nr] = value;
 }
