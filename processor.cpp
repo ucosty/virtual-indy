@@ -611,7 +611,7 @@ std::string processor::decode_to_text(int instr)
 			case 0x07:
 				return "SRAV";
 			case 0x08:
-				return format("JR %s", reg_to_name(rs));
+				return format("jr %s", reg_to_name(rs));
 			case 0x09:
 				return "JALR";
 			case 0x0c:
