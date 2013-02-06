@@ -24,7 +24,6 @@ void processor::reset()
 
 void processor::tick()
 {
-	ASSERT(PC >= 0);
 	int instruction = -1;
 
 	if (PC & 0x03)
