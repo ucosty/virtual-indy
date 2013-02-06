@@ -5,6 +5,7 @@
 #include "debug_console.h"
 #include "processor.h"
 #include "processor_utils.h"
+#include "utils.h"
 
 processor::processor(debug_console *pdc_in, memory_bus *pmb_in) : pdc(pdc_in), pmb(pmb_in)
 {
@@ -504,7 +505,7 @@ void processor::SLTI(int instruction)
 		set_register(rt, 0);
 }
 
-const char * processor::register_to_name(int reg)
+const char * processor::reg_to_name(int reg)
 {
 	ASSERT(reg >= 0 && reg <= 31);
 
@@ -579,12 +580,9 @@ const char * processor::register_to_name(int reg)
 	return "??";
 }
 
-char * processor::decode_to_text(int instr)
+std::string processor::decode_to_text(int instr)
 {
 	int opcode = (instr >> 26) & MASK_6B;
-
-	// NOTE: the conversion to a char-pointer is because in the future
-	// this code might disassemble the whole instruction with parameters and all
 
 	if (opcode == 0)			// R-type
 	{
@@ -597,126 +595,130 @@ char * processor::decode_to_text(int instr)
 		switch(function)
 		{
 			case 0x00:
-				return (char *)"SLL/NOP";
+				if (sa == 0)
+					return "nop";
+
+				return format("sll %s,%s,%d", reg_to_name(rd), reg_to_name(rt), sa);
+
 			case 0x02:
-				return (char *)"SRL";
+				return "SRL";
 			case 0x03:
-				return (char *)"SRA";
+				return "SRA";
 			case 0x04:
-				return (char *)"SLLV";
+				return "SLLV";
 			case 0x06:
-				return (char *)"SRLV";
+				return "SRLV";
 			case 0x07:
-				return (char *)"SRAV";
+				return "SRAV";
 			case 0x08:
-				return (char *)"JR";
+				return "JR";
 			case 0x09:
-				return (char *)"JALR";
+				return "JALR";
 			case 0x0c:
-				return (char *)"SYSCALL";
+				return "SYSCALL";
 			case 0x0d:
-				return (char *)"BREAK";
+				return "BREAK";
 			case 0x10:
-				return (char *)"MFHI";
+				return "MFHI";
 			case 0x11:
-				return (char *)"MTHI";
+				return "MTHI";
 			case 0x12:
-				return (char *)"MFLO";
+				return "MFLO";
 			case 0x13:
-				return (char *)"MTLO";
+				return "MTLO";
 			case 0x18:
-				return (char *)"MULT";
+				return "MULT";
 			case 0x19:
-				return (char *)"MULTU";
+				return "MULTU";
 			case 0x1a:
-				return (char *)"DIV";
+				return "DIV";
 			case 0x1b:
-				return (char *)"DIVU";
+				return "DIVU";
 			case 0x20:
-				return (char *)"ADD";
+				return format("add %s,%s,%s", reg_to_name(rd), reg_to_name(rs), reg_to_name(rt));
 			case 0x21:
-				return (char *)"ADDU";
+				return "ADDU";
 			case 0x22:
-				return (char *)"SUB";
+				return "SUB";
 			case 0x23:
-				return (char *)"SUBU";
+				return "SUBU";
 			case 0x24:
-				return (char *)"AND";
+				return "AND";
 			case 0x25:
-				return (char *)"OR";
+				return "OR";
 			case 0x26:
-				return (char *)"XOR";
+				return "XOR";
 			case 0x27:
-				return (char *)"NOR";
+				return "NOR";
 			case 0x2a:
-				return (char *)"SLT";
+				return "SLT";
 			case 0x2b:
-				return (char *)"SLTU";
+				return "SLTU";
 			default:
-				return (char *)"R/???";
+				return "R/???";
 		}
 	}
 	else if (opcode == 2 || opcode == 3)	// J-type
 	{
 		if (opcode == 2)
-			return (char *)"J";
+			return "J";
 
-		return (char *)"JAL";
+		return "JAL";
 	}
 	else if (opcode != 16 && opcode != 17 && opcode != 18 && opcode != 19) // I-type
 	{
 		switch(opcode)
 		{
 			case 0x01:
-				return (char *)"BLTZ/BGEZ";
+				return "BLTZ/BGEZ";
 			case 0x04:
-				return (char *)"BEQ";
+				return "BEQ";
 			case 0x05:
-				return (char *)"BNE";
+				return "BNE";
 			case 0x06:
-				return (char *)"BLEZ";
+				return "BLEZ";
 			case 0x07:
-				return (char *)"BGTZ";
+				return "BGTZ";
 			case 0x08:
-				return (char *)"ADDI";
+				return "ADDI";
 			case 0x09:
-				return (char *)"ADDIU";
+				return "ADDIU";
 			case 0x0a:
-				return (char *)"SLTI";
+				return "SLTI";
 			case 0x0b:
-				return (char *)"SLTIU";
+				return "SLTIU";
 			case 0x0c:
-				return (char *)"ANDI";
+				return "ANDI";
 			case 0x0d:
-				return (char *)"ORI";
+				return "ORI";
 			case 0x0e:
-				return (char *)"XORI";
+				return "XORI";
 			case 0x0f:
-				return (char *)"LUI";
+				return "LUI";
 			case 0x20:
-				return (char *)"LB";
+				return "LB";
 			case 0x21:
-				return (char *)"LH";
+				return "LH";
 			case 0x23:
-				return (char *)"LW";
+				return "LW";
 			case 0x24:
-				return (char *)"LBU";
+				return "LBU";
 			case 0x25:
-				return (char *)"LHU";
+				return "LHU";
 			case 0x28:
-				return (char *)"SB";
+				return "SB";
 			case 0x29:
-				return (char *)"SH";
+				return "SH";
 			case 0x2b:
-				return (char *)"SW";
+				return "SW";
 			case 0x31:
-				return (char *)"LWCL";
+				return "LWCL";
 			case 0x39:
-				return (char *)"SWCL";
+				return "SWCL";
 			default:
-				return (char *)"I/???";
+				return "I/???";
 		}
 	}
 
-	return (char *)"???";
+	return "???";
 }

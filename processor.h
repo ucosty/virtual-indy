@@ -1,6 +1,8 @@
 #ifndef __PROCESSOR__H__
 #define __PROCESSOR__H__
 
+#include <string>
+
 #include "debug_console.h"
 #include "memory_bus.h"
 
@@ -53,8 +55,8 @@ public:
 	void reset();
 	void tick();
 
-	static const char * register_to_name(int reg);
-	static char * decode_to_text(int instr);
+	static const char * reg_to_name(int reg);
+	static std::string decode_to_text(int instr);
 };
 
 #endif

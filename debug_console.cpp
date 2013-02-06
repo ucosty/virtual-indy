@@ -170,7 +170,7 @@ void debug_console::tick(processor *p)
 	mvwprintw(win_regs, 12, 44, "im: %04x", immediate);
 	mvwprintw(win_regs, 13, 44, "of: %d", b18_signed_offset);
 
-	char *decoded = p -> decode_to_text(temp_32b);
+	const char *decoded = p -> decode_to_text(temp_32b).c_str();
 	mvwprintw(win_regs, 14, 44, "  :         ");
 	mvwprintw(win_regs, 14, 44, "  : %s", decoded);
 
