@@ -112,6 +112,11 @@ void test_count_leading()
 		error_exit("count_leading_zeros failed (3), expecting %d, got %d", expected, rc);
 }
 
+void test_rotate_right()
+{
+	// FIXME
+}
+
 void test_processor()
 {
 	memory_bus *mb = NULL;
@@ -457,6 +462,8 @@ int main(int argc, char *argv[])
 	test_sign_extend();
 
 	test_count_leading();
+
+	test_rotate_right();
 
 	test_make_instruction();
 
