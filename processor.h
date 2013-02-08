@@ -6,6 +6,8 @@
 #include "debug_console.h"
 #include "memory_bus.h"
 
+#define SR_EI 2	// status register "EI" bit
+
 class processor
 {
 private:
@@ -24,7 +26,7 @@ private:
 	// 29		$sp		stack pointer Points to last location on the stack.
 	// 30		$s8/$fp		saved value / frame pointer Preserved across procedure calls
 	// 31		$ra		return address
-	int registers[32], PC, HI, LO, status_register;
+	int registers[32], PC, HI, LO, status_register, EPC;
 
 	void i_type(int opcode, int instruction);
 	void j_type(int opcode, int instruction);
@@ -35,6 +37,7 @@ private:
 	// not in a group? FIXME
 	void SLTI(int instruction);
 	void regimm(int instruction);
+	void interrupt(int nr);
 
 public:
 	processor(debug_console *pdc_in, memory_bus *pmb_in);

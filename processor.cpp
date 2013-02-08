@@ -124,7 +124,17 @@ void processor::COP0(int opcode, int instruction)
 	{
 		int function = instruction & MASK_6B;
 
-		pdc -> log("COP0: don't know how to handle function %02x", function);
+		switch(function)
+		{
+			case 0x18:	// ERET
+				PC = EPC;
+				status_register >>= 4;
+				// FIXME
+				break;
+
+			default:
+				pdc -> log("cop0: don't know how to handle function %02x (1)", function);
+		}
 	}
 	else
 	{
@@ -134,10 +144,24 @@ void processor::COP0(int opcode, int instruction)
 
 		int sel = instruction & MASK_3B;
 
-		/*switch(function)
+		switch(function)
 		{
-			case 0x04: */
-				
+			case 0x0b:	// DI/EI
+				if (IS_BIT_OFF0_SET(5, instruction))
+				{
+					set_register(rt, status_register);
+					SET_BIT(SR_EI, status_register);
+				}
+				else
+				{
+					set_register(rt, status_register);
+					RESET_BIT(SR_EI, status_register);
+				}
+				break;
+
+			default:
+				pdc -> log("cop0: don't know how to handle function %02x (0)", function);
+		}
 	}
 }
 
@@ -791,4 +815,22 @@ std::string processor::decode_to_text(int instruction)
 	}
 
 	return "???";
+}
+
+void processor::interrupt(int nr)
+{
+	// 00 0 external interrupt
+	// 01 1 instruction bus error (invalid instruction)
+	// 10 2 arithmetic error
+	// 11 3 system call
+
+	if (IS_BIT_OFF0_SET(nr, status_register))
+	{
+		EPC = PC;
+		// PC = 
+		// cause = (?)
+		status_register <<= 4;
+
+		// FIXME
+	}
 }
