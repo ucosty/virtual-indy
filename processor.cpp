@@ -21,6 +21,8 @@ void processor::reset()
 	memset(registers, 0x00, sizeof registers);
 
 	status_register = HI = LO = PC = 0;
+
+	memset(C0_registers, 0x00, sizeof C0_registers);
 }
 
 void processor::tick()
@@ -127,7 +129,7 @@ void processor::COP0(int opcode, int instruction)
 		switch(function)
 		{
 			case 0x18:	// ERET
-				PC = EPC;
+				PC = get_C0_register(14, 0);	// EPC (FIXME: sel 0?)
 				status_register >>= 4;
 				// FIXME
 				break;
@@ -146,6 +148,14 @@ void processor::COP0(int opcode, int instruction)
 
 		switch(function)
 		{
+			case 0x00:	// MFC0
+				set_register(rt, get_C0_register(registers[rd], sel));
+				break;
+
+			case 0x04:	// MTC0
+				set_C0_register(registers[rd], sel, registers[rt]);
+				break;
+
 			case 0x0b:	// DI/EI
 				if (IS_BIT_OFF0_SET(5, instruction))
 				{
@@ -795,7 +805,13 @@ std::string processor::decode_to_text(int instruction)
 		{
 			int function = instruction & MASK_6B;
 
-			return format("COP0_1/%02x", function);
+			switch(function)
+			{
+				case 0x18:
+					return "ERET";
+				default:
+					return format("COP0_1/%02x", function);
+			}
 		}
 		else
 		{
@@ -806,8 +822,14 @@ std::string processor::decode_to_text(int instruction)
 
 			switch(function)
 			{
-				case 4:
+				case 0x00:
+					return format("MFC0 %s,%d,%d", reg_to_name(rt), rd, sel);
+				case 0x04:
 					return format("MTC0 %s,%d,%d", reg_to_name(rt), rd, sel);
+				case 0x0b:
+					if (IS_BIT_OFF0_SET(5, instruction))
+						return "EI";
+					return "DI";
 				default:
 					return format("COP0_0/%02x", function);
 			}
@@ -817,6 +839,26 @@ std::string processor::decode_to_text(int instruction)
 	return "???";
 }
 
+int processor::get_C0_register(int nr, int sel)
+{
+	ASSERT(nr >=0 && nr <= 31);
+
+// what to do with `sel'?
+// FIXME verify cpu mode? (privileged) and log msg
+
+	return C0_registers[nr];
+}
+
+void processor::set_C0_register(int nr, int sel, int value)
+{
+	ASSERT(nr >=0 && nr <= 31);
+
+// what to do with `sel'?
+// FIXME verify cpu mode? (privileged) and log msg
+
+	C0_registers[nr] = value;
+}
+
 void processor::interrupt(int nr)
 {
 	// 00 0 external interrupt
@@ -824,10 +866,11 @@ void processor::interrupt(int nr)
 	// 10 2 arithmetic error
 	// 11 3 system call
 
-	if (IS_BIT_OFF0_SET(nr, status_register))
+	// bits 8...15 of status register are the interrupt mask
+	if (IS_BIT_OFF0_SET(8 + nr, status_register))
 	{
-		EPC = PC;
-		// PC = 
+		set_C0_register(14, 0, PC);	// EPC (FIXME: sel 0?)
+		PC = 0x80000080;	// interrupt service routine
 		// cause = (?)
 		status_register <<= 4;
 

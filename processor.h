@@ -6,7 +6,8 @@
 #include "debug_console.h"
 #include "memory_bus.h"
 
-#define SR_EI 2	// status register "EI" bit
+#define SR_EI 0			// status register "EI" bit
+#define SR_KERNEL_USER	1	// kernel/user mode
 
 class processor
 {
@@ -26,7 +27,8 @@ private:
 	// 29		$sp		stack pointer Points to last location on the stack.
 	// 30		$s8/$fp		saved value / frame pointer Preserved across procedure calls
 	// 31		$ra		return address
-	int registers[32], PC, HI, LO, status_register, EPC;
+	int registers[32], PC, HI, LO, status_register;
+	int C0_registers[32];
 
 	void i_type(int opcode, int instruction);
 	void j_type(int opcode, int instruction);
@@ -50,10 +52,14 @@ public:
 	int get_SR() const { return status_register; }
 	bool get_mem_32b(int offset, int *value) const;
 
+	int get_C0_register(int nr, int sel);
+
 	void set_register(int nr, int value);
 	void set_PC(int value) { PC = value; }
 	void set_HI(int value) { HI = value; }
 	void set_LO(int value) { LO = value; }
+
+	void set_C0_register(int nr, int sel, int value);
 
 	void reset();
 	void tick();
