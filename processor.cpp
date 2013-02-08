@@ -334,6 +334,11 @@ void processor::i_type(int opcode, int instruction)
 			}
 			break;
 
+		case 0x08:		// ADDI
+			set_register(rt, registers[rs] + immediate_s);
+			// FIXME handle overflows
+			break;
+
 		case 0x09:		// ADDIU
 			set_register(rt, registers[rs] + immediate_s);
 			break;
