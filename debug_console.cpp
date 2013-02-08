@@ -7,6 +7,10 @@
 #include "processor.h"
 #include "processor_utils.h"
 #include "log.h"
+#include "utils.h"
+
+extern bool single_step;
+extern const char *logfile;
 
 bool term_change = false;
 
@@ -51,6 +55,10 @@ debug_console::debug_console()
 	nc = false;
 	win_regs = win_logs = NULL;
 	max_x = max_y = -1;
+	n_ticks = 0;
+	start_ts = get_ts();
+	had_logging = false;
+	refresh_counter = 0;
 }
 
 void debug_console::init()
@@ -123,76 +131,97 @@ void debug_console::create_windows()
 
 void debug_console::tick(processor *p)
 {
-	if (term_change)
-		recreate_terminal();
+	n_ticks++;
 
-	int x = -1, y = -1;
-	for(int registers=0; registers<32; registers++)
+	if (++refresh_counter >= 1000000 || single_step)
 	{
-		if (registers < 16)
+		double now_ts = get_ts();
+
+		if (term_change)
+			recreate_terminal();
+
+		int x = -1, y = -1;
+		for(int registers=0; registers<32; registers++)
 		{
-			x = 0;
-			y = registers;
-		}
-		else
-		{
-			x = 22;
-			y = registers - 16;
+			if (registers < 16)
+			{
+				x = 0;
+				y = registers;
+			}
+			else
+			{
+				x = 22;
+				y = registers - 16;
+			}
+
+			mvwprintw(win_regs, y, x, "%s %08x", processor::reg_to_name(registers), p -> get_register(registers));
 		}
 
-		mvwprintw(win_regs, y, x, "%s %08x", processor::reg_to_name(registers), p -> get_register(registers));
+		int PC = p -> get_PC();
+		mvwprintw(win_regs, 0, 44, "PC: %08x", PC);
+		mvwprintw(win_regs, 1, 44, "LO: %08x", p -> get_LO());
+		mvwprintw(win_regs, 2, 44, "HI: %08x", p -> get_HI());
+		mvwprintw(win_regs, 3, 44, "SR: %08x", p -> get_SR());
+
+		int temp_32b = -1;
+		bool r_ok = p -> get_mem_32b(PC, &temp_32b);
+		mvwprintw(win_regs, 5, 44, "mem: %d/%08x", r_ok, temp_32b);
+
+		int opcode = (temp_32b >> 26) & MASK_6B;
+		int function = temp_32b & MASK_6B;
+		int sa = (temp_32b >> 6) & MASK_5B;
+		int rd = (temp_32b >> 11) & MASK_5B;
+		int rt = (temp_32b >> 16) & MASK_5B;
+		int rs = (temp_32b >> 21) & MASK_5B;
+		int immediate = temp_32b & MASK_16B;
+		int b18_signed_offset = untwos_complement(immediate << 2, 18);
+		mvwprintw(win_regs,  6, 44, "op: %02x", opcode);
+		mvwprintw(win_regs,  7, 44, "rs: %02x", rs);
+		mvwprintw(win_regs,  8, 44, "rt: %02x", rt);
+		mvwprintw(win_regs,  9, 44, "rd: %02x", rd);
+		mvwprintw(win_regs, 10, 44, "sa: %02x", sa);
+		mvwprintw(win_regs, 11, 44, "fu: %02x", function);
+		mvwprintw(win_regs, 12, 44, "im: %04x", immediate);
+		mvwprintw(win_regs, 13, 44, "of: %d", b18_signed_offset);
+
+		std::string decoded = p -> decode_to_text(temp_32b);
+		mvwprintw(win_regs, 14, 44, "  :                     ");
+		mvwprintw(win_regs, 14, 44, "  : %s", decoded.c_str());
+
+		double t_diff = now_ts - start_ts;
+		if (t_diff)
+			mvwprintw(win_regs, 15, 44, "I/S: %f", double(n_ticks) / t_diff);
+
+		dolog("PC: %08x, %08x, op: %02x rs: %02x [%08x] rt: %02x rd: %02x sa: %02x fu: %02x im: %04x of: %d\t%s", PC, temp_32b, opcode, rs, p -> get_register(rs), rt, rd, sa, function, immediate, b18_signed_offset, decoded.c_str());
+
+		if (had_logging)
+		{
+			wnoutrefresh(win_logs);
+			had_logging = false;
+		}
+
+		wnoutrefresh(win_regs);
+		doupdate();
+
+		refresh_counter = 0;
 	}
-
-	int PC = p -> get_PC();
-	mvwprintw(win_regs, 0, 44, "PC: %08x", PC);
-	mvwprintw(win_regs, 1, 44, "LO: %08x", p -> get_LO());
-	mvwprintw(win_regs, 2, 44, "HI: %08x", p -> get_HI());
-	mvwprintw(win_regs, 3, 44, "SR: %08x", p -> get_SR());
-
-	int temp_32b = -1;
-	bool r_ok = p -> get_mem_32b(PC, &temp_32b);
-	mvwprintw(win_regs, 5, 44, "mem: %d/%08x", r_ok, temp_32b);
-
-	int opcode = (temp_32b >> 26) & MASK_6B;
-        int function = temp_32b & MASK_6B;
-        int sa = (temp_32b >> 6) & MASK_5B;
-        int rd = (temp_32b >> 11) & MASK_5B;
-        int rt = (temp_32b >> 16) & MASK_5B;
-        int rs = (temp_32b >> 21) & MASK_5B;
-	int immediate = temp_32b & MASK_16B;
-        int b18_signed_offset = untwos_complement(immediate << 2, 18);
-	mvwprintw(win_regs,  6, 44, "op: %02x", opcode);
-	mvwprintw(win_regs,  7, 44, "rs: %02x", rs);
-	mvwprintw(win_regs,  8, 44, "rt: %02x", rt);
-	mvwprintw(win_regs,  9, 44, "rd: %02x", rd);
-	mvwprintw(win_regs, 10, 44, "sa: %02x", sa);
-	mvwprintw(win_regs, 11, 44, "fu: %02x", function);
-	mvwprintw(win_regs, 12, 44, "im: %04x", immediate);
-	mvwprintw(win_regs, 13, 44, "of: %d", b18_signed_offset);
-
-	std::string decoded = p -> decode_to_text(temp_32b);
-	mvwprintw(win_regs, 14, 44, "  :                     ");
-	mvwprintw(win_regs, 14, 44, "  : %s", decoded.c_str());
-
-	dolog("PC: %08x, %08x, op: %02x rs: %02x [%08x] rt: %02x rd: %02x sa: %02x fu: %02x im: %04x of: %d\t%s", PC, temp_32b, opcode, rs, p -> get_register(rs), rt, rd, sa, function, immediate, b18_signed_offset, decoded.c_str());
-
-	wnoutrefresh(win_regs);
-	doupdate();
 }
 
 void debug_console::log(const char *fmt, ...)
 {
-	char buffer[4096];
-	va_list ap;
+	if (logfile)
+	{
+		char buffer[4096];
+		va_list ap;
 
-	va_start(ap, fmt);
-	(void)vsnprintf(buffer, sizeof buffer, fmt, ap);
-	va_end(ap);
+		va_start(ap, fmt);
+		(void)vsnprintf(buffer, sizeof buffer, fmt, ap);
+		va_end(ap);
 
-	wprintw(win_logs, "%s\n", buffer);
+		wprintw(win_logs, "%s\n", buffer);
 
-	wnoutrefresh(win_logs);
-	doupdate();
+		dolog("%s", buffer);
 
-	dolog("%s", buffer);
+		had_logging = true;
+	}
 }

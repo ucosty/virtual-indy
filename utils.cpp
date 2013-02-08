@@ -3,8 +3,9 @@
 #include <string>
 #include <unistd.h>
 #include <stdarg.h>
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/time.h>
+#include <sys/types.h>
 
 #include "error.h"
 
@@ -43,4 +44,14 @@ std::string format(const char *fmt, ...)
 	free(buffer);
 
 	return result;
+}
+
+double get_ts()
+{
+        struct timeval ts;
+
+        if (gettimeofday(&ts, NULL) == -1)
+                error_exit("gettimeofday failed");
+
+        return double(ts.tv_sec) + double(ts.tv_usec) / 1000000.0;
 }

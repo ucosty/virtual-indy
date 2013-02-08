@@ -3,19 +3,24 @@
 
 #include "error.h"
 
+extern const char *logfile;
+
 void dolog(const char *fmt, ...)
 {
 	va_list ap;
 
-	FILE *fh = fopen("bla.txt", "a+");
-	if (!fh)
-		error_exit("error accessing logfile");
+	if (logfile)
+	{
+		FILE *fh = fopen(logfile, "a+");
+		if (!fh)
+			error_exit("error accessing logfile");
 
-	va_start(ap, fmt);
-	(void)vfprintf(fh, fmt, ap);
-	va_end(ap);
+		va_start(ap, fmt);
+		(void)vfprintf(fh, fmt, ap);
+		va_end(ap);
 
-	fprintf(fh, "\n");
+		fprintf(fh, "\n");
 
-	fclose(fh);
+		fclose(fh);
+	}
 }

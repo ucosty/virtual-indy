@@ -8,7 +8,8 @@
 #include "debug_console.h"
 #include "log.h"
 
-bool step = true;
+bool single_step = false;
+const char *logfile = NULL;
 
 volatile bool terminate = false;
 
@@ -17,7 +18,6 @@ void sig_handler(int sig)
         terminate = true;
 }
 
-#include <ncurses.h>
 int main(int argc, char *argv[])
 {
 	dolog("*** START ***");
@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
 		dc -> tick(p);
 		p -> tick();
 
-		if (step)
+		if (single_step)
 			getch();
 	}
 

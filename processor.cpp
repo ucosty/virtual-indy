@@ -43,66 +43,25 @@ void processor::tick()
 
 	int opcode = (instruction >> 26) & MASK_6B;
 
-	switch(opcode)
+	if (opcode == 0)			// R-type / SPECIAL
 	{
-		case 0x00:		// R-type / SPECIAL
-			r_type(opcode, instruction);
-			break;
-
-		case 0x02:		// J-type
-		case 0x03:
-			j_type(opcode, instruction);
-			break;
-
-		case 0x01:		// I-type
-		case 0x04:
-		case 0x05:
-		case 0x06:
-		case 0x07:
-		case 0x08:
-		case 0x09:
-		case 0x0a:
-		case 0x0b:
-		case 0x0c:
-		case 0x0d:
-		case 0x0e:
-		case 0x0f:
-		case 0x15:
-		case 0x20:
-		case 0x21:
-		case 0x23:
-		case 0x24:
-		case 0x25:
-		case 0x28:
-		case 0x29:
-		case 0x2b:
-		case 0x31:
-		case 0x39:
-			i_type(opcode, instruction);
-			break;
-
-		case 0x10:		// co processor instructions
-			COP0(opcode, instruction);
-			break;
-
-		//case 0x11:
-		//	COP1(opcode, instruction);
-		//case 0x12:
-		//case 0x13:
-			break;
-
-		case 0x1c:		// SPECIAL2
-			special2(opcode, instruction);
-			break;
-
-		case 0x1f:		// SPECIAL3
-			special3(opcode, instruction);
-			break;
-
-		default:
-			pdc -> log("tick: unsupported opcode %02x", opcode);
-			// throw invalid
-			break;
+		r_type(instruction);
+	}
+	else if (opcode == 2 || opcode == 3)
+	{
+		j_type(opcode, instruction);
+	}
+	else if (opcode < 16 || opcode > 19) // I-type
+	{
+		i_type(opcode, instruction);
+	}
+	else if (opcode == 16)	// COP0
+	{
+		COP0(instruction);
+	}
+	else
+	{
+		pdc -> log("tick: unsupported opcode %02x", opcode);
 	}
 }
 
@@ -120,7 +79,7 @@ void processor::j_type(int opcode, int instruction)
 	PC = new_PC;
 }
 
-void processor::COP0(int opcode, int instruction)
+void processor::COP0(int instruction)
 {
 	if (IS_BIT_OFF0_SET(21, instruction))	//
 	{
@@ -175,7 +134,7 @@ void processor::COP0(int opcode, int instruction)
 	}
 }
 
-void processor::r_type(int opcode, int instruction) // SPECIAL
+void processor::r_type(int instruction) // SPECIAL
 {
 	int function = instruction & MASK_6B;
 	int sa = (instruction >> 6) & MASK_5B;
@@ -373,6 +332,15 @@ void processor::i_type(int opcode, int instruction)
 			set_register(rt, immediate << 16);
 			break;
 
+		case 0x1c:		// SPECIAL2
+			special2(instruction);
+			break;
+
+		case 0x1f:		// SPECIAL3
+			special3(instruction);
+			break;
+
+
 		case 0x20:		// LB
 		case 0x24:		// LBU
 			address = registers[base] + offset_s;
@@ -423,21 +391,21 @@ void processor::i_type(int opcode, int instruction)
 			address = registers[base] + offset_s;
 			temp_32b = registers[rt];
 			if (!pmb -> write_8b(address, temp_32b))
-				pdc -> log("i-type write 8b to %08x failed", address);
+				pdc -> log("i-type write 8b %02x to %08x failed", registers[rt] & 0xff, address);
 			break;
 
 		case 0x29:		// SH
 			address = registers[base] + offset_s;
 			if (address & 1)
 			{
-				pdc -> log("i-type write 16b to %08x: unaligned", address);
+				pdc -> log("i-type write 16b %04x to %08x: unaligned", registers[rt] & 0xffff, address);
 				// FIXME throw address error exception
 			}
 			else
 			{
 				temp_32b = registers[rt];
 				if (!pmb -> write_16b(address, temp_32b))
-					pdc -> log("i-type write 16b to %08x failed", address);
+					pdc -> log("i-type write 16b %04x to %08x failed", registers[rt] & 0xffff, address);
 			}
 			break;
 
@@ -445,14 +413,14 @@ void processor::i_type(int opcode, int instruction)
 			address = registers[base] + offset_s;
 			if (address & 3)
 			{
-				pdc -> log("i-type write 32b to %08x: unaligned", address);
+				pdc -> log("i-type write 32b %08x to %08x: unaligned", registers[rt], address);
 				// FIXME throw address error exception
 			}
 			else
 			{
 				temp_32b = registers[rt];
 				if (!pmb -> write_32b(address, temp_32b))
-					pdc -> log("i-type write 32b to %08x failed", address);
+					pdc -> log("i-type write 32b %08x to %08x failed", registers[rt], address);
 			}
 			break;
 
@@ -463,7 +431,7 @@ void processor::i_type(int opcode, int instruction)
 	}
 }
 
-void processor::special2(int opcode, int instruction)
+void processor::special2(int instruction)
 {
 	int clo = instruction & MASK_6B;
 	int rd = (instruction >> 11) & MASK_5B;
@@ -554,7 +522,7 @@ bool processor::get_mem_32b(int offset, int *value) const
 	return pmb -> read_32b(offset, value);
 }
 
-void processor::special3(int opcode, int instruction)
+void processor::special3(int instruction)
 {
 	int function = instruction & MASK_6B;
 	int sub_function = (instruction >> 6) & MASK_5B;

@@ -1,6 +1,6 @@
 VERSION=0.1
 
-DEBUG=-g -D_DEBUG=1 # -pg
+DEBUG=-g -D_DEBUG=1 -pg
 CXXFLAGS+=-O3 -pedantic -Wall -DVERSION=\"$(VERSION)\" $(DEBUG)
 LDFLAGS=$(DEBUG) -lncurses
 

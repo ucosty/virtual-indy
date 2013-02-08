@@ -13,6 +13,10 @@ private:
 	WINDOW *win_regs, *win_logs;
 	int max_x, max_y;
 	bool nc;
+	double start_ts;
+	long long int n_ticks;
+	int refresh_counter;
+	bool had_logging;
 
 	void recreate_terminal();
 	void create_windows();

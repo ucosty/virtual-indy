@@ -5,7 +5,10 @@
 #include "processor.h"
 #include "processor_utils.h"
 
+bool single_step = false; // not applicable
 debug_console *dc = new debug_console_simple();
+
+const char *logfile = "testcases.log";
 
 void create_system(memory_bus **mb, memory **m1, memory **m2, processor **p, int *m1s = NULL, int *m2s = NULL, int *po1 = NULL, int *po2 = NULL)
 {

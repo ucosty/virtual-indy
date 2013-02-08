@@ -32,10 +32,10 @@ private:
 
 	void i_type(int opcode, int instruction);
 	void j_type(int opcode, int instruction);
-	void r_type(int opcode, int instruction);
-	void special2(int opcode, int instruction);
-	void special3(int opcode, int instruction);
-	void COP0(int opcode, int instruction);
+	void r_type(int instruction);
+	void special2(int instruction);
+	void special3(int instruction);
+	void COP0(int instruction);
 	// not in a group? FIXME
 	void SLTI(int instruction);
 	void regimm(int instruction);
