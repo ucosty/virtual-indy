@@ -765,6 +765,54 @@ void test_NOP()
 	free_system(mb, m1, m2, p);
 }
 
+void test_BNE()
+{
+	memory_bus *mb = NULL;
+	memory *m1 = NULL, *m2 = NULL;
+	processor *p = NULL;
+	create_system(&mb, &m1, &m2, &p);
+
+	p -> reset();
+
+	int rs_value = 0xdeadbeef;
+	int rs = 3;
+	p -> set_register(rs, rs_value);
+
+	int rt_value = rs_value;
+	int rt = 18;
+	p -> set_register(rt, rt_value);
+
+	int immediate_org = -1235;
+	int immediate = immediate_org & 0xffff;
+
+	int function = 0x05;
+	int instruction = make_cmd_I_TYPE(rs, rt, function, immediate);
+
+	if (!m1 -> write_32b(0, instruction))
+		error_exit("failed to write to memory @ 0");
+
+	tick(p);
+
+	int expected_PC = 4;
+	if (expected_PC != p -> get_PC())
+		error_exit("BNE(1): expected PC %08x, got %08x", expected_PC, p -> get_PC());
+
+	//
+	rt_value = ~rs_value;
+	p -> set_register(rt, rt_value);
+
+	p -> set_PC(0);
+
+	tick(p);
+
+	expected_PC = 4 + immediate_org * 4;
+
+	if (expected_PC != p -> get_PC())
+		error_exit("BNE(2): expected PC %08x, got %08x", expected_PC, p -> get_PC());
+
+	free_system(mb, m1, m2, p);
+}
+
 int main(int argc, char *argv[])
 {
 	test_untows_complement();
@@ -788,6 +836,8 @@ int main(int argc, char *argv[])
 	test_ADDIU();
 
 	test_AND();
+
+	test_BNE();
 
 	test_LUI();
 
