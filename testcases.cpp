@@ -10,6 +10,19 @@ debug_console *dc = new debug_console_simple();
 
 const char *logfile = "testcases.log";
 
+void exec(memory_bus *mb, std::vector<int> instructions, processor *p)
+{
+	for(int index=0; index<instructions.size(); index++)
+	{
+		int offset = index * 4;
+
+		if (!mb -> write_32b(offset, instructions.at(index)))
+			error_exit("failed to write to offset %d in memory", offset);
+	}
+
+	p -> tick();
+}
+
 void create_system(memory_bus **mb, memory **m1, memory **m2, processor **p, int *m1s = NULL, int *m2s = NULL, int *po1 = NULL, int *po2 = NULL)
 {
 	*mb = new memory_bus();
