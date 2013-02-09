@@ -12,9 +12,9 @@ const char *logfile = "testcases.log";
 
 void exec(memory_bus *mb, std::vector<int> instructions, processor *p)
 {
-	for(int index=0; index<instructions.size(); index++)
+	for(unsigned int index=0; index<instructions.size(); index++)
 	{
-		int offset = index * 4;
+		unsigned int offset = index * 4;
 
 		if (!mb -> write_32b(offset, instructions.at(index)))
 			error_exit("failed to write to offset %d in memory", offset);
@@ -533,6 +533,47 @@ void test_LUI()
 	free_system(mb, m1, m2, p);
 }
 
+void test_SW()
+{
+	memory_bus *mb = NULL;
+	memory *m1 = NULL, *m2 = NULL;
+	processor *p = NULL;
+	create_system(&mb, &m1, &m2, &p);
+
+	p -> reset();
+
+	int verify_val = 0x1234beef;
+	int rt = 1;
+	p -> set_register(rt, verify_val);
+
+	int address_base = 0x1000;
+	int base = 9, rs = base;
+	p -> set_register(base, address_base);
+
+	int offset = 0x100, immediate = offset;
+
+	int final_address = address_base + offset;
+
+	int function = 0x2b;
+	int instruction = make_cmd_I_TYPE(rs, rt, function, immediate);
+
+	if (!m1 -> write_32b(0, instruction))
+		error_exit("failed to write to memory @ 0");
+
+	p -> tick();
+
+	int result_mem_val = -1;
+	if (!m1 -> read_32b(final_address, &result_mem_val))
+		error_exit("failed to read memory @ %08x", final_address);
+
+	if (result_mem_val != verify_val)
+		error_exit("SW: expected %08x, got %08x", verify_val, result_mem_val);
+
+	// FIXME test that unaligned memory access causes a AddressError exception
+
+	free_system(mb, m1, m2, p);
+}
+
 int main(int argc, char *argv[])
 {
 	test_untows_complement();
@@ -560,6 +601,8 @@ int main(int argc, char *argv[])
 	test_SLL();
 
 	test_SRL();
+
+	test_SW();
 
 	printf("all fine\n");
 
