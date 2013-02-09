@@ -30,6 +30,8 @@ private:
 	int registers[32], PC, HI, LO, status_register;
 	int C0_registers[32];
 
+	long long int cycles;
+
 	void j_type(int opcode, int instruction);
 	void special2(int instruction);
 	void special3(int instruction);

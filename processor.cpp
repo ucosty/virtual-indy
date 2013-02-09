@@ -9,6 +9,8 @@
 
 processor::processor(debug_console *pdc_in, memory_bus *pmb_in) : pdc(pdc_in), pmb(pmb_in)
 {
+	cycles = 0;
+
 	init_i_type();
 	init_r_type();
 

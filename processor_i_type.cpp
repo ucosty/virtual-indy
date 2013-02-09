@@ -74,16 +74,22 @@ void processor::i_type_00(int instruction) // R-type / SPECIAL
 	int function = instruction & MASK_6B;
 
 	(((processor*)this)->*processor::r_type_methods[function])(instruction);
+
+	cycles += 4;
 }
 
 void processor::i_type_02(int instruction)
 {
 	j_type(2, instruction);
+
+	cycles += 3;
 }
 
 void processor::i_type_03(int instruction)
 {
 	j_type(3, instruction);
+
+	cycles += 3;
 }
 
 void processor::i_type_10(int instruction)
