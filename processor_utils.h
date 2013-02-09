@@ -7,11 +7,12 @@
 #define MASK_32B	0xffffffff
 #define MASK_N(n)	((1 << n) - 1)
 
-#define IS_BIT_OFF0_SET(bit, val)	(((val) & (1 << (bit))) ? 1 : 0)
+#define IS_BIT_OFF0_SET(bit, val)	((val) & (1 << (bit)))
 #define SET_BIT(bit, val)		(val) |= (1 << (bit))
 #define RESET_BIT(bit, val)		(val) &= ~(1 << (bit))
 
 int twos_complement(int value, int bits);
+int untwos_complement_16b(int value);
 int untwos_complement(int value, int bits);
 int count_leading_ones(int n_bits, int value);
 int count_leading_zeros(int n_bits, int value);

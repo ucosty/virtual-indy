@@ -4,7 +4,7 @@ DEBUG=-g -D_DEBUG=1 -pg
 CXXFLAGS+=-O3 -pedantic -Wall -DVERSION=\"$(VERSION)\" $(DEBUG)
 LDFLAGS=$(DEBUG) -lncurses
 
-OBJS=memory_bus.o memory.o processor.o graphics_lg1.o processor_utils.o error.o utils.o debug_console.o debug_console_simple.o log.o
+OBJS=memory_bus.o memory.o processor.o graphics_lg1.o processor_utils.o error.o utils.o debug_console.o debug_console_simple.o log.o processor_r_type.o processor_i_type.o
 OBJStest=testcases.o
 OBJSmain=main.o
 
@@ -23,7 +23,7 @@ uninstall: clean
 	rm -f $(DESTDIR)/usr/local/bin/miep
 
 clean:
-	rm -f $(OBJS) $(OBJSmain) miep $(OBJStest) testcases core
+	rm -f $(OBJS) $(OBJSmain) miep $(OBJStest) testcases core gmon.out
 
 package: clean
 	# source package

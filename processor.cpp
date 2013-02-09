@@ -9,6 +9,9 @@
 
 processor::processor(debug_console *pdc_in, memory_bus *pmb_in) : pdc(pdc_in), pmb(pmb_in)
 {
+	init_i_type();
+	init_r_type();
+
 	reset();
 }
 
@@ -43,26 +46,9 @@ void processor::tick()
 
 	int opcode = (instruction >> 26) & MASK_6B;
 
-	if (opcode == 0)			// R-type / SPECIAL
-	{
-		r_type(instruction);
-	}
-	else if (opcode == 2 || opcode == 3)
-	{
-		j_type(opcode, instruction);
-	}
-	else if (opcode < 16 || opcode > 19) // I-type
-	{
-		i_type(opcode, instruction);
-	}
-	else if (opcode == 16)	// COP0
-	{
-		COP0(instruction);
-	}
-	else
-	{
-		pdc -> log("tick: unsupported opcode %02x", opcode);
-	}
+	// the other methods are really i_types with the opcode set to a certain value
+	// well maybe not in the cpu but logically they are
+	(((processor*)this)->*processor::i_type_methods[opcode])(instruction);
 }
 
 void processor::j_type(int opcode, int instruction)
@@ -108,11 +94,11 @@ void processor::COP0(int instruction)
 		switch(function)
 		{
 			case 0x00:	// MFC0
-				set_register(rt, get_C0_register(registers[rd], sel));
+				set_register(rt, get_C0_register(rd, sel));
 				break;
 
 			case 0x04:	// MTC0
-				set_C0_register(registers[rd], sel, registers[rt]);
+				set_C0_register(rd, sel, registers[rt]);
 				break;
 
 			case 0x0b:	// DI/EI
@@ -131,303 +117,6 @@ void processor::COP0(int instruction)
 			default:
 				pdc -> log("cop0: don't know how to handle function %02x (0)", function);
 		}
-	}
-}
-
-void processor::r_type(int instruction) // SPECIAL
-{
-	int function = instruction & MASK_6B;
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
-
-	switch(function)
-	{
-		case 0x00:		// NOP / SLL
-			if (sa) // if sa==0 then NOP
-				set_register(rd, registers[rt] << sa);
-			break;
-
-		case 0x02:		// SRL / ROTR
-			if (IS_BIT_OFF0_SET(21, instruction))
-				set_register(rd, rotate_right(registers[rt] & MASK_32B, sa, 32));
-			else
-				set_register(rd, (registers[rt] & MASK_32B) >> sa);
-			break;
-
-		case 0x03:		// SRA
-			set_register(rd, sign_extend(registers[rt] >> sa, 32 - sa));
-			break;
-
-		case 0x04:		// SLLV
-			set_register(rd, registers[rt] << sa);
-			break;
-
-		case 0x06:		// SRLV / ROTRV
-			if (IS_BIT_OFF0_SET(21, instruction))
-				set_register(rd, rotate_right(registers[rt] & MASK_32B, registers[rs] & MASK_5B, 32));
-			else
-				set_register(rd, (registers[rt] & MASK_32B) >> (registers[rs] & MASK_5B));
-			break;
-
-		case 0x08:		// JR
-			tick();	// need to execute the next instruction - what if it is a JR as well? FIXME
-			PC = registers[rs];
-			break;
-
-		case 0x09:		// JALR
-			tick();
-			set_register(rd, PC + 4);
-			PC = registers[rs];
-			break;
-
-		case 0x0a:		// MOVZ
-			if (registers[rt] == 0)
-				set_register(rd, registers[rs]);
-			break;
-
-		case 0x0b:		// MOVN
-			if (registers[rt])
-				set_register(rd, registers[rs]);
-			break;
-
-		case 0x0d:		// BREAK for debugging FIXME
-			pdc -> log("BREAK");
-			break;
-
-		case 0x10:		// MFHI
-			set_register(rd, HI);
-			break;
-
-		case 0x11:		// MTHI
-			HI = registers[rs];
-			break;
-
-		case 0x12:		// MFLO
-			set_register(rd, LO);
-			break;
-
-		case 0x13:		// MTLO
-			LO = registers[rs];
-			break;
-
-		case 0x21:		// ADDU
-			set_register(rd, (registers[rs] + registers[rt]) & MASK_32B);
-			break;
-
-		case 0x23:		// SUBU
-			set_register(rd, (registers[rs] - registers[rt]) & MASK_32B);
-			break;
-
-		case 0x24:		// AND
-			set_register(rd, registers[rs] & registers[rt]);
-			break;
-
-		case 0x25:		// OR
-			set_register(rd, registers[rs] | registers[rt]);
-			break;
-
-		case 0x26:		// XOR
-			set_register(rd, registers[rs] ^ registers[rt]);
-			break;
-
-		case 0x2a:		// SLT
-			if (untwos_complement(registers[rs], 32) < untwos_complement(registers[rt], 32))
-				set_register(rd, 1);
-			else
-				set_register(rd, 0);
-			break;
-
-		case 0x2b:		// SLTU
-			if (registers[rs] < registers[rt])
-				set_register(rd, 1);
-			else
-				set_register(rd, 0);
-			break;
-
-		default:
-			// throw invalid
-			pdc -> log("r-type unsupported function %02x", function);
-			break;
-	}
-}
-
-void processor::i_type(int opcode, int instruction)
-{
-	int immediate = instruction & MASK_16B;
-	int immediate_s = untwos_complement(immediate, 16);
-
-	int rs = (instruction >> 21) & MASK_5B;
-	int base = rs;
-	int rt = (instruction >> 16) & MASK_5B;
-
-	int offset = immediate;
-	int offset_s = immediate_s;
-	int b18_signed_offset = untwos_complement(offset << 2, 18);
-
-	int temp_32b = -1, address = -1;
-
-	switch(opcode)
-	{
-		case 0x01:		// BGEZAL
-			regimm(instruction);
-			break;
-			
-		case 0x04:		// BEQ
-			if (registers[rs] == registers[rt])
-			{
-				int new_PC = PC + b18_signed_offset;
-				tick();
-				PC = new_PC;
-			}
-			break;
-
-		case 0x05:		// BNE
-		case 0x15:		// BNEL
-			if (registers[rs] != registers[rt])
-			{
-				int new_PC = PC + b18_signed_offset;
-				tick();
-				PC = new_PC;
-			}
-			break;
-
-		case 0x08:		// ADDI
-			set_register(rt, registers[rs] + immediate_s);
-			// FIXME handle overflows
-			break;
-
-		case 0x09:		// ADDIU
-			set_register(rt, registers[rs] + immediate_s);
-			break;
-
-		case 0x0a:		// SLTI
-			if (untwos_complement(registers[rs], 32) < untwos_complement(immediate, 16))
-				set_register(rt, 1);
-			else
-				set_register(rt, 0);
-			break;
-
-		case 0x0b:		// SLTIU
-			if (registers[rs] < sign_extend_16b(immediate))
-				set_register(rt, 1);
-			else
-				set_register(rt, 0);
-			break;
-
-		case 0x0c:		// ANDI
-			set_register(rt, registers[rs] & immediate);
-			break;
-
-		case 0x0d:		// ORI
-			set_register(rt, registers[rs] | immediate);
-			break;
-
-		case 0x0e:		// XORI
-			set_register(rt, registers[rs] ^ immediate);
-			break;
-
-		case 0x0f:		// LUI
-			set_register(rt, immediate << 16);
-			break;
-
-		case 0x1c:		// SPECIAL2
-			special2(instruction);
-			break;
-
-		case 0x1f:		// SPECIAL3
-			special3(instruction);
-			break;
-
-
-		case 0x20:		// LB
-		case 0x24:		// LBU
-			address = registers[base] + offset_s;
-			if (!pmb -> read_8b(address, &temp_32b))
-				pdc -> log("i-type read 8b from %08x failed", address);
-			if (opcode == 0x24)
-				set_register(rt, temp_32b);
-			else
-				set_register(rt, sign_extend_8b(temp_32b));
-			break;
-
-		case 0x21:		// LH
-		case 0x25:		// LHU
-			address = registers[base] + offset_s;
-			if (address & 1)
-			{
-				pdc -> log("i-type read 16b from %08x: unaligned", address);
-				// FIXME throw address error exception
-			}
-			else
-			{
-				if (!pmb -> read_16b(address, &temp_32b))
-					pdc -> log("i-type read 16b from %08x failed", address);
-				if (opcode == 0x25)
-					set_register(rt, temp_32b);
-				else
-					set_register(rt, sign_extend_16b(temp_32b));
-			}
-			break;
-
-		case 0x23:		// LW
-		case 0x30:		// LL
-			address = registers[base] + offset_s;
-			if (address & 3)
-			{
-				pdc -> log("i-type read 32b from %08x: unaligned", address);
-				// FIXME throw address error exception
-			}
-			else
-			{
-				if (!pmb -> read_32b(address, &temp_32b))
-					pdc -> log("i-type read 32b from %08x failed", address);
-				set_register(rt, temp_32b);
-			}
-			break;
-
-		case 0x28:		// SB
-			address = registers[base] + offset_s;
-			temp_32b = registers[rt];
-			if (!pmb -> write_8b(address, temp_32b))
-				pdc -> log("i-type write 8b %02x to %08x failed", registers[rt] & 0xff, address);
-			break;
-
-		case 0x29:		// SH
-			address = registers[base] + offset_s;
-			if (address & 1)
-			{
-				pdc -> log("i-type write 16b %04x to %08x: unaligned", registers[rt] & 0xffff, address);
-				// FIXME throw address error exception
-			}
-			else
-			{
-				temp_32b = registers[rt];
-				if (!pmb -> write_16b(address, temp_32b))
-					pdc -> log("i-type write 16b %04x to %08x failed", registers[rt] & 0xffff, address);
-			}
-			break;
-
-		case 0x2b:		// SW
-			address = registers[base] + offset_s;
-			if (address & 3)
-			{
-				pdc -> log("i-type write 32b %08x to %08x: unaligned", registers[rt], address);
-				// FIXME throw address error exception
-			}
-			else
-			{
-				temp_32b = registers[rt];
-				if (!pmb -> write_32b(address, temp_32b))
-					pdc -> log("i-type write 32b %08x to %08x failed", registers[rt], address);
-			}
-			break;
-
-		default:
-			// throw invalid
-			pdc -> log("i-type unsupported function %02x", opcode);
-			break;
 	}
 }
 
@@ -473,13 +162,13 @@ void processor::regimm(int instruction)
 	int function = rt;
 
 	int offset = immediate;
-	int b18_signed_offset = untwos_complement(offset << 2, 18);
+	int b18_signed_offset = untwos_complement_16b(offset) << 2;
 
 	switch(function)
 	{
 		case 0x01:		// BGEZ
 		case 0x03:		// BGEZL
-			if (untwos_complement(registers[rs], 16) >= 0)
+			if (untwos_complement_16b(registers[rs]) >= 0)
 				PC += b18_signed_offset;
 			break;
 
@@ -487,7 +176,7 @@ void processor::regimm(int instruction)
 		case 0x13:		// BGEZALL
 			if (rs == 31)
 				pdc -> log("i-type / REGIMM / BGEZ using rs 31");
-			if (untwos_complement(registers[rs], 16) >= 0)
+			if (untwos_complement_16b(registers[rs]) >= 0)
 			{
 				set_register(31, PC + 4);
 
