@@ -574,6 +574,42 @@ void test_SW()
 	free_system(mb, m1, m2, p);
 }
 
+void test_ORI()
+{
+	memory_bus *mb = NULL;
+	memory *m1 = NULL, *m2 = NULL;
+	processor *p = NULL;
+	create_system(&mb, &m1, &m2, &p);
+
+	p -> reset();
+
+	int old_val = 0x1234beef;
+	int rt = 1;
+	p -> set_register(rt, old_val);
+
+	int immediate = 0x1234;
+
+	int or_value = 0x4321;
+	int rs = 9;
+	p -> set_register(rs, or_value);
+
+	int expected = p -> get_register(rs) | immediate;
+
+	int function = 0x0d;
+	int instruction = make_cmd_I_TYPE(rs, rt, function, immediate);
+
+	if (!m1 -> write_32b(0, instruction))
+		error_exit("failed to write to memory @ 0");
+
+	p -> tick();
+
+	int result = p -> get_register(rt);
+	if (result != expected)
+		error_exit("ORI: result is %08x, expected %08x", result, expected);
+
+	free_system(mb, m1, m2, p);
+}
+
 int main(int argc, char *argv[])
 {
 	test_untows_complement();
@@ -597,6 +633,8 @@ int main(int argc, char *argv[])
 	test_LUI();
 
 	test_LW();
+
+	test_ORI();
 
 	test_SLL();
 
