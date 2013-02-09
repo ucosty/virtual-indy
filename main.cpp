@@ -8,8 +8,8 @@
 #include "debug_console.h"
 #include "log.h"
 
-bool single_step = false;
-const char *logfile = NULL;
+bool single_step = true;
+const char *logfile = "bla.txt";
 
 volatile bool terminate = false;
 
@@ -60,8 +60,6 @@ int main(int argc, char *argv[])
 	delete p;
 	delete mb;
 	delete m;
-
-	delete m_prom;
 
 	dolog("--- END ---");
 

@@ -3,6 +3,79 @@
 #include "processor_utils.h"
 #include "utils.h"
 
+std::string processor::da_logline(int instruction)
+{
+	int temp_32b = -1;
+	bool rc = pmb -> read_32b(PC, &temp_32b);
+
+	std::string line = format("PC: %08x / %d|%08x", PC, rc, temp_32b);
+
+	int opcode = (instruction >> 26) & MASK_6B;
+
+	if (opcode == 0)			// R-type
+	{
+		int function = instruction & MASK_6B;
+		int sa = (instruction >> 6) & MASK_5B;
+		int rd = (instruction >> 11) & MASK_5B;
+		int rt = (instruction >> 16) & MASK_5B;
+		int rs = (instruction >> 21) & MASK_5B;
+
+		line += format("\tfu %02x", function);
+		line += format("\tsa %08x", sa);
+		line += format("\trd %s|%08x", reg_to_name(rd), registers[rd]);
+		line += format("\trt %s|%08x", reg_to_name(rt), registers[rt]);
+		line += format("\trs %s|%08x", reg_to_name(rs), registers[rs]);
+
+	}
+	else if (opcode == 2 || opcode == 3)	// J-type
+	{
+		int new_PC = ((instruction & MASK_26B) << 2) | (PC & 0xFC000000);
+
+		line += format("\tnPC %08x", new_PC);
+	}
+	else if (opcode != 16 && opcode != 17 && opcode != 18 && opcode != 19) // I-type
+	{
+		int immediate = instruction & MASK_16B;
+		int immediate_s = untwos_complement_16b(immediate);
+
+		int rs = (instruction >> 21) & MASK_5B;
+		int rt = (instruction >> 16) & MASK_5B;
+
+		line += format("\tim: %04x", immediate);
+		line += format("\tims: %d", immediate_s);
+		line += format("\trt %s|%08x", reg_to_name(rt), registers[rt]);
+		line += format("\trs %s|%08x", reg_to_name(rs), registers[rs]);
+	}
+	else if (opcode == 16)	// COP0
+	{
+		if (IS_BIT_OFF0_SET(21, instruction))	//
+		{
+			int function = instruction & MASK_6B;
+
+			line += format("\t1 fu %02x", function);
+		}
+		else
+		{
+			int function = (instruction >> 21) & MASK_5B;
+			int sel = instruction & MASK_3B;
+			int rd = (instruction >> 11) & MASK_5B;
+			int rt = (instruction >> 16) & MASK_5B;
+
+			line += format("\t0 fu %02x", function);
+
+			line += format("\tsel %d", sel);
+			line += format("\trd %02x", rd);
+			line += format("\trt %02x", rt);
+			line += format("\tC0 %08x", get_C0_register(rd, sel));
+		}
+	}
+
+	line += "\t";
+	line += decode_to_text(instruction);
+
+	return line;
+}
+
 const char * processor::reg_to_name(int reg)
 {
 	ASSERT(reg >= 0 && reg <= 31);
@@ -174,7 +247,7 @@ std::string processor::decode_to_text(int instruction)
 	else if (opcode != 16 && opcode != 17 && opcode != 18 && opcode != 19) // I-type
 	{
 		int immediate = instruction & MASK_16B;
-		int immediate_s = untwos_complement(immediate, 16);
+		int immediate_s = untwos_complement_16b(immediate);
 
 		int rs = (instruction >> 21) & MASK_5B;
 		int rt = (instruction >> 16) & MASK_5B;

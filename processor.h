@@ -196,6 +196,7 @@ public:
 
 	static const char * reg_to_name(int reg);
 	static std::string decode_to_text(int instr);
+	std::string da_logline(int instr);
 };
 
 #endif

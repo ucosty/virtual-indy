@@ -163,17 +163,17 @@ void debug_console::tick(processor *p)
 		mvwprintw(win_regs, 2, 44, "HI: %08x", p -> get_HI());
 		mvwprintw(win_regs, 3, 44, "SR: %08x", p -> get_SR());
 
-		int temp_32b = -1;
-		bool r_ok = p -> get_mem_32b(PC, &temp_32b);
-		mvwprintw(win_regs, 5, 44, "mem: %d/%08x", r_ok, temp_32b);
+		int instruction = -1;
+		bool r_ok = p -> get_mem_32b(PC, &instruction);
+		mvwprintw(win_regs, 5, 44, "mem: %d/%08x", r_ok, instruction);
 
-		int opcode = (temp_32b >> 26) & MASK_6B;
-		int function = temp_32b & MASK_6B;
-		int sa = (temp_32b >> 6) & MASK_5B;
-		int rd = (temp_32b >> 11) & MASK_5B;
-		int rt = (temp_32b >> 16) & MASK_5B;
-		int rs = (temp_32b >> 21) & MASK_5B;
-		int immediate = temp_32b & MASK_16B;
+		int opcode = (instruction >> 26) & MASK_6B;
+		int function = instruction & MASK_6B;
+		int sa = (instruction >> 6) & MASK_5B;
+		int rd = (instruction >> 11) & MASK_5B;
+		int rt = (instruction >> 16) & MASK_5B;
+		int rs = (instruction >> 21) & MASK_5B;
+		int immediate = instruction & MASK_16B;
 		int b18_signed_offset = untwos_complement(immediate << 2, 18);
 		mvwprintw(win_regs,  6, 44, "op: %02x", opcode);
 		mvwprintw(win_regs,  7, 44, "rs: %02x", rs);
@@ -184,7 +184,7 @@ void debug_console::tick(processor *p)
 		mvwprintw(win_regs, 12, 44, "im: %04x", immediate);
 		mvwprintw(win_regs, 13, 44, "of: %d", b18_signed_offset);
 
-		std::string decoded = p -> decode_to_text(temp_32b);
+		std::string decoded = p -> decode_to_text(instruction);
 		mvwprintw(win_regs, 14, 44, "  :                       ");
 		mvwprintw(win_regs, 14, 44, "  : %s", decoded.c_str());
 
@@ -192,7 +192,8 @@ void debug_console::tick(processor *p)
 		if (t_diff)
 			mvwprintw(win_regs, 15, 44, "I/S: %f", double(n_ticks) / t_diff);
 
-		dolog("PC: %08x, %08x, op: %02x rs: %02x [%08x] rt: %02x rd: %02x sa: %02x fu: %02x im: %04x of: %d\t%s", PC, temp_32b, opcode, rs, p -> get_register(rs), rt, rd, sa, function, immediate, b18_signed_offset, decoded.c_str());
+		std::string logline = p -> da_logline(instruction);
+		dolog(logline.c_str());
 
 		if (had_logging)
 		{

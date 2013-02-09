@@ -21,7 +21,7 @@ void load_file(const char *filename, unsigned char **data, int *len)
                 error_exit("Stat on file %s failed", filename);
 
 	*len = st.st_size;
-        *data = (unsigned char *)malloc(*len + 1);
+        *data = new unsigned char[*len + 1];
 
         if (fread(*data, 1, *len, fh) != size_t(*len))
                 error_exit("Short read on %s", filename);

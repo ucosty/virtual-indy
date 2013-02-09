@@ -1,2 +1,1 @@
-- log-string uit debug_console naar disassembler
-- bij log-string de inhoud van de registers tonen waar iets mee gedaan wordt e.d.
+- testcases: untwos_complement_16b

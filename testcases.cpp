@@ -277,6 +277,21 @@ void test_untows_complement()
 	if (rc != -32768)
 		error_exit("untwos_complement failed 16b (a) %d expected -32768", rc);
 
+	value = 0x8000;
+	rc = untwos_complement_16b(value);
+	if (rc != -32768)
+		error_exit("untwos_complement_16b failed (a) %d expected -32768", rc);
+
+	value = 0xffff, bits = 16;
+	rc = untwos_complement(value, bits);
+	if (rc != -1)
+		error_exit("untwos_complement failed 16b (a) %d expected -1", rc);
+
+	value = 0xffff;
+	rc = untwos_complement_16b(value);
+	if (rc != -1)
+		error_exit("untwos_complement_16b failed (a) %d expected -32768", rc);
+
 	value = 0x80000000, bits = 32;
 	rc = untwos_complement(value, bits);
 	if (rc != -2147483648)
@@ -292,6 +307,11 @@ void test_untows_complement()
 	rc = untwos_complement(value, bits);
 	if (rc != 16384)
 		error_exit("untwos_complement failed 16b (b) %d expected 16384", rc);
+
+	value = 0x4000;
+	rc = untwos_complement_16b(value);
+	if (rc != 16384)
+		error_exit("untwos_complement_16b failed (b) %d expected 16384", rc);
 
 	value = 0x40000000, bits = 32;
 	rc = untwos_complement(value, bits);
