@@ -4,7 +4,7 @@ DEBUG=-g -D_DEBUG=1 -pg
 CXXFLAGS+=-O3 -pedantic -Wall -DVERSION=\"$(VERSION)\" $(DEBUG)
 LDFLAGS=$(DEBUG) -lncurses
 
-OBJS=memory_bus.o memory.o processor.o graphics_lg1.o processor_utils.o error.o utils.o debug_console.o debug_console_simple.o log.o processor_r_type.o processor_i_type.o processor_COP0.o processor_j_type.o processor_special2.o processor_regimm.o processor_special3.o
+OBJS=memory_bus.o memory.o processor.o graphics_lg1.o processor_utils.o error.o utils.o debug_console.o debug_console_simple.o log.o processor_r_type.o processor_i_type.o processor_COP0.o processor_j_type.o processor_special2.o processor_regimm.o processor_special3.o processor_disassembler.o
 OBJStest=testcases.o
 OBJSmain=main.o
 
