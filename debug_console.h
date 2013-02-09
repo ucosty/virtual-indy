@@ -1,6 +1,9 @@
 #ifndef __DEBUG_CONSOLE__H__
 #define __DEBUG_CONSOLE__H__
 
+#include <map>
+#include <string>
+
 #include <ncurses.h>
 
 class processor;
@@ -17,6 +20,7 @@ private:
 	long long int n_ticks;
 	int refresh_counter;
 	bool had_logging;
+	std::map<std::string, long int> instruction_counts;
 
 	void recreate_terminal();
 	void create_windows();

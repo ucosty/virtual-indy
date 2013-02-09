@@ -91,6 +91,18 @@ void debug_console::init()
 
 debug_console::~debug_console()
 {
+	log("");
+	log("instruction usage counts");
+	log("------------------------");
+	std::map<std::string, long int>::iterator it = instruction_counts.begin();
+
+	while(it != instruction_counts.end())
+	{
+		log("%s\t%ld", it -> first.c_str(), it -> second);
+
+		it++;
+	}
+
 	if (nc)
 	{
 		delwin(win_regs);
@@ -187,6 +199,19 @@ void debug_console::tick(processor *p)
 		std::string decoded = p -> decode_to_text(instruction);
 		mvwprintw(win_regs, 14, 44, "  :                       ");
 		mvwprintw(win_regs, 14, 44, "  : %s", decoded.c_str());
+
+		unsigned int space = decoded.find(' ');
+		if (space == std::string::npos)
+			space = decoded.length();
+
+		std::string instruction_name = decoded.substr(0, space);
+
+		std::map<std::string, long int>::iterator found = instruction_counts.find(instruction_name);
+
+		if (found != instruction_counts.end())
+			found -> second++;
+		else
+			instruction_counts.insert(std::pair<std::string, long int>(instruction_name, 1));
 
 		double t_diff = now_ts - start_ts;
 		if (t_diff)
