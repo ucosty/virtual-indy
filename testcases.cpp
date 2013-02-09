@@ -1,14 +1,20 @@
 #include <stdio.h>
 
 #include "error.h"
-#include "debug_console_simple.h"
+#include "debug_console_testcases.h"
 #include "processor.h"
 #include "processor_utils.h"
 
 bool single_step = false; // not applicable
-debug_console *dc = new debug_console_simple();
+debug_console *dc = new debug_console_testcases();
 
 const char *logfile = "testcases.log";
+
+void tick(processor *p)
+{
+	dc -> tick(p);
+	p -> tick();
+}
 
 void exec(memory_bus *mb, std::vector<int> instructions, processor *p)
 {
@@ -20,7 +26,7 @@ void exec(memory_bus *mb, std::vector<int> instructions, processor *p)
 			error_exit("failed to write to offset %d in memory", offset);
 	}
 
-	p -> tick();
+	tick(p);
 }
 
 void create_system(memory_bus **mb, memory **m1, memory **m2, processor **p, int *m1s = NULL, int *m2s = NULL, int *po1 = NULL, int *po2 = NULL)
@@ -161,7 +167,7 @@ void test_processor()
 	if (p -> get_PC())
 		error_exit("failed: pc != 0 after reset");
 
-	p -> tick();
+	tick(p);
 	if (p -> get_PC() != 4)
 		error_exit("failed: pc != 4 after 1 tick");
 
@@ -379,7 +385,7 @@ void test_LW()
 		if (!m1 -> write_32b(addr, addr_val))
 			error_exit("LW: failed to write to offset %x in memory", addr);
 
-		p -> tick();
+		tick(p);
 
 		int temp_32b = p -> get_register(rt);
 
@@ -414,7 +420,7 @@ void test_LW()
 		if (!m1 -> write_32b(addr, addr_val))
 			error_exit("failed to write to memory @ 0");
 
-		p -> tick();
+		tick(p);
 
 		temp_32b = p -> get_register(rt);
 
@@ -453,7 +459,7 @@ void test_SLL()
 		error_exit("failed to write to memory @ 0");
 	int temp_32b;
 
-	p -> tick();
+	tick(p);
 
 	int input_val_check = p -> get_register(rt);
 	if (input_val_check != input_val)
@@ -493,7 +499,7 @@ void test_SRL()
 	if (!m1 -> write_32b(0, instr))
 		error_exit("failed to write to memory @ 0");
 
-	p -> tick();
+	tick(p);
 
 	int input_val_check = p -> get_register(2);
 	if (input_val_check != input_val)
@@ -524,7 +530,7 @@ void test_LUI()
 
 	if (!m1 -> write_32b(0, instr))
 		error_exit("failed to write to memory @ 0");
-	p -> tick();
+	tick(p);
 
 	int rc = p -> get_register(rt);
 	if (rc != expected)
@@ -560,7 +566,7 @@ void test_SW()
 	if (!m1 -> write_32b(0, instruction))
 		error_exit("failed to write to memory @ 0");
 
-	p -> tick();
+	tick(p);
 
 	int result_mem_val = -1;
 	if (!m1 -> read_32b(final_address, &result_mem_val))
@@ -601,7 +607,7 @@ void test_ORI()
 	if (!m1 -> write_32b(0, instruction))
 		error_exit("failed to write to memory @ 0");
 
-	p -> tick();
+	tick(p);
 
 	int result = p -> get_register(rt);
 	if (result != expected)
@@ -637,11 +643,51 @@ void test_ADDIU()
 	if (!m1 -> write_32b(0, instruction))
 		error_exit("failed to write to memory @ 0");
 
-	p -> tick();
+	tick(p);
 
 	int result = p -> get_register(rt);
 	if (result != expected)
 		error_exit("ADDIU: result is %08x, expected %08x", result, expected);
+
+	free_system(mb, m1, m2, p);
+}
+
+void test_AND()
+{
+	memory_bus *mb = NULL;
+	memory *m1 = NULL, *m2 = NULL;
+	processor *p = NULL;
+	create_system(&mb, &m1, &m2, &p);
+
+	p -> reset();
+
+	int sa = 31;
+
+	int rt_val = 0x1234beef;
+	int rt = 1;
+	p -> set_register(rt, rt_val);
+
+	int rs_val = 0xdeaf5678;
+	int rs = 9;
+	p -> set_register(rs, rs_val);
+
+	int rd_val = 0xaaaabbbb;
+	int rd = 9;
+	p -> set_register(rd, rd_val);
+
+	int expected = p -> get_register(rs) & p -> get_register(rt);
+
+	int function = 0x24, extra = rs;
+	int instruction = make_cmd_SPECIAL(rt, rd, sa, function, extra);
+
+	if (!m1 -> write_32b(0, instruction))
+		error_exit("failed to write to memory @ 0");
+
+	tick(p);
+
+	int result = p -> get_register(rd);
+	if (result != expected)
+		error_exit("AND: result is %08x, expected %08x", result, expected);
 
 	free_system(mb, m1, m2, p);
 }
@@ -667,6 +713,8 @@ int main(int argc, char *argv[])
 	test_processor();
 
 	test_ADDIU();
+
+	test_AND();
 
 	test_LUI();
 
