@@ -610,6 +610,42 @@ void test_ORI()
 	free_system(mb, m1, m2, p);
 }
 
+void test_ADDIU()
+{
+	memory_bus *mb = NULL;
+	memory *m1 = NULL, *m2 = NULL;
+	processor *p = NULL;
+	create_system(&mb, &m1, &m2, &p);
+
+	p -> reset();
+
+	int old_val = 0x1234beef;
+	int rt = 1;
+	p -> set_register(rt, old_val);
+
+	int immediate = 0x1234;
+
+	int addiu_value = 0x4321;
+	int rs = 9;
+	p -> set_register(rs, addiu_value);
+
+	int expected = (p -> get_register(rs) + untwos_complement_16b(immediate)) & MASK_32B;
+
+	int function = 0x09;
+	int instruction = make_cmd_I_TYPE(rs, rt, function, immediate);
+
+	if (!m1 -> write_32b(0, instruction))
+		error_exit("failed to write to memory @ 0");
+
+	p -> tick();
+
+	int result = p -> get_register(rt);
+	if (result != expected)
+		error_exit("ADDIU: result is %08x, expected %08x", result, expected);
+
+	free_system(mb, m1, m2, p);
+}
+
 int main(int argc, char *argv[])
 {
 	test_untows_complement();
@@ -629,6 +665,8 @@ int main(int argc, char *argv[])
 	test_memory_bus();
 
 	test_processor();
+
+	test_ADDIU();
 
 	test_LUI();
 
