@@ -5,7 +5,7 @@
 int untwos_complement_16b(int value)
 {
 	if (value & 32768)
-		return (~value) + 1;
+		return -(MASK_16B - value + 1);
 
 	return value;
 }
@@ -14,8 +14,8 @@ int untwos_complement(int value, int bits)
 {
 	ASSERT(bits >= 1 && bits <= 64);
 
-	if (IS_BIT_OFF0_SET(bits - 1 , value))
-		return (~value) + 1; // FIXME fails with 64 bit?
+        if (IS_BIT_OFF0_SET(bits - 1, value))
+                return -((1ll << bits) - value); // FIXME fails with 64 bit?
 
 	return value;
 }
