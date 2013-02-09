@@ -24,3 +24,4 @@ int sign_extend(int value, int bits);
 int make_cmd_I_TYPE(int rs, int rt, int function, int immediate);
 int make_cmd_SPECIAL(int rt, int rd, int sa, int function, int extra);
 int make_cmd_J_TYPE(int function, int target);
+int make_cmd_R_TYPE(int opcode, int sa, int rd, int rt, int rs, int function);

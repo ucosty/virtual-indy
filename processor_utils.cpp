@@ -162,3 +162,13 @@ int make_cmd_J_TYPE(int function, int target)
 	return (function << 26) |
 		target;
 }
+
+int make_cmd_R_TYPE(int opcode, int sa, int rd, int rt, int rs, int function)
+{
+	return (opcode << 26) |
+		(rs << 21) |
+		(rt << 16) |
+		(rd << 11) |
+		(sa << 6) |
+		function;
+}

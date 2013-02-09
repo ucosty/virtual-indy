@@ -692,6 +692,79 @@ void test_AND()
 	free_system(mb, m1, m2, p);
 }
 
+typedef struct
+{
+	int registers[32], PC, HI, LO, status_register;
+	int C0_registers[32];
+}
+all_registers_t;
+
+all_registers_t * copy_registers(processor *p)
+{
+	all_registers_t *s = new all_registers_t;
+
+	for(int nr=0; nr<32; nr++)
+	{
+		s -> registers[nr] = p -> get_register(nr);
+		s -> C0_registers[nr] = p -> get_C0_register(nr, 0);
+	}
+
+	s -> PC = p -> get_PC();
+	s -> HI = p -> get_HI();
+	s -> LO = p -> get_LO();
+	s -> status_register = p -> get_SR();
+
+	return s;
+}
+
+void test_NOP()
+{
+	memory_bus *mb = NULL;
+	memory *m1 = NULL, *m2 = NULL;
+	processor *p = NULL;
+	create_system(&mb, &m1, &m2, &p);
+
+	p -> reset();
+
+	all_registers_t *reg_copy = copy_registers(p);
+
+	int opcode = 0;
+	int function = 0;
+	int sa = 0, rd = 0, rt = 0, rs = 0;
+	int instruction = make_cmd_R_TYPE(opcode, sa, rd, rt, rs, function);
+
+	if (!m1 -> write_32b(0, instruction))
+		error_exit("failed to write to memory @ 0");
+
+	tick(p);
+
+	for(int nr=0; nr<32; nr++)
+	{
+		if (p -> get_register(nr) != reg_copy -> registers[nr])
+			error_exit("NOP: register %s (%d) mismatch", processor::reg_to_name(nr), nr);
+
+		if (p -> get_C0_register(nr, 0) != reg_copy -> C0_registers[nr])
+			error_exit("NOP: C0 register %d mismatch", nr);
+	}
+
+	int expected_PC = reg_copy -> PC + 4;
+	if (expected_PC != p -> get_PC())
+		error_exit("NOP: expected PC %08x, got %08x", expected_PC, p -> get_PC());
+
+	if (reg_copy -> HI != p -> get_HI())
+		error_exit("NOP: expected HI %08x, got %08x", reg_copy -> HI, p -> get_HI());
+
+	if (reg_copy -> LO != p -> get_LO())
+		error_exit("NOP: expected LO %08x, got %08x", reg_copy -> LO, p -> get_LO());
+
+	if (reg_copy -> status_register != p -> get_LO())
+		error_exit("NOP: expected LO %08x, got %08x", reg_copy -> status_register, p -> get_LO());
+
+	delete reg_copy;
+
+	free_system(mb, m1, m2, p);
+}
+
 int main(int argc, char *argv[])
 {
 	test_untows_complement();
