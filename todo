@@ -1,1 +1,2 @@
-- check b18_signed_offset need to shift by 2 bit
+- log-string uit debug_console naar disassembler
+- bij log-string de inhoud van de registers tonen waar iets mee gedaan wordt e.d.
