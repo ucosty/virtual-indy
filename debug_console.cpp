@@ -185,7 +185,7 @@ void debug_console::tick(processor *p)
 		mvwprintw(win_regs, 13, 44, "of: %d", b18_signed_offset);
 
 		std::string decoded = p -> decode_to_text(temp_32b);
-		mvwprintw(win_regs, 14, 44, "  :                     ");
+		mvwprintw(win_regs, 14, 44, "  :                       ");
 		mvwprintw(win_regs, 14, 44, "  : %s", decoded.c_str());
 
 		double t_diff = now_ts - start_ts;

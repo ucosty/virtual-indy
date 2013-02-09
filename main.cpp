@@ -61,6 +61,8 @@ int main(int argc, char *argv[])
 	delete mb;
 	delete m;
 
+	delete m_prom;
+
 	dolog("--- END ---");
 
 	return 0;
