@@ -106,6 +106,16 @@ int sign_extend_16b(int value)
 	return value;
 }
 
+long long int sign_extend_32b(unsigned int value)
+{
+	ASSERT(value >= 0 && value <= MASK_32B);
+
+	if (IS_BIT_OFF0_SET(31, value))
+		return value | 0xffffffff00000000;
+
+	return value;
+}
+
 int sign_extend(int value, int bits)
 {
 	ASSERT(bits >= 1 && bits <= 64);

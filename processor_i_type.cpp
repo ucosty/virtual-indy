@@ -191,7 +191,7 @@ void processor::i_type_08(int instruction)	// ADDI
 	int rs = (instruction >> 21) & MASK_5B;
 	int rt = (instruction >> 16) & MASK_5B;
 
-	set_register(rt, registers[rs] + immediate_s);
+	set_register_32b(rt, registers[rs] + immediate_s);
 }
 
 void processor::i_type_09(int instruction)	// ADDIU
@@ -200,7 +200,7 @@ void processor::i_type_09(int instruction)	// ADDIU
 	int rs = (instruction >> 21) & MASK_5B;
 	int rt = (instruction >> 16) & MASK_5B;
 
-	set_register(rt, registers[rs] + immediate_s);
+	set_register_32b(rt, registers[rs] + immediate_s);
 }
 
 void processor::i_type_0a(int instruction)	// SLTI
@@ -210,9 +210,9 @@ void processor::i_type_0a(int instruction)	// SLTI
 	int rt = (instruction >> 16) & MASK_5B;
 
 	if (untwos_complement(registers[rs], 32) < immediate_s)
-		set_register(rt, 1);
+		set_register_32b(rt, 1);
 	else
-		set_register(rt, 0);
+		set_register_32b(rt, 0);
 }
 
 void processor::i_type_0b(int instruction)	// SLTIU
@@ -222,9 +222,9 @@ void processor::i_type_0b(int instruction)	// SLTIU
 	int rt = (instruction >> 16) & MASK_5B;
 
 	if (registers[rs] < sign_extend_16b(immediate))
-		set_register(rt, 1);
+		set_register_32b(rt, 1);
 	else
-		set_register(rt, 0);
+		set_register_32b(rt, 0);
 }
 
 void processor::i_type_0c(int instruction)	// ANDI
@@ -233,7 +233,7 @@ void processor::i_type_0c(int instruction)	// ANDI
 	int rs = (instruction >> 21) & MASK_5B;
 	int rt = (instruction >> 16) & MASK_5B;
 
-	set_register(rt, registers[rs] & immediate);
+	set_register_32b(rt, registers[rs] & immediate);
 }
 
 void processor::i_type_0d(int instruction)	// ORI
@@ -242,7 +242,7 @@ void processor::i_type_0d(int instruction)	// ORI
 	int rs = (instruction >> 21) & MASK_5B;
 	int rt = (instruction >> 16) & MASK_5B;
 
-	set_register(rt, registers[rs] | immediate);
+	set_register_32b(rt, registers[rs] | immediate);
 }
 
 void processor::i_type_0e(int instruction)	// XORI
@@ -251,7 +251,7 @@ void processor::i_type_0e(int instruction)	// XORI
 	int rs = (instruction >> 21) & MASK_5B;
 	int rt = (instruction >> 16) & MASK_5B;
 
-	set_register(rt, registers[rs] ^ immediate);
+	set_register_32b(rt, registers[rs] ^ immediate);
 }
 
 void processor::i_type_0f(int instruction)	// LUI
@@ -259,7 +259,7 @@ void processor::i_type_0f(int instruction)	// LUI
 	int immediate = instruction & MASK_16B;
 	int rt = (instruction >> 16) & MASK_5B;
 
-	set_register(rt, immediate << 16);
+	set_register_32b(rt, immediate << 16);
 }
 
 void processor::i_type_14(int instruction)
@@ -449,9 +449,9 @@ void processor::i_type_20(int instruction)	// LB / LBU
 	int opcode = (instruction >> 26) & MASK_6B;
 
 	if (opcode == 0x24)
-		set_register(rt, temp_32b);
+		set_register_32b(rt, temp_32b);
 	else
-		set_register(rt, sign_extend_8b(temp_32b));
+		set_register_32b(rt, sign_extend_8b(temp_32b));
 }
 
 void processor::i_type_21(int instruction)	// LH / LHU
@@ -477,9 +477,9 @@ void processor::i_type_21(int instruction)	// LH / LHU
 		int rt = (instruction >> 16) & MASK_5B;
 
 		if (opcode == 0x25)
-			set_register(rt, temp_32b);
+			set_register_32b(rt, temp_32b);
 		else
-			set_register(rt, sign_extend_16b(temp_32b));
+			set_register_32b(rt, sign_extend_16b(temp_32b));
 	}
 }
 
@@ -522,7 +522,7 @@ void processor::i_type_23(int instruction)	// LW / LL
 
 		int rt = (instruction >> 16) & MASK_5B;
 
-		set_register(rt, temp_32b);
+		set_register_32b(rt, temp_32b);
 	}
 }
 

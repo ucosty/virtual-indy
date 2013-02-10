@@ -172,7 +172,7 @@ void test_processor()
 		error_exit("failed: pc != 4 after 1 tick");
 
 	for(int reg=1; reg<32; reg++)
-		p -> set_register(reg, cmp_val);
+		p -> set_register_32b(reg, cmp_val);
 
 	p -> reset();
 
@@ -183,7 +183,7 @@ void test_processor()
 	}
 
 	for(int reg=1; reg<32; reg++)
-		p -> set_register(reg, cmp_val);
+		p -> set_register_32b(reg, cmp_val);
 
 	for(int reg=1; reg<32; reg++)
 	{
@@ -192,7 +192,7 @@ void test_processor()
 			error_exit("register %d has invalid value %x", val);
 	}
 
-	p -> set_register(0, cmp_val);
+	p -> set_register_32b(0, cmp_val);
 	if (p -> get_register(0))
 		error_exit("register 0 changed value!");
 
@@ -367,7 +367,7 @@ void test_LW()
 
 		int base = 1;
 		int base_val = 9;
-		p -> set_register(base, base_val);
+		p -> set_register_32b(base, base_val);
 
 		int rt = 2;
 
@@ -400,7 +400,7 @@ void test_LW()
 
 		int base = 1;
 		int base_val = 0xf0000;
-		p -> set_register(base, base_val);
+		p -> set_register_32b(base, base_val);
 
 		int rt = 2;
 
@@ -442,11 +442,11 @@ void test_SLL()
 	p -> reset();
 
 	int rd = 1;
-	p -> set_register(rd, 13);
+	p -> set_register_32b(rd, 13);
 
 	int input_val = 0xf000;
 	int rt = 2;
-	p -> set_register(rt, input_val);
+	p -> set_register_32b(rt, input_val);
 
 	int sa = 3;
 
@@ -484,11 +484,11 @@ void test_SRL()
 	p -> reset();
 
 	int rd = 1;
-	p -> set_register(rd, 13);
+	p -> set_register_32b(rd, 13);
 
 	int input_val = 191;
 	int rt = 2;
-	p -> set_register(rt, input_val);
+	p -> set_register_32b(rt, input_val);
 
 	int sa = 3;
 
@@ -550,11 +550,11 @@ void test_SW()
 
 	int verify_val = 0x1234beef;
 	int rt = 1;
-	p -> set_register(rt, verify_val);
+	p -> set_register_32b(rt, verify_val);
 
 	int address_base = 0x1000;
 	int base = 9, rs = base;
-	p -> set_register(base, address_base);
+	p -> set_register_32b(base, address_base);
 
 	int offset = 0x100, immediate = offset;
 
@@ -591,13 +591,13 @@ void test_ORI()
 
 	int old_val = 0x1234beef;
 	int rt = 1;
-	p -> set_register(rt, old_val);
+	p -> set_register_32b(rt, old_val);
 
 	int immediate = 0x1234;
 
 	int or_value = 0x4321;
 	int rs = 9;
-	p -> set_register(rs, or_value);
+	p -> set_register_32b(rs, or_value);
 
 	int expected = p -> get_register(rs) | immediate;
 
@@ -627,13 +627,13 @@ void test_ADDIU()
 
 	int old_val = 0x1234beef;
 	int rt = 1;
-	p -> set_register(rt, old_val);
+	p -> set_register_32b(rt, old_val);
 
 	int immediate = 0x1234;
 
 	int addiu_value = 0x4321;
 	int rs = 9;
-	p -> set_register(rs, addiu_value);
+	p -> set_register_32b(rs, addiu_value);
 
 	int expected = (p -> get_register(rs) + untwos_complement_16b(immediate)) & MASK_32B;
 
@@ -665,15 +665,15 @@ void test_AND()
 
 	int rt_val = 0x1234beef;
 	int rt = 1;
-	p -> set_register(rt, rt_val);
+	p -> set_register_32b(rt, rt_val);
 
 	int rs_val = 0xdeaf5678;
 	int rs = 9;
-	p -> set_register(rs, rs_val);
+	p -> set_register_32b(rs, rs_val);
 
 	int rd_val = 0xaaaabbbb;
 	int rd = 9;
-	p -> set_register(rd, rd_val);
+	p -> set_register_32b(rd, rd_val);
 
 	int expected = p -> get_register(rs) & p -> get_register(rt);
 
@@ -776,11 +776,11 @@ void test_BNE()
 
 	int rs_value = 0xdeadbeef;
 	int rs = 3;
-	p -> set_register(rs, rs_value);
+	p -> set_register_32b(rs, rs_value);
 
 	int rt_value = rs_value;
 	int rt = 18;
-	p -> set_register(rt, rt_value);
+	p -> set_register_32b(rt, rt_value);
 
 	int immediate_org = -1235;
 	int immediate = immediate_org & 0xffff;
@@ -799,7 +799,7 @@ void test_BNE()
 
 	//
 	rt_value = ~rs_value;
-	p -> set_register(rt, rt_value);
+	p -> set_register_32b(rt, rt_value);
 
 	p -> set_PC(0);
 

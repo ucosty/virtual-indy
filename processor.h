@@ -27,7 +27,8 @@ private:
 	// 29		$sp		stack pointer Points to last location on the stack.
 	// 30		$s8/$fp		saved value / frame pointer Preserved across procedure calls
 	// 31		$ra		return address
-	int registers[32], PC, HI, LO, status_register;
+	long long int registers[32], PC, HI, LO;
+	int status_register;
 	int C0_registers[32];
 
 	long long int cycles;
@@ -184,7 +185,9 @@ public:
 
 	int get_C0_register(int nr, int sel);
 
-	void set_register(int nr, int value);
+	void set_register_32b(int nr, int value);
+	void set_register_32b_se(int nr, int value);
+	void set_register_64b(int nr, long long int value);
 	void set_PC(int value) { PC = value; }
 	void set_HI(int value) { HI = value; }
 	void set_LO(int value) { LO = value; }

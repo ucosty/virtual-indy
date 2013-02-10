@@ -17,8 +17,9 @@ int untwos_complement(int value, int bits);
 int count_leading_ones(int n_bits, int value);
 int count_leading_zeros(int n_bits, int value);
 int rotate_right(int value, int n, int width);
-int sign_extend_8b(int value);
-int sign_extend_16b(int value);
+int sign_extend_8b(int value);	// to 16b
+int sign_extend_16b(int value);	// to 32b
+long long int sign_extend_32b(unsigned int value);	// to 64b
 int sign_extend(int value, int bits);
 
 int make_cmd_I_TYPE(int rs, int rt, int function, int immediate);

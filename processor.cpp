@@ -59,12 +59,32 @@ int processor::get_register(int nr) const
 	return registers[nr];
 }
 
-void processor::set_register(int nr, int value)
+void processor::set_register_32b(int nr, int value)
 {
 	ASSERT(nr >= 0 && nr <= 31);
 
 	if (nr == 0)
-		pdc -> log("trying to alter register 0! (%d)", nr);
+		pdc -> log("(32b) trying to alter register 0! (%d)", nr);
+	else
+		registers[nr] = (registers[nr] & ~MASK_32B) | value;
+}
+
+void processor::set_register_32b_se(int nr, int value)
+{
+	ASSERT(nr >= 0 && nr <= 31);
+
+	if (nr == 0)
+		pdc -> log("(32bse) trying to alter register 0! (%d)", nr);
+	else
+		registers[nr] = sign_extend_32b((unsigned int)value);
+}
+
+void processor::set_register_64b(int nr, long long int value)
+{
+	ASSERT(nr >= 0 && nr <= 31);
+
+	if (nr == 0)
+		pdc -> log("(64b) trying to alter register 0! (%d)", nr);
 	else
 		registers[nr] = value;
 }

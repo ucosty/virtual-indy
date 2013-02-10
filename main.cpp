@@ -8,7 +8,7 @@
 #include "debug_console.h"
 #include "log.h"
 
-bool single_step = true;
+bool single_step = false;
 const char *logfile = "bla.txt";
 
 volatile bool terminate = false;

@@ -14,17 +14,17 @@ void processor::special2(int instruction)
 	{
 		case 0x02:		// MUL
 			temp_64b = int(registers[rs]) * int(registers[rt]);
-			set_register(rd, temp_64b & MASK_32B);
+			set_register_32b(rd, temp_64b & MASK_32B);
 			// LO/HI are said to be unpredictable after this command
 			break;
 
 		case 0x1C:		// CLZ
-			set_register(rd, count_leading_zeros(32, registers[rs]));
+			set_register_32b(rd, count_leading_zeros(32, registers[rs]));
 			// FIXME also in rt?
 			break;
 
 		case 0x21:		// CLO
-			set_register(rd, count_leading_ones(32, registers[rs]));
+			set_register_32b(rd, count_leading_ones(32, registers[rs]));
 			// FIXME also in rt?
 			break;
 

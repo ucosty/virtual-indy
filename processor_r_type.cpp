@@ -76,7 +76,7 @@ void processor::r_type_00(int instruction)	// NOP / SLL
 	int rt = (instruction >> 16) & MASK_5B;
 
 	if (sa) // if sa==0 then NOP
-		set_register(rd, registers[rt] << sa);
+		set_register_32b(rd, registers[rt] << sa);
 }
 
 void processor::r_type_01(int instruction)
@@ -96,9 +96,9 @@ void processor::r_type_02(int instruction)	// SRL / ROTR
 	int rt = (instruction >> 16) & MASK_5B;
 
 	if (IS_BIT_OFF0_SET(21, instruction))
-		set_register(rd, rotate_right(registers[rt] & MASK_32B, sa, 32));
+		set_register_32b(rd, rotate_right(registers[rt] & MASK_32B, sa, 32));
 	else
-		set_register(rd, (registers[rt] & MASK_32B) >> sa);
+		set_register_32b(rd, (registers[rt] & MASK_32B) >> sa);
 }
 
 void processor::r_type_03(int instruction)	// SRA
@@ -107,7 +107,7 @@ void processor::r_type_03(int instruction)	// SRA
 	int rd = (instruction >> 11) & MASK_5B;
 	int rt = (instruction >> 16) & MASK_5B;
 
-	set_register(rd, sign_extend(registers[rt] >> sa, 32 - sa));
+	set_register_32b(rd, sign_extend(registers[rt] >> sa, 32 - sa));
 }
 
 void processor::r_type_04(int instruction)	// SLLV
@@ -116,7 +116,7 @@ void processor::r_type_04(int instruction)	// SLLV
 	int rd = (instruction >> 11) & MASK_5B;
 	int rt = (instruction >> 16) & MASK_5B;
 
-	set_register(rd, registers[rt] << sa);
+	set_register_32b(rd, registers[rt] << sa);
 }
 
 void processor::r_type_05(int instruction)
@@ -136,9 +136,9 @@ void processor::r_type_06(int instruction)	// SRLV / ROTRV
 	int rs = (instruction >> 21) & MASK_5B;
 
 	if (IS_BIT_OFF0_SET(21, instruction))
-		set_register(rd, rotate_right(registers[rt] & MASK_32B, registers[rs] & MASK_5B, 32));
+		set_register_32b(rd, rotate_right(registers[rt] & MASK_32B, registers[rs] & MASK_5B, 32));
 	else
-		set_register(rd, (registers[rt] & MASK_32B) >> (registers[rs] & MASK_5B));
+		set_register_32b(rd, (registers[rt] & MASK_32B) >> (registers[rs] & MASK_5B));
 }
 
 void processor::r_type_07(int instruction)
@@ -170,7 +170,7 @@ void processor::r_type_09(int instruction)	// JALR
 
 	tick();
 
-	set_register(rd, PC + 4);
+	set_register_32b(rd, PC + 4);
 
 	PC = registers[rs];
 }
@@ -182,7 +182,7 @@ void processor::r_type_0a(int instruction)	// MOVZ
 	int rs = (instruction >> 21) & MASK_5B;
 
 	if (registers[rt] == 0)
-		set_register(rd, registers[rs]);
+		set_register_32b(rd, registers[rs]);
 }
 
 void processor::r_type_0b(int instruction)	// MOVN
@@ -192,7 +192,7 @@ void processor::r_type_0b(int instruction)	// MOVN
 	int rs = (instruction >> 21) & MASK_5B;
 
 	if (registers[rt])
-		set_register(rd, registers[rs]);
+		set_register_32b(rd, registers[rs]);
 }
 
 void processor::r_type_0c(int instruction)
@@ -234,7 +234,7 @@ void processor::r_type_10(int instruction)	// MFHI
 {
 	int rd = (instruction >> 11) & MASK_5B;
 
-	set_register(rd, HI);
+	set_register_32b(rd, HI);
 }
 
 void processor::r_type_11(int instruction)	// MTHI
@@ -248,7 +248,7 @@ void processor::r_type_12(int instruction)	// MFLO
 {
 	int rd = (instruction >> 11) & MASK_5B;
 
-	set_register(rd, LO);
+	set_register_32b(rd, LO);
 }
 
 void processor::r_type_13(int instruction)	// MTLO
@@ -393,7 +393,7 @@ void processor::r_type_21(int instruction)	// ADDU
 	int rt = (instruction >> 16) & MASK_5B;
 	int rs = (instruction >> 21) & MASK_5B;
 
-	set_register(rd, (registers[rs] + registers[rt]) & MASK_32B);
+	set_register_32b(rd, (registers[rs] + registers[rt]) & MASK_32B);
 }
 
 void processor::r_type_22(int instruction)
@@ -412,7 +412,7 @@ void processor::r_type_23(int instruction)	// SUBU
 	int rt = (instruction >> 16) & MASK_5B;
 	int rs = (instruction >> 21) & MASK_5B;
 
-	set_register(rd, (registers[rs] - registers[rt]) & MASK_32B);
+	set_register_32b(rd, (registers[rs] - registers[rt]) & MASK_32B);
 }
 
 void processor::r_type_24(int instruction)	// AND
@@ -421,7 +421,7 @@ void processor::r_type_24(int instruction)	// AND
 	int rt = (instruction >> 16) & MASK_5B;
 	int rs = (instruction >> 21) & MASK_5B;
 
-	set_register(rd, registers[rs] & registers[rt]);
+	set_register_32b(rd, registers[rs] & registers[rt]);
 }
 
 void processor::r_type_25(int instruction)	// OR
@@ -430,7 +430,7 @@ void processor::r_type_25(int instruction)	// OR
 	int rt = (instruction >> 16) & MASK_5B;
 	int rs = (instruction >> 21) & MASK_5B;
 
-	set_register(rd, registers[rs] | registers[rt]);
+	set_register_32b(rd, registers[rs] | registers[rt]);
 }
 
 void processor::r_type_26(int instruction)	// XOR
@@ -439,7 +439,7 @@ void processor::r_type_26(int instruction)	// XOR
 	int rt = (instruction >> 16) & MASK_5B;
 	int rs = (instruction >> 21) & MASK_5B;
 
-	set_register(rd, registers[rs] ^ registers[rt]);
+	set_register_32b(rd, registers[rs] ^ registers[rt]);
 }
 
 void processor::r_type_27(int instruction)
@@ -479,9 +479,9 @@ void processor::r_type_2a(int instruction)	// SLT
 	int rs = (instruction >> 21) & MASK_5B;
 
 	if (untwos_complement(registers[rs], 32) < untwos_complement(registers[rt], 32))
-		set_register(rd, 1);
+		set_register_32b(rd, 1);
 	else
-		set_register(rd, 0);
+		set_register_32b(rd, 0);
 }
 
 void processor::r_type_2b(int instruction)	// SLTU
@@ -491,9 +491,9 @@ void processor::r_type_2b(int instruction)	// SLTU
 	int rs = (instruction >> 21) & MASK_5B;
 
 	if (registers[rs] < registers[rt])
-		set_register(rd, 1);
+		set_register_32b(rd, 1);
 	else
-		set_register(rd, 0);
+		set_register_32b(rd, 0);
 }
 
 void processor::r_type_2c(int instruction)

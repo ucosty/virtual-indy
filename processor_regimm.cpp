@@ -27,7 +27,7 @@ void processor::regimm(int instruction)
 
 			if (untwos_complement_16b(registers[rs]) >= 0)
 			{
-				set_register(31, PC + 4);
+				set_register_32b(31, PC + 4);
 
 				PC += b18_signed_offset;
 			}

@@ -30,7 +30,7 @@ void processor::COP0(int instruction)
 		switch(function)
 		{
 			case 0x00:	// MFC0
-				set_register(rt, get_C0_register(rd, sel));
+				set_register_32b(rt, get_C0_register(rd, sel));
 				break;
 
 			case 0x04:	// MTC0
@@ -40,12 +40,12 @@ void processor::COP0(int instruction)
 			case 0x0b:	// DI/EI
 				if (IS_BIT_OFF0_SET(5, instruction))
 				{
-					set_register(rt, status_register);
+					set_register_32b(rt, status_register);
 					SET_BIT(SR_EI, status_register);
 				}
 				else
 				{
-					set_register(rt, status_register);
+					set_register_32b(rt, status_register);
 					RESET_BIT(SR_EI, status_register);
 				}
 				break;
