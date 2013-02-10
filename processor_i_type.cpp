@@ -191,7 +191,8 @@ void processor::i_type_08(int instruction)	// ADDI
 	int rs = (instruction >> 21) & MASK_5B;
 	int rt = (instruction >> 16) & MASK_5B;
 
-	set_register_32b(rt, registers[rs] + immediate_s);
+	// FIXME 2's complement overflow check
+	set_register_32b_se(rt, get_register_32b_signed(rs) + immediate_s);
 }
 
 void processor::i_type_09(int instruction)	// ADDIU
@@ -200,7 +201,7 @@ void processor::i_type_09(int instruction)	// ADDIU
 	int rs = (instruction >> 21) & MASK_5B;
 	int rt = (instruction >> 16) & MASK_5B;
 
-	set_register_32b(rt, registers[rs] + immediate_s);
+	set_register_32b_se(rt, get_register_32b(rs) + immediate_s);
 }
 
 void processor::i_type_0a(int instruction)	// SLTI
@@ -209,7 +210,7 @@ void processor::i_type_0a(int instruction)	// SLTI
 	int rs = (instruction >> 21) & MASK_5B;
 	int rt = (instruction >> 16) & MASK_5B;
 
-	if (untwos_complement(registers[rs], 32) < immediate_s)
+	if (get_register_32b_signed(rs) < immediate_s)
 		set_register_32b(rt, 1);
 	else
 		set_register_32b(rt, 0);
@@ -221,7 +222,7 @@ void processor::i_type_0b(int instruction)	// SLTIU
 	int rs = (instruction >> 21) & MASK_5B;
 	int rt = (instruction >> 16) & MASK_5B;
 
-	if (registers[rs] < sign_extend_16b(immediate))
+	if (get_register_32b(rs) < (unsigned int)sign_extend_16b(immediate))
 		set_register_32b(rt, 1);
 	else
 		set_register_32b(rt, 0);
@@ -233,7 +234,7 @@ void processor::i_type_0c(int instruction)	// ANDI
 	int rs = (instruction >> 21) & MASK_5B;
 	int rt = (instruction >> 16) & MASK_5B;
 
-	set_register_32b(rt, registers[rs] & immediate);
+	set_register_32b(rt, get_register_32b(rs) & immediate);
 }
 
 void processor::i_type_0d(int instruction)	// ORI
@@ -242,7 +243,7 @@ void processor::i_type_0d(int instruction)	// ORI
 	int rs = (instruction >> 21) & MASK_5B;
 	int rt = (instruction >> 16) & MASK_5B;
 
-	set_register_32b(rt, registers[rs] | immediate);
+	set_register_32b(rt, get_register_32b(rs) | immediate);
 }
 
 void processor::i_type_0e(int instruction)	// XORI
@@ -251,7 +252,7 @@ void processor::i_type_0e(int instruction)	// XORI
 	int rs = (instruction >> 21) & MASK_5B;
 	int rt = (instruction >> 16) & MASK_5B;
 
-	set_register_32b(rt, registers[rs] ^ immediate);
+	set_register_32b(rt, get_register_32b(rs) ^ immediate);
 }
 
 void processor::i_type_0f(int instruction)	// LUI

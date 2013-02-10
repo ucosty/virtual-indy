@@ -1,6 +1,7 @@
 #ifndef __PROCESSOR__H__
 #define __PROCESSOR__H__
 
+#include <stdint.h>
 #include <string>
 
 #include "debug_console.h"
@@ -27,179 +28,182 @@ private:
 	// 29		$sp		stack pointer Points to last location on the stack.
 	// 30		$s8/$fp		saved value / frame pointer Preserved across procedure calls
 	// 31		$ra		return address
-	long long int registers[32], PC, HI, LO;
-	int status_register;
-	int C0_registers[32];
+	uint64_t registers[32], PC, HI, LO;
+	uint32_t status_register;
+	uint32_t C0_registers[32];
 
 	long long int cycles;
 
-	void j_type(int opcode, int instruction);
-	void special2(int instruction);
-	void special3(int instruction);
-	void COP0(int instruction);
+	void j_type(int opcode, uint32_t instruction);
+	void special2(uint32_t instruction);
+	void special3(uint32_t instruction);
+	void COP0(uint32_t instruction);
 	// not in a group? FIXME
-	void SLTI(int instruction);
-	void regimm(int instruction);
+	void SLTI(uint32_t instruction);
+	void regimm(uint32_t instruction);
 	void interrupt(int nr);
 
 	void init_r_type();
-	void r_type_00(int instruction);
-	void r_type_01(int instruction);
-	void r_type_02(int instruction);
-	void r_type_03(int instruction);
-	void r_type_04(int instruction);
-	void r_type_05(int instruction);
-	void r_type_06(int instruction);
-	void r_type_07(int instruction);
-	void r_type_08(int instruction);
-	void r_type_09(int instruction);
-	void r_type_0a(int instruction);
-	void r_type_0b(int instruction);
-	void r_type_0c(int instruction);
-	void r_type_0d(int instruction);
-	void r_type_0e(int instruction);
-	void r_type_0f(int instruction);
-	void r_type_10(int instruction);
-	void r_type_11(int instruction);
-	void r_type_12(int instruction);
-	void r_type_13(int instruction);
-	void r_type_14(int instruction);
-	void r_type_15(int instruction);
-	void r_type_16(int instruction);
-	void r_type_17(int instruction);
-	void r_type_18(int instruction);
-	void r_type_19(int instruction);
-	void r_type_1a(int instruction);
-	void r_type_1b(int instruction);
-	void r_type_1c(int instruction);
-	void r_type_1d(int instruction);
-	void r_type_1e(int instruction);
-	void r_type_1f(int instruction);
-	void r_type_20(int instruction);
-	void r_type_21(int instruction);
-	void r_type_22(int instruction);
-	void r_type_23(int instruction);
-	void r_type_24(int instruction);
-	void r_type_25(int instruction);
-	void r_type_26(int instruction);
-	void r_type_27(int instruction);
-	void r_type_28(int instruction);
-	void r_type_29(int instruction);
-	void r_type_2a(int instruction);
-	void r_type_2b(int instruction);
-	void r_type_2c(int instruction);
-	void r_type_2d(int instruction);
-	void r_type_2e(int instruction);
-	void r_type_2f(int instruction);
-	void r_type_30(int instruction);
-	void r_type_31(int instruction);
-	void r_type_32(int instruction);
-	void r_type_33(int instruction);
-	void r_type_34(int instruction);
-	void r_type_35(int instruction);
-	void r_type_36(int instruction);
-	void r_type_37(int instruction);
-	void r_type_38(int instruction);
-	void r_type_39(int instruction);
-	void r_type_3a(int instruction);
-	void r_type_3b(int instruction);
-	void r_type_3c(int instruction);
-	void r_type_3d(int instruction);
-	void r_type_3e(int instruction);
-	void r_type_3f(int instruction);
-	void (processor::*r_type_methods[64])(int);
+	void r_type_00(uint32_t instruction);
+	void r_type_01(uint32_t instruction);
+	void r_type_02(uint32_t instruction);
+	void r_type_03(uint32_t instruction);
+	void r_type_04(uint32_t instruction);
+	void r_type_05(uint32_t instruction);
+	void r_type_06(uint32_t instruction);
+	void r_type_07(uint32_t instruction);
+	void r_type_08(uint32_t instruction);
+	void r_type_09(uint32_t instruction);
+	void r_type_0a(uint32_t instruction);
+	void r_type_0b(uint32_t instruction);
+	void r_type_0c(uint32_t instruction);
+	void r_type_0d(uint32_t instruction);
+	void r_type_0e(uint32_t instruction);
+	void r_type_0f(uint32_t instruction);
+	void r_type_10(uint32_t instruction);
+	void r_type_11(uint32_t instruction);
+	void r_type_12(uint32_t instruction);
+	void r_type_13(uint32_t instruction);
+	void r_type_14(uint32_t instruction);
+	void r_type_15(uint32_t instruction);
+	void r_type_16(uint32_t instruction);
+	void r_type_17(uint32_t instruction);
+	void r_type_18(uint32_t instruction);
+	void r_type_19(uint32_t instruction);
+	void r_type_1a(uint32_t instruction);
+	void r_type_1b(uint32_t instruction);
+	void r_type_1c(uint32_t instruction);
+	void r_type_1d(uint32_t instruction);
+	void r_type_1e(uint32_t instruction);
+	void r_type_1f(uint32_t instruction);
+	void r_type_20(uint32_t instruction);
+	void r_type_21(uint32_t instruction);
+	void r_type_22(uint32_t instruction);
+	void r_type_23(uint32_t instruction);
+	void r_type_24(uint32_t instruction);
+	void r_type_25(uint32_t instruction);
+	void r_type_26(uint32_t instruction);
+	void r_type_27(uint32_t instruction);
+	void r_type_28(uint32_t instruction);
+	void r_type_29(uint32_t instruction);
+	void r_type_2a(uint32_t instruction);
+	void r_type_2b(uint32_t instruction);
+	void r_type_2c(uint32_t instruction);
+	void r_type_2d(uint32_t instruction);
+	void r_type_2e(uint32_t instruction);
+	void r_type_2f(uint32_t instruction);
+	void r_type_30(uint32_t instruction);
+	void r_type_31(uint32_t instruction);
+	void r_type_32(uint32_t instruction);
+	void r_type_33(uint32_t instruction);
+	void r_type_34(uint32_t instruction);
+	void r_type_35(uint32_t instruction);
+	void r_type_36(uint32_t instruction);
+	void r_type_37(uint32_t instruction);
+	void r_type_38(uint32_t instruction);
+	void r_type_39(uint32_t instruction);
+	void r_type_3a(uint32_t instruction);
+	void r_type_3b(uint32_t instruction);
+	void r_type_3c(uint32_t instruction);
+	void r_type_3d(uint32_t instruction);
+	void r_type_3e(uint32_t instruction);
+	void r_type_3f(uint32_t instruction);
+	void (processor::*r_type_methods[64])(uint32_t);
 
 	void init_i_type();
-	void i_type_00(int instruction);
-	void i_type_01(int instruction);
-	void i_type_02(int instruction);
-	void i_type_03(int instruction);
-	void i_type_04(int instruction);
-	void i_type_05(int instruction);
-	void i_type_06(int instruction);
-	void i_type_07(int instruction);
-	void i_type_08(int instruction);
-	void i_type_09(int instruction);
-	void i_type_0a(int instruction);
-	void i_type_0b(int instruction);
-	void i_type_0c(int instruction);
-	void i_type_0d(int instruction);
-	void i_type_0e(int instruction);
-	void i_type_0f(int instruction);
-	void i_type_10(int instruction);
-	void i_type_11(int instruction);
-	void i_type_12(int instruction);
-	void i_type_13(int instruction);
-	void i_type_14(int instruction);
-	void i_type_16(int instruction);
-	void i_type_17(int instruction);
-	void i_type_18(int instruction);
-	void i_type_19(int instruction);
-	void i_type_1a(int instruction);
-	void i_type_1b(int instruction);
-	void i_type_1c(int instruction);
-	void i_type_1d(int instruction);
-	void i_type_1e(int instruction);
-	void i_type_1f(int instruction);
-	void i_type_20(int instruction);
-	void i_type_21(int instruction);
-	void i_type_22(int instruction);
-	void i_type_23(int instruction);
-	void i_type_26(int instruction);
-	void i_type_27(int instruction);
-	void i_type_28(int instruction);
-	void i_type_29(int instruction);
-	void i_type_2a(int instruction);
-	void i_type_2b(int instruction);
-	void i_type_2c(int instruction);
-	void i_type_2d(int instruction);
-	void i_type_2e(int instruction);
-	void i_type_2f(int instruction);
-	void i_type_31(int instruction);
-	void i_type_32(int instruction);
-	void i_type_33(int instruction);
-	void i_type_34(int instruction);
-	void i_type_35(int instruction);
-	void i_type_36(int instruction);
-	void i_type_37(int instruction);
-	void i_type_38(int instruction);
-	void i_type_39(int instruction);
-	void i_type_3a(int instruction);
-	void i_type_3b(int instruction);
-	void i_type_3c(int instruction);
-	void i_type_3d(int instruction);
-	void i_type_3e(int instruction);
-	void i_type_3f(int instruction);
-	void (processor::*i_type_methods[64])(int);
+	void i_type_00(uint32_t instruction);
+	void i_type_01(uint32_t instruction);
+	void i_type_02(uint32_t instruction);
+	void i_type_03(uint32_t instruction);
+	void i_type_04(uint32_t instruction);
+	void i_type_05(uint32_t instruction);
+	void i_type_06(uint32_t instruction);
+	void i_type_07(uint32_t instruction);
+	void i_type_08(uint32_t instruction);
+	void i_type_09(uint32_t instruction);
+	void i_type_0a(uint32_t instruction);
+	void i_type_0b(uint32_t instruction);
+	void i_type_0c(uint32_t instruction);
+	void i_type_0d(uint32_t instruction);
+	void i_type_0e(uint32_t instruction);
+	void i_type_0f(uint32_t instruction);
+	void i_type_10(uint32_t instruction);
+	void i_type_11(uint32_t instruction);
+	void i_type_12(uint32_t instruction);
+	void i_type_13(uint32_t instruction);
+	void i_type_14(uint32_t instruction);
+	void i_type_16(uint32_t instruction);
+	void i_type_17(uint32_t instruction);
+	void i_type_18(uint32_t instruction);
+	void i_type_19(uint32_t instruction);
+	void i_type_1a(uint32_t instruction);
+	void i_type_1b(uint32_t instruction);
+	void i_type_1c(uint32_t instruction);
+	void i_type_1d(uint32_t instruction);
+	void i_type_1e(uint32_t instruction);
+	void i_type_1f(uint32_t instruction);
+	void i_type_20(uint32_t instruction);
+	void i_type_21(uint32_t instruction);
+	void i_type_22(uint32_t instruction);
+	void i_type_23(uint32_t instruction);
+	void i_type_26(uint32_t instruction);
+	void i_type_27(uint32_t instruction);
+	void i_type_28(uint32_t instruction);
+	void i_type_29(uint32_t instruction);
+	void i_type_2a(uint32_t instruction);
+	void i_type_2b(uint32_t instruction);
+	void i_type_2c(uint32_t instruction);
+	void i_type_2d(uint32_t instruction);
+	void i_type_2e(uint32_t instruction);
+	void i_type_2f(uint32_t instruction);
+	void i_type_31(uint32_t instruction);
+	void i_type_32(uint32_t instruction);
+	void i_type_33(uint32_t instruction);
+	void i_type_34(uint32_t instruction);
+	void i_type_35(uint32_t instruction);
+	void i_type_36(uint32_t instruction);
+	void i_type_37(uint32_t instruction);
+	void i_type_38(uint32_t instruction);
+	void i_type_39(uint32_t instruction);
+	void i_type_3a(uint32_t instruction);
+	void i_type_3b(uint32_t instruction);
+	void i_type_3c(uint32_t instruction);
+	void i_type_3d(uint32_t instruction);
+	void i_type_3e(uint32_t instruction);
+	void i_type_3f(uint32_t instruction);
+	void (processor::*i_type_methods[64])(uint32_t);
 
 public:
 	processor(debug_console *pdc_in, memory_bus *pmb_in);
 	~processor();
 
-	int get_register(int nr) const;
-	int get_PC() const { return PC; }
-	int get_HI() const { return HI; }
-	int get_LO() const { return LO; }
-	int get_SR() const { return status_register; }
-	bool get_mem_32b(int offset, int *value) const;
+	uint32_t get_register_32b(int nr) const;
+	int32_t get_register_32b_signed(int nr) const;
+	int64_t get_register_64b_signed(int nr) const;
+	uint64_t get_register_64b_unsigned(int nr) const;
+	uint64_t get_PC() const { return PC; }
+	uint64_t get_HI() const { return HI; }
+	uint64_t get_LO() const { return LO; }
+	uint64_t get_SR() const { return status_register; }
+	bool get_mem_32b(int offset, uint32_t *value) const;
 
 	int get_C0_register(int nr, int sel);
 
-	void set_register_32b(int nr, int value);
-	void set_register_32b_se(int nr, int value);
-	void set_register_64b(int nr, long long int value);
-	void set_PC(int value) { PC = value; }
-	void set_HI(int value) { HI = value; }
-	void set_LO(int value) { LO = value; }
+	void set_register_32b(int nr, uint32_t value);
+	void set_register_32b_se(int nr, int32_t value);
+	void set_register_64b(int nr, uint64_t value);
+	void set_PC(uint32_t value) { PC = value; }
+	void set_HI(uint32_t value) { HI = value; }
+	void set_LO(uint32_t value) { LO = value; }
 
-	void set_C0_register(int nr, int sel, int value);
+	void set_C0_register(int nr, int sel, uint32_t value);
 
 	void reset();
 	void tick();
 
 	static const char * reg_to_name(int reg);
-	static std::string decode_to_text(int instr);
-	std::string da_logline(int instr);
+	static std::string decode_to_text(uint32_t instr);
+	std::string da_logline(uint32_t instr);
 };
 
 #endif

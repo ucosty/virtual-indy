@@ -37,7 +37,7 @@ void processor::tick()
 		// address exception
 	}
 
-	int instruction = -1;
+	uint32_t instruction = -1;
 	if (!pmb -> read_32b(PC, &instruction))
 	{
 		// processor exception FIXME
@@ -45,21 +45,36 @@ void processor::tick()
 
 	PC += 4;
 
-	int opcode = (instruction >> 26) & MASK_6B;
+	uint8_t opcode = (instruction >> 26) & MASK_6B;
 
 	// the other methods are really i_types with the opcode set to a certain value
 	// well maybe not in the cpu but logically they are
 	(((processor*)this)->*processor::i_type_methods[opcode])(instruction);
 }
 
-int processor::get_register(int nr) const
+int32_t processor::get_register_32b(int nr) const
 {
 	ASSERT(nr >= 0 && nr <= 31);
 
-	return registers[nr];
+	return registers[nr] & MASK_32B;
 }
 
-void processor::set_register_32b(int nr, int value)
+uint32_t get_register_32b_signed(int nr) const;
+{
+	// FIXME
+}
+
+int64_t get_register_64b_signed(int nr) const
+{
+	// FIXME
+}
+
+uint64_t get_register_64b_unsigned(int nr) const
+{
+	// FIXME
+}
+
+void processor::set_register_32b(int nr, uint32_t value)
 {
 	ASSERT(nr >= 0 && nr <= 31);
 
@@ -69,7 +84,7 @@ void processor::set_register_32b(int nr, int value)
 		registers[nr] = (registers[nr] & ~MASK_32B) | value;
 }
 
-void processor::set_register_32b_se(int nr, int value)
+void processor::set_register_32b_se(int nr, int32_t value)
 {
 	ASSERT(nr >= 0 && nr <= 31);
 
@@ -79,7 +94,7 @@ void processor::set_register_32b_se(int nr, int value)
 		registers[nr] = sign_extend_32b((unsigned int)value);
 }
 
-void processor::set_register_64b(int nr, long long int value)
+void processor::set_register_64b(int nr, uint64_t value)
 {
 	ASSERT(nr >= 0 && nr <= 31);
 
@@ -89,12 +104,12 @@ void processor::set_register_64b(int nr, long long int value)
 		registers[nr] = value;
 }
 
-bool processor::get_mem_32b(int offset, int *value) const
+bool processor::get_mem_32b(int offset, uint32_t *value) const
 {
 	return pmb -> read_32b(offset, value);
 }
 
-int processor::get_C0_register(int nr, int sel)
+uint32_t processor::get_C0_register(int nr, int sel)
 {
 	ASSERT(nr >=0 && nr <= 31);
 
@@ -104,7 +119,7 @@ int processor::get_C0_register(int nr, int sel)
 	return C0_registers[nr];
 }
 
-void processor::set_C0_register(int nr, int sel, int value)
+void processor::set_C0_register(int nr, int sel, uint32_t value)
 {
 	ASSERT(nr >=0 && nr <= 31);
 

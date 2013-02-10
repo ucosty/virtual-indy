@@ -24,35 +24,54 @@ memory::~memory()
 	delete [] pm;
 }
 
-bool memory::read_32b(int offset, int *data) const
+bool memory::read_64b(int offset, uint64_t *data) const
+{
+	// TODO: if big endin processor, read directly from memory
+
+	if (offset + 8 >= len || offset < 0)
+		return false;
+
+	*data = (uint64_t(pm[offset + 0]) << 56) |
+		(uint64_t(pm[offset + 1]) << 48) |
+		(uint64_t(pm[offset + 2]) << 40) |
+		(uint64_t(pm[offset + 3]) << 32) |
+		(uint64_t(pm[offset + 4]) << 24) |
+		(uint64_t(pm[offset + 5]) << 16) |
+		(uint64_t(pm[offset + 6]) <<  8) |
+		(uint64_t(pm[offset + 7])      );
+
+	return true;
+}
+
+bool memory::read_32b(int offset, uint32_t *data) const
 {
 	// TODO: if big endin processor, read directly from memory
 
 	if (offset + 4 >= len || offset < 0)
 		return false;
 
-	*data = (pm[offset + 0] << 24) +
-		(pm[offset + 1] << 16) +
-		(pm[offset + 2] <<  8) +
+	*data = (pm[offset + 0] << 24) |
+		(pm[offset + 1] << 16) |
+		(pm[offset + 2] <<  8) |
 		(pm[offset + 3]      );
 
 	return true;
 }
 
-bool memory::read_16b(int offset, int *data) const
+bool memory::read_16b(int offset, uint16_t *data) const
 {
 	// TODO: if big endin processor, read directly from memory
 
 	if (offset + 2 >= len || offset < 0)
 		return false;
 
-	*data = (pm[offset + 0] <<  8) +
+	*data = (pm[offset + 0] <<  8) |
 		(pm[offset + 1]      );
 
 	return true;
 }
 
-bool memory::read_8b(int offset, int *data) const
+bool memory::read_8b(int offset, uint8_t *data) const
 {
 	// TODO: if big endin processor, read directly from memory
 
@@ -64,7 +83,26 @@ bool memory::read_8b(int offset, int *data) const
 	return true;
 }
 
-bool memory::write_32b(int offset, int data)
+bool memory::write_64b(int offset, uint64_t data)
+{
+	// TODO: if big endin processor, put directly in memory
+
+	if (offset + 8 >= len || offset < 0)
+		return false;
+
+	pm[offset + 0] = (data >> 56) & 255;
+	pm[offset + 1] = (data >> 48) & 255;
+	pm[offset + 2] = (data >> 40) & 255;
+	pm[offset + 3] = (data >> 32) & 255;
+	pm[offset + 4] = (data >> 24) & 255;
+	pm[offset + 5] = (data >> 16) & 255;
+	pm[offset + 6] = (data >>  8) & 255;
+	pm[offset + 7] = (data      ) & 255;
+
+	return true;
+}
+
+bool memory::write_32b(int offset, uint32_t data)
 {
 	// TODO: if big endin processor, put directly in memory
 
@@ -79,7 +117,7 @@ bool memory::write_32b(int offset, int data)
 	return true;
 }
 
-bool memory::write_16b(int offset, int data)
+bool memory::write_16b(int offset, uint16_t data)
 {
 	// TODO: if big endin processor, put directly in memory
 
@@ -92,7 +130,7 @@ bool memory::write_16b(int offset, int data)
 	return true;
 }
 
-bool memory::write_8b(int offset, int data)
+bool memory::write_8b(int offset, uint8_t data)
 {
 	// TODO: if big endin processor, put directly in memory
 
