@@ -3,22 +3,22 @@
 #include "processor_utils.h"
 #include "utils.h"
 
-std::string processor::da_logline(int instruction)
+std::string processor::da_logline(uint32_t instruction)
 {
-	int temp_32b = -1;
+	uint32_t temp_32b = -1;
 	bool rc = pmb -> read_32b(PC, &temp_32b);
 
 	std::string line = format("PC: %08x / %d|%08x", PC, rc, temp_32b);
 
-	int opcode = (instruction >> 26) & MASK_6B;
+	uint8_t opcode = (instruction >> 26) & MASK_6B;
 
 	if (opcode == 0)			// R-type
 	{
-		int function = instruction & MASK_6B;
-		int sa = (instruction >> 6) & MASK_5B;
-		int rd = (instruction >> 11) & MASK_5B;
-		int rt = (instruction >> 16) & MASK_5B;
-		int rs = (instruction >> 21) & MASK_5B;
+		uint8_t function = instruction & MASK_6B;
+		uint8_t sa = (instruction >> 6) & MASK_5B;
+		uint8_t rd = (instruction >> 11) & MASK_5B;
+		uint8_t rt = (instruction >> 16) & MASK_5B;
+		uint8_t rs = (instruction >> 21) & MASK_5B;
 
 		line += format("\tfu %02x", function);
 		line += format("\tsa %08x", sa);
@@ -29,7 +29,7 @@ std::string processor::da_logline(int instruction)
 	}
 	else if (opcode == 2 || opcode == 3)	// J-type
 	{
-		int new_PC = ((instruction & MASK_26B) << 2) | (PC & 0xFC000000);
+		uint64_t new_PC = ((instruction & MASK_26B) << 2) | (PC & 0xFC000000);
 
 		line += format("\tnPC %08x", new_PC);
 	}
@@ -38,8 +38,8 @@ std::string processor::da_logline(int instruction)
 		int immediate = instruction & MASK_16B;
 		int immediate_s = untwos_complement_16b(immediate);
 
-		int rs = (instruction >> 21) & MASK_5B;
-		int rt = (instruction >> 16) & MASK_5B;
+		uint8_t rs = (instruction >> 21) & MASK_5B;
+		uint8_t rt = (instruction >> 16) & MASK_5B;
 
 		line += format("\tim: %04x", immediate);
 		line += format("\tims: %d", immediate_s);
@@ -50,16 +50,16 @@ std::string processor::da_logline(int instruction)
 	{
 		if (IS_BIT_OFF0_SET(21, instruction))	//
 		{
-			int function = instruction & MASK_6B;
+			uint8_t function = instruction & MASK_6B;
 
 			line += format("\t1 fu %02x", function);
 		}
 		else
 		{
-			int function = (instruction >> 21) & MASK_5B;
-			int sel = instruction & MASK_3B;
-			int rd = (instruction >> 11) & MASK_5B;
-			int rt = (instruction >> 16) & MASK_5B;
+			uint8_t function = (instruction >> 21) & MASK_5B;
+			uint8_t sel = instruction & MASK_3B;
+			uint8_t rd = (instruction >> 11) & MASK_5B;
+			uint8_t rt = (instruction >> 16) & MASK_5B;
 
 			line += format("\t0 fu %02x", function);
 
@@ -76,7 +76,7 @@ std::string processor::da_logline(int instruction)
 	return line;
 }
 
-const char * processor::reg_to_name(int reg)
+const char * processor::reg_to_name(uint8_t reg)
 {
 	ASSERT(reg >= 0 && reg <= 31);
 
@@ -151,17 +151,17 @@ const char * processor::reg_to_name(int reg)
 	return "??";
 }
 
-std::string processor::decode_to_text(int instruction)
+std::string processor::decode_to_text(uint32_t instruction)
 {
-	int opcode = (instruction >> 26) & MASK_6B;
+	uint8_t opcode = (instruction >> 26) & MASK_6B;
 
 	if (opcode == 0)			// R-type
 	{
-		int function = instruction & MASK_6B;
-		int sa = (instruction >> 6) & MASK_5B;
-		int rd = (instruction >> 11) & MASK_5B;
-		int rt = (instruction >> 16) & MASK_5B;
-		int rs = (instruction >> 21) & MASK_5B;
+		uint8_t function = instruction & MASK_6B;
+		uint8_t sa = (instruction >> 6) & MASK_5B;
+		uint8_t rd = (instruction >> 11) & MASK_5B;
+		uint8_t rt = (instruction >> 16) & MASK_5B;
+		uint8_t rs = (instruction >> 21) & MASK_5B;
 
 		switch(function)
 		{
@@ -249,8 +249,8 @@ std::string processor::decode_to_text(int instruction)
 		int immediate = instruction & MASK_16B;
 		int immediate_s = untwos_complement_16b(immediate);
 
-		int rs = (instruction >> 21) & MASK_5B;
-		int rt = (instruction >> 16) & MASK_5B;
+		uint8_t rs = (instruction >> 21) & MASK_5B;
+		uint8_t rt = (instruction >> 16) & MASK_5B;
 
 		switch(opcode)
 		{
@@ -308,7 +308,7 @@ std::string processor::decode_to_text(int instruction)
 	{
 		if (IS_BIT_OFF0_SET(21, instruction))	//
 		{
-			int function = instruction & MASK_6B;
+			uint8_t function = instruction & MASK_6B;
 
 			switch(function)
 			{
@@ -320,10 +320,10 @@ std::string processor::decode_to_text(int instruction)
 		}
 		else
 		{
-			int function = (instruction >> 21) & MASK_5B;
-			int sel = instruction & MASK_3B;
-			int rd = (instruction >> 11) & MASK_5B;
-			int rt = (instruction >> 16) & MASK_5B;
+			uint8_t function = (instruction >> 21) & MASK_5B;
+			uint8_t sel = instruction & MASK_3B;
+			uint8_t rd = (instruction >> 11) & MASK_5B;
+			uint8_t rt = (instruction >> 16) & MASK_5B;
 
 			switch(function)
 			{

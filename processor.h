@@ -34,7 +34,7 @@ private:
 
 	long long int cycles;
 
-	void j_type(int opcode, uint32_t instruction);
+	void j_type(uint8_t opcode, uint32_t instruction);
 	void special2(uint32_t instruction);
 	void special3(uint32_t instruction);
 	void COP0(uint32_t instruction);
@@ -177,31 +177,32 @@ public:
 	processor(debug_console *pdc_in, memory_bus *pmb_in);
 	~processor();
 
-	uint32_t get_register_32b(int nr) const;
-	int32_t get_register_32b_signed(int nr) const;
-	int64_t get_register_64b_signed(int nr) const;
-	uint64_t get_register_64b_unsigned(int nr) const;
+	int32_t get_register_32b_signed(uint8_t nr) const;
+	uint32_t get_register_32b_unsigned(uint8_t nr) const;
+	int64_t get_register_64b_signed(uint8_t nr) const;
+	uint64_t get_register_64b_unsigned(uint8_t nr) const;
 	uint64_t get_PC() const { return PC; }
 	uint64_t get_HI() const { return HI; }
 	uint64_t get_LO() const { return LO; }
 	uint64_t get_SR() const { return status_register; }
+
 	bool get_mem_32b(int offset, uint32_t *value) const;
 
-	int get_C0_register(int nr, int sel);
+	uint32_t get_C0_register(uint8_t nr, uint8_t sel);
 
-	void set_register_32b(int nr, uint32_t value);
-	void set_register_32b_se(int nr, int32_t value);
-	void set_register_64b(int nr, uint64_t value);
+	void set_register_32b(uint8_t nr, uint32_t value);
+	void set_register_32b_se(uint8_t nr, int32_t value); // < 32b signed d'r in, is dan niet automatisch s-e?
+	void set_register_64b(uint8_t nr, uint64_t value);
 	void set_PC(uint32_t value) { PC = value; }
 	void set_HI(uint32_t value) { HI = value; }
 	void set_LO(uint32_t value) { LO = value; }
 
-	void set_C0_register(int nr, int sel, uint32_t value);
+	void set_C0_register(uint8_t nr, uint8_t sel, uint32_t value);
 
 	void reset();
 	void tick();
 
-	static const char * reg_to_name(int reg);
+	static const char * reg_to_name(uint8_t reg);
 	static std::string decode_to_text(uint32_t instr);
 	std::string da_logline(uint32_t instr);
 };

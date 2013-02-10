@@ -1,11 +1,11 @@
 #include "processor.h"
 #include "processor_utils.h"
 
-void processor::COP0(int instruction)
+void processor::COP0(uint32_t instruction)
 {
 	if (IS_BIT_OFF0_SET(21, instruction))	//
 	{
-		int function = instruction & MASK_6B;
+		uint8_t function = instruction & MASK_6B;
 
 		switch(function)
 		{
@@ -21,11 +21,11 @@ void processor::COP0(int instruction)
 	}
 	else
 	{
-		int function = (instruction >> 21) & MASK_5B;
-		int rd = (instruction >> 11) & MASK_5B;
-		int rt = (instruction >> 16) & MASK_5B;
+		uint8_t function = (instruction >> 21) & MASK_5B;
+		uint8_t rd = (instruction >> 11) & MASK_5B;
+		uint8_t rt = (instruction >> 16) & MASK_5B;
 
-		int sel = instruction & MASK_3B;
+		uint8_t sel = instruction & MASK_3B;
 
 		switch(function)
 		{

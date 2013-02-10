@@ -1,12 +1,12 @@
 #include "processor.h"
 #include "processor_utils.h"
 
-void processor::special3(int instruction)
+void processor::special3(uint32_t instruction)
 {
-	int function = instruction & MASK_6B;
-	int sub_function = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t function = instruction & MASK_6B;
+	uint8_t sub_function = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	switch(function)
 	{

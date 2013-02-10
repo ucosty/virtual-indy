@@ -69,63 +69,63 @@ void processor::init_i_type()
 	i_type_methods[63] = &processor::i_type_3f;
 }
 
-void processor::i_type_00(int instruction) // R-type / SPECIAL
+void processor::i_type_00(uint32_t instruction) // R-type / SPECIAL
 {
-	int function = instruction & MASK_6B;
+	uint8_t function = instruction & MASK_6B;
 
 	(((processor*)this)->*processor::r_type_methods[function])(instruction);
 
 	cycles += 4;
 }
 
-void processor::i_type_02(int instruction)
+void processor::i_type_02(uint32_t instruction)
 {
 	j_type(2, instruction);
 
 	cycles += 3;
 }
 
-void processor::i_type_03(int instruction)
+void processor::i_type_03(uint32_t instruction)
 {
 	j_type(3, instruction);
 
 	cycles += 3;
 }
 
-void processor::i_type_10(int instruction)
+void processor::i_type_10(uint32_t instruction)
 {
 	COP0(instruction);
 }
 
-void processor::i_type_11(int instruction)
+void processor::i_type_11(uint32_t instruction)
 {
 	// COP1(instruction);
 	pdc -> log("i_type_11 not known");
 }
 
-void processor::i_type_12(int instruction)
+void processor::i_type_12(uint32_t instruction)
 {
 	// COP2(instruction);
 	pdc -> log("i_type_12 not known");
 }
 
-void processor::i_type_13(int instruction)
+void processor::i_type_13(uint32_t instruction)
 {
 	// COP3(instruction);
 	pdc -> log("i_type_13 not known");
 }
 
-void processor::i_type_01(int instruction)	// BGEZAL
+void processor::i_type_01(uint32_t instruction)	// BGEZAL
 {
 	regimm(instruction);
 }
 
-void processor::i_type_04(int instruction)	// BEQ
+void processor::i_type_04(uint32_t instruction)	// BEQ
 {
-	int rs = (instruction >> 21) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 	int offset = instruction & MASK_16B;
-	int b18_signed_offset = untwos_complement_16b(offset) << 2;
+	int b18_signed_offset = int16_t(offset) << 2;
 
 	if (registers[rs] == registers[rt])
 	{
@@ -135,11 +135,11 @@ void processor::i_type_04(int instruction)	// BEQ
 	}
 }
 
-void processor::i_type_05(int instruction)	// BNE/BNEL
+void processor::i_type_05(uint32_t instruction)	// BNE/BNEL
 {
-	int rs = (instruction >> 21) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int b18_signed_offset = untwos_complement_16b(instruction & MASK_16B) << 2;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	int b18_signed_offset = int16_t(instruction & MASK_16B) << 2;
 
 	if (registers[rs] != registers[rt])
 	{
@@ -149,66 +149,66 @@ void processor::i_type_05(int instruction)	// BNE/BNEL
 	}
 }
 
-void processor::i_type_06(int instruction)
+void processor::i_type_06(uint32_t instruction)
 {
 	int immediate = instruction & MASK_16B;
-	int immediate_s = untwos_complement_16b(immediate);
+	int immediate_s = int16_t(immediate);
 
-	int rs = (instruction >> 21) & MASK_5B;
-	int base = rs;
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t base = rs;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = untwos_complement_16b(offset) << 2;
+	int b18_signed_offset = int16_t(offset) << 2;
 
 	int temp_32b = -1, address = -1;
 
 	pdc -> log("i_type_06 not known");
 }
 
-void processor::i_type_07(int instruction)
+void processor::i_type_07(uint32_t instruction)
 {
 	int immediate = instruction & MASK_16B;
-	int immediate_s = untwos_complement_16b(immediate);
+	int immediate_s = int16_t(immediate);
 
-	int rs = (instruction >> 21) & MASK_5B;
-	int base = rs;
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t base = rs;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = untwos_complement_16b(offset) << 2;
+	int b18_signed_offset = int16_t(offset) << 2;
 
 	int temp_32b = -1, address = -1;
 
 	pdc -> log("i_type_07 not known");
 }
 
-void processor::i_type_08(int instruction)	// ADDI
+void processor::i_type_08(uint32_t instruction)	// ADDI
 {
-	int immediate_s = untwos_complement_16b(instruction & MASK_16B);
-	int rs = (instruction >> 21) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
+	int immediate_s = int16_t(instruction & MASK_16B);
+	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	// FIXME 2's complement overflow check
 	set_register_32b_se(rt, get_register_32b_signed(rs) + immediate_s);
 }
 
-void processor::i_type_09(int instruction)	// ADDIU
+void processor::i_type_09(uint32_t instruction)	// ADDIU
 {
-	int immediate_s = untwos_complement_16b(instruction & MASK_16B);
-	int rs = (instruction >> 21) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
+	int immediate_s = int16_t(instruction & MASK_16B);
+	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	set_register_32b_se(rt, get_register_32b(rs) + immediate_s);
 }
 
-void processor::i_type_0a(int instruction)	// SLTI
+void processor::i_type_0a(uint32_t instruction)	// SLTI
 {
-	int immediate_s = untwos_complement_16b(instruction & MASK_16B);
-	int rs = (instruction >> 21) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
+	int immediate_s = int16_t(instruction & MASK_16B);
+	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	if (get_register_32b_signed(rs) < immediate_s)
 		set_register_32b(rt, 1);
@@ -216,250 +216,251 @@ void processor::i_type_0a(int instruction)	// SLTI
 		set_register_32b(rt, 0);
 }
 
-void processor::i_type_0b(int instruction)	// SLTIU
+void processor::i_type_0b(uint32_t instruction)	// SLTIU
 {
 	int immediate = instruction & MASK_16B;
-	int rs = (instruction >> 21) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
-	if (get_register_32b(rs) < (unsigned int)sign_extend_16b(immediate))
+	if (get_register_32b(rs) < (unsigned int)int(immediate))
 		set_register_32b(rt, 1);
 	else
 		set_register_32b(rt, 0);
 }
 
-void processor::i_type_0c(int instruction)	// ANDI
+void processor::i_type_0c(uint32_t instruction)	// ANDI
 {
 	int immediate = instruction & MASK_16B;
-	int rs = (instruction >> 21) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	set_register_32b(rt, get_register_32b(rs) & immediate);
 }
 
-void processor::i_type_0d(int instruction)	// ORI
+void processor::i_type_0d(uint32_t instruction)	// ORI
 {
 	int immediate = instruction & MASK_16B;
-	int rs = (instruction >> 21) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	set_register_32b(rt, get_register_32b(rs) | immediate);
 }
 
-void processor::i_type_0e(int instruction)	// XORI
+void processor::i_type_0e(uint32_t instruction)	// XORI
 {
 	int immediate = instruction & MASK_16B;
-	int rs = (instruction >> 21) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	set_register_32b(rt, get_register_32b(rs) ^ immediate);
 }
 
-void processor::i_type_0f(int instruction)	// LUI
+void processor::i_type_0f(uint32_t instruction)	// LUI
 {
 	int immediate = instruction & MASK_16B;
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	set_register_32b(rt, immediate << 16);
 }
 
-void processor::i_type_14(int instruction)
+void processor::i_type_14(uint32_t instruction)
 {
 	int immediate = instruction & MASK_16B;
-	int immediate_s = untwos_complement_16b(immediate);
+	int immediate_s = int16_t(immediate);
 
-	int rs = (instruction >> 21) & MASK_5B;
-	int base = rs;
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t base = rs;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = untwos_complement_16b(offset) << 2;
+	int b18_signed_offset = int16_t(offset) << 2;
 
 	int temp_32b = -1, address = -1;
 
 	pdc -> log("i_type_14 not known");
 }
 
-void processor::i_type_16(int instruction)
+void processor::i_type_16(uint32_t instruction)
 {
 	int immediate = instruction & MASK_16B;
-	int immediate_s = untwos_complement_16b(immediate);
+	int immediate_s = int16_t(immediate);
 
-	int rs = (instruction >> 21) & MASK_5B;
-	int base = rs;
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t base = rs;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = untwos_complement_16b(offset) << 2;
+	int b18_signed_offset = int16_t(offset) << 2;
 
 	int temp_32b = -1, address = -1;
 
 	pdc -> log("i_type_16 not known");
 }
 
-void processor::i_type_17(int instruction)
+void processor::i_type_17(uint32_t instruction)
 {
 	int immediate = instruction & MASK_16B;
-	int immediate_s = untwos_complement_16b(immediate);
+	int immediate_s = int16_t(immediate);
 
-	int rs = (instruction >> 21) & MASK_5B;
-	int base = rs;
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t base = rs;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = untwos_complement_16b(offset) << 2;
+	int b18_signed_offset = int16_t(offset) << 2;
 
 	int temp_32b = -1, address = -1;
 
 	pdc -> log("i_type_17 not known");
 }
 
-void processor::i_type_18(int instruction)
+void processor::i_type_18(uint32_t instruction)
 {
 	int immediate = instruction & MASK_16B;
-	int immediate_s = untwos_complement_16b(immediate);
+	int immediate_s = int16_t(immediate);
 
-	int rs = (instruction >> 21) & MASK_5B;
-	int base = rs;
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t base = rs;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = untwos_complement_16b(offset) << 2;
+	int b18_signed_offset = int16_t(offset) << 2;
 
 	int temp_32b = -1, address = -1;
 
 	pdc -> log("i_type_18 not known");
 }
 
-void processor::i_type_19(int instruction)
+void processor::i_type_19(uint32_t instruction)
 {
 	int immediate = instruction & MASK_16B;
-	int immediate_s = untwos_complement_16b(immediate);
+	int immediate_s = int16_t(immediate);
 
-	int rs = (instruction >> 21) & MASK_5B;
-	int base = rs;
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t base = rs;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = untwos_complement_16b(offset) << 2;
+	int b18_signed_offset = int16_t(offset) << 2;
 
 	int temp_32b = -1, address = -1;
 
 	pdc -> log("i_type_19 not known");
 }
 
-void processor::i_type_1a(int instruction)
+void processor::i_type_1a(uint32_t instruction)
 {
 	int immediate = instruction & MASK_16B;
-	int immediate_s = untwos_complement_16b(immediate);
+	int immediate_s = int16_t(immediate);
 
-	int rs = (instruction >> 21) & MASK_5B;
-	int base = rs;
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t base = rs;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = untwos_complement_16b(offset) << 2;
+	int b18_signed_offset = int16_t(offset) << 2;
 
 	int temp_32b = -1, address = -1;
 
 	pdc -> log("i_type_1a not known");
 }
 
-void processor::i_type_1b(int instruction)
+void processor::i_type_1b(uint32_t instruction)
 {
 	int immediate = instruction & MASK_16B;
-	int immediate_s = untwos_complement_16b(immediate);
+	int immediate_s = int16_t(immediate);
 
-	int rs = (instruction >> 21) & MASK_5B;
-	int base = rs;
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t base = rs;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = untwos_complement_16b(offset) << 2;
+	int b18_signed_offset = int16_t(offset) << 2;
 
 	int temp_32b = -1, address = -1;
 
 	pdc -> log("i_type_1b not known");
 }
 
-void processor::i_type_1c(int instruction)	// SPECIAL2
+void processor::i_type_1c(uint32_t instruction)	// SPECIAL2
 {
 	special2(instruction);
 }
 
-void processor::i_type_1d(int instruction)
+void processor::i_type_1d(uint32_t instruction)
 {
 	int immediate = instruction & MASK_16B;
-	int immediate_s = untwos_complement_16b(immediate);
+	int immediate_s = int16_t(immediate);
 
-	int rs = (instruction >> 21) & MASK_5B;
-	int base = rs;
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t base = rs;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = untwos_complement_16b(offset) << 2;
+	int b18_signed_offset = int16_t(offset) << 2;
 
 	int temp_32b = -1, address = -1;
 
 	pdc -> log("i_type_1d not known");
 }
 
-void processor::i_type_1e(int instruction)
+void processor::i_type_1e(uint32_t instruction)
 {
 	int immediate = instruction & MASK_16B;
-	int immediate_s = untwos_complement_16b(immediate);
+	int immediate_s = int16_t(immediate);
 
-	int rs = (instruction >> 21) & MASK_5B;
-	int base = rs;
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t base = rs;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = untwos_complement_16b(offset) << 2;
+	int b18_signed_offset = int16_t(offset) << 2;
 
 	int temp_32b = -1, address = -1;
 
 	pdc -> log("i_type_1e not known");
 }
 
-void processor::i_type_1f(int instruction)	// SPECIAL3
+void processor::i_type_1f(uint32_t instruction)	// SPECIAL3
 {
 	special3(instruction);
 }
 
-void processor::i_type_20(int instruction)	// LB / LBU
+void processor::i_type_20(uint32_t instruction)	// LB / LBU
 {
-	int base = (instruction >> 21) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t base = (instruction >> 21) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
-	int offset_s = untwos_complement_16b(instruction & MASK_16B);
+	int offset_s = int16_t(instruction & MASK_16B);
 
-	int address = registers[base] + offset_s, temp_32b = -1;
+	int address = registers[base] + offset_s;
+	uint8_t temp_8b = -1;
 
-	if (!pmb -> read_8b(address, &temp_32b))
+	if (!pmb -> read_8b(address, &temp_8b))
 		pdc -> log("i-type read 8b from %08x failed", address);
 
-	int opcode = (instruction >> 26) & MASK_6B;
+	uint8_t opcode = (instruction >> 26) & MASK_6B;
 
 	if (opcode == 0x24)
-		set_register_32b(rt, temp_32b);
+		set_register_32b(rt, temp_8b);
 	else
-		set_register_32b(rt, sign_extend_8b(temp_32b));
+		set_register_32b(rt, int(temp_8b));
 }
 
-void processor::i_type_21(int instruction)	// LH / LHU
+void processor::i_type_21(uint32_t instruction)	// LH / LHU
 {
-	int base = (instruction >> 21) & MASK_5B;
+	uint8_t base = (instruction >> 21) & MASK_5B;
 
-	int offset_s = untwos_complement_16b(instruction & MASK_16B);
+	int offset_s = int16_t(instruction & MASK_16B);
 
 	int address = registers[base] + offset_s;
 	if (address & 1)
@@ -469,44 +470,44 @@ void processor::i_type_21(int instruction)	// LH / LHU
 	}
 	else
 	{
-		int temp_32b = -1;
+		uint16_t temp_16b = -1;
 
-		if (!pmb -> read_16b(address, &temp_32b))
+		if (!pmb -> read_16b(address, &temp_16b))
 			pdc -> log("i-type read 16b from %08x failed", address);
 
-		int opcode = (instruction >> 26) & MASK_6B;
-		int rt = (instruction >> 16) & MASK_5B;
+		uint8_t opcode = (instruction >> 26) & MASK_6B;
+		uint8_t rt = (instruction >> 16) & MASK_5B;
 
 		if (opcode == 0x25)
-			set_register_32b(rt, temp_32b);
+			set_register_32b(rt, temp_16b);
 		else
-			set_register_32b(rt, sign_extend_16b(temp_32b));
+			set_register_32b(rt, int(temp_16b));
 	}
 }
 
-void processor::i_type_22(int instruction)
+void processor::i_type_22(uint32_t instruction)
 {
 	int immediate = instruction & MASK_16B;
-	int immediate_s = untwos_complement_16b(immediate);
+	int immediate_s = int16_t(immediate);
 
-	int rs = (instruction >> 21) & MASK_5B;
-	int base = rs;
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t base = rs;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = untwos_complement_16b(offset) << 2;
+	int b18_signed_offset = int16_t(offset) << 2;
 
 	int temp_32b = -1, address = -1;
 
 	pdc -> log("i_type_22 not known");
 }
 
-void processor::i_type_23(int instruction)	// LW / LL
+void processor::i_type_23(uint32_t instruction)	// LW / LL
 {
-	int base = (instruction >> 21) & MASK_5B;
+	uint8_t base = (instruction >> 21) & MASK_5B;
 
-	int offset_s = untwos_complement_16b(instruction & MASK_16B);
+	int offset_s = int16_t(instruction & MASK_16B);
 
 	int address = registers[base] + offset_s;
 	if (address & 3)
@@ -516,75 +517,75 @@ void processor::i_type_23(int instruction)	// LW / LL
 	}
 	else
 	{
-		int temp_32b = -1;
+		uint32_t temp_32b = -1;
 
 		if (!pmb -> read_32b(address, &temp_32b))
 			pdc -> log("i-type read 32b from %08x failed", address);
 
-		int rt = (instruction >> 16) & MASK_5B;
+		uint8_t rt = (instruction >> 16) & MASK_5B;
 
 		set_register_32b(rt, temp_32b);
 	}
 }
 
-void processor::i_type_26(int instruction)
+void processor::i_type_26(uint32_t instruction)
 {
 	int immediate = instruction & MASK_16B;
-	int immediate_s = untwos_complement_16b(immediate);
+	int immediate_s = int16_t(immediate);
 
-	int rs = (instruction >> 21) & MASK_5B;
-	int base = rs;
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t base = rs;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = untwos_complement_16b(offset) << 2;
+	int b18_signed_offset = int16_t(offset) << 2;
 
 	int temp_32b = -1, address = -1;
 
 	pdc -> log("i_type_26 not known");
 }
 
-void processor::i_type_27(int instruction)
+void processor::i_type_27(uint32_t instruction)
 {
 	int immediate = instruction & MASK_16B;
-	int immediate_s = untwos_complement_16b(immediate);
+	int immediate_s = int16_t(immediate);
 
-	int rs = (instruction >> 21) & MASK_5B;
-	int base = rs;
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t base = rs;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = untwos_complement_16b(offset) << 2;
+	int b18_signed_offset = int16_t(offset) << 2;
 
 	int temp_32b = -1, address = -1;
 
 	pdc -> log("i_type_27 not known");
 }
 
-void processor::i_type_28(int instruction)	// SB
+void processor::i_type_28(uint32_t instruction)	// SB
 {
-	int base = (instruction >> 21) & MASK_5B;
+	uint8_t base = (instruction >> 21) & MASK_5B;
 
-	int offset_s = untwos_complement_16b(instruction & MASK_16B);
+	int offset_s = int16_t(instruction & MASK_16B);
 
 	int address = registers[base] + offset_s;
 
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 	int temp_32b = registers[rt];
 
 	if (!pmb -> write_8b(address, temp_32b))
 		pdc -> log("i-type write 8b %02x to %08x failed", registers[rt] & 0xff, address);
 }
 
-void processor::i_type_29(int instruction)	// SH
+void processor::i_type_29(uint32_t instruction)	// SH
 {
-	int base = (instruction >> 21) & MASK_5B;
+	uint8_t base = (instruction >> 21) & MASK_5B;
 
-	int offset_s = untwos_complement_16b(instruction & MASK_16B);
+	int offset_s = int16_t(instruction & MASK_16B);
 
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	int address = registers[base] + offset_s;
 
@@ -602,31 +603,31 @@ void processor::i_type_29(int instruction)	// SH
 
 }
 
-void processor::i_type_2a(int instruction)
+void processor::i_type_2a(uint32_t instruction)
 {
 	int immediate = instruction & MASK_16B;
-	int immediate_s = untwos_complement_16b(immediate);
+	int immediate_s = int16_t(immediate);
 
-	int rs = (instruction >> 21) & MASK_5B;
-	int base = rs;
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t base = rs;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = untwos_complement_16b(offset) << 2;
+	int b18_signed_offset = int16_t(offset) << 2;
 
 	int temp_32b = -1, address = -1;
 
 	pdc -> log("i_type_2a not known");
 }
 
-void processor::i_type_2b(int instruction)	// SW
+void processor::i_type_2b(uint32_t instruction)	// SW
 {
-	int base = (instruction >> 21) & MASK_5B;
+	uint8_t base = (instruction >> 21) & MASK_5B;
 
-	int offset_s = untwos_complement_16b(instruction & MASK_16B);
+	int offset_s = int16_t(instruction & MASK_16B);
 
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	int address = registers[base] + offset_s;
 
@@ -642,342 +643,336 @@ void processor::i_type_2b(int instruction)	// SW
 	}
 }
 
-void processor::i_type_2c(int instruction)
+void processor::i_type_2c(uint32_t instruction)
 {
 	int immediate = instruction & MASK_16B;
-	int immediate_s = untwos_complement_16b(immediate);
+	int immediate_s = int16_t(immediate);
 
-	int rs = (instruction >> 21) & MASK_5B;
-	int base = rs;
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t base = rs;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = untwos_complement_16b(offset) << 2;
+	int b18_signed_offset = int16_t(offset) << 2;
 
 	int temp_32b = -1, address = -1;
 
 	pdc -> log("i_type_2c not known");
 }
 
-void processor::i_type_2d(int instruction)
+void processor::i_type_2d(uint32_t instruction)
 {
 	int immediate = instruction & MASK_16B;
-	int immediate_s = untwos_complement_16b(immediate);
+	int immediate_s = int16_t(immediate);
 
-	int rs = (instruction >> 21) & MASK_5B;
-	int base = rs;
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t base = rs;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = untwos_complement_16b(offset) << 2;
+	int b18_signed_offset = int16_t(offset) << 2;
 
 	int temp_32b = -1, address = -1;
 
 	pdc -> log("i_type_2d not known");
 }
 
-void processor::i_type_2e(int instruction)
+void processor::i_type_2e(uint32_t instruction)
 {
 	int immediate = instruction & MASK_16B;
-	int immediate_s = untwos_complement_16b(immediate);
+	int immediate_s = int16_t(immediate);
 
-	int rs = (instruction >> 21) & MASK_5B;
-	int base = rs;
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t base = rs;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = untwos_complement_16b(offset) << 2;
+	int b18_signed_offset = int16_t(offset) << 2;
 
 	int temp_32b = -1, address = -1;
 
 	pdc -> log("i_type_2e not known");
 }
 
-void processor::i_type_2f(int instruction)
+void processor::i_type_2f(uint32_t instruction)
 {
 	int immediate = instruction & MASK_16B;
-	int immediate_s = untwos_complement_16b(immediate);
+	int immediate_s = int16_t(immediate);
 
-	int rs = (instruction >> 21) & MASK_5B;
-	int base = rs;
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t base = rs;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = untwos_complement_16b(offset) << 2;
+	int b18_signed_offset = int16_t(offset) << 2;
 
 	int temp_32b = -1, address = -1;
 
 	pdc -> log("i_type_2f not known");
 }
 
-void processor::i_type_31(int instruction)
+void processor::i_type_31(uint32_t instruction)
 {
 	int immediate = instruction & MASK_16B;
-	int immediate_s = untwos_complement_16b(immediate);
+	int immediate_s = int16_t(immediate);
 
-	int rs = (instruction >> 21) & MASK_5B;
-	int base = rs;
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t base = rs;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = untwos_complement_16b(offset) << 2;
+	int b18_signed_offset = int16_t(offset) << 2;
 
 	int temp_32b = -1, address = -1;
 
 	pdc -> log("i_type_31 not known");
 }
 
-void processor::i_type_32(int instruction)
+void processor::i_type_32(uint32_t instruction)
 {
 	int immediate = instruction & MASK_16B;
-	int immediate_s = untwos_complement_16b(immediate);
+	int immediate_s = int16_t(immediate);
 
-	int rs = (instruction >> 21) & MASK_5B;
-	int base = rs;
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t base = rs;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = untwos_complement_16b(offset) << 2;
+	int b18_signed_offset = int16_t(offset) << 2;
 
 	int temp_32b = -1, address = -1;
 
 	pdc -> log("i_type_32 not known");
 }
 
-void processor::i_type_33(int instruction)
+void processor::i_type_33(uint32_t instruction)
 {
 	int immediate = instruction & MASK_16B;
-	int immediate_s = untwos_complement_16b(immediate);
+	int immediate_s = int16_t(immediate);
 
-	int rs = (instruction >> 21) & MASK_5B;
-	int base = rs;
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t base = rs;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = untwos_complement_16b(offset) << 2;
+	int b18_signed_offset = int16_t(offset) << 2;
 
 	int temp_32b = -1, address = -1;
 
 	pdc -> log("i_type_33 not known");
 }
 
-void processor::i_type_34(int instruction)
+void processor::i_type_34(uint32_t instruction)
 {
 	int immediate = instruction & MASK_16B;
-	int immediate_s = untwos_complement_16b(immediate);
+	int immediate_s = int16_t(immediate);
 
-	int rs = (instruction >> 21) & MASK_5B;
-	int base = rs;
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t base = rs;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = untwos_complement_16b(offset) << 2;
+	int b18_signed_offset = int16_t(offset) << 2;
 
 	int temp_32b = -1, address = -1;
 
 	pdc -> log("i_type_34 not known");
 }
 
-void processor::i_type_35(int instruction)
+void processor::i_type_35(uint32_t instruction)
 {
 	int immediate = instruction & MASK_16B;
-	int immediate_s = untwos_complement_16b(immediate);
+	int immediate_s = int16_t(immediate);
 
-	int rs = (instruction >> 21) & MASK_5B;
-	int base = rs;
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t base = rs;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = untwos_complement_16b(offset) << 2;
+	int b18_signed_offset = int16_t(offset) << 2;
 
 	int temp_32b = -1, address = -1;
 
 	pdc -> log("i_type_35 not known");
 }
 
-void processor::i_type_36(int instruction)
+void processor::i_type_36(uint32_t instruction)
 {
 	int immediate = instruction & MASK_16B;
-	int immediate_s = untwos_complement_16b(immediate);
+	int immediate_s = int16_t(immediate);
 
-	int rs = (instruction >> 21) & MASK_5B;
-	int base = rs;
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t base = rs;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = untwos_complement_16b(offset) << 2;
+	int b18_signed_offset = int16_t(offset) << 2;
 
 	int temp_32b = -1, address = -1;
 
 	pdc -> log("i_type_36 not known");
 }
 
-void processor::i_type_37(int instruction)
+void processor::i_type_37(uint32_t instruction)
 {
 	int immediate = instruction & MASK_16B;
-	int immediate_s = untwos_complement_16b(immediate);
+	int immediate_s = int16_t(immediate);
 
-	int rs = (instruction >> 21) & MASK_5B;
-	int base = rs;
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t base = rs;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = untwos_complement_16b(offset) << 2;
+	int b18_signed_offset = int16_t(offset) << 2;
 
 	int temp_32b = -1, address = -1;
 
 	pdc -> log("i_type_37 not known");
 }
 
-void processor::i_type_38(int instruction)
+void processor::i_type_38(uint32_t instruction)
 {
 	int immediate = instruction & MASK_16B;
-	int immediate_s = untwos_complement_16b(immediate);
+	int immediate_s = int16_t(immediate);
 
-	int rs = (instruction >> 21) & MASK_5B;
-	int base = rs;
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t base = rs;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = untwos_complement_16b(offset) << 2;
+	int b18_signed_offset = int16_t(offset) << 2;
 
 	int temp_32b = -1, address = -1;
 
 	pdc -> log("i_type_38 not known");
 }
 
-void processor::i_type_39(int instruction)
+void processor::i_type_39(uint32_t instruction)
 {
 	int immediate = instruction & MASK_16B;
-	int immediate_s = untwos_complement_16b(immediate);
+	int immediate_s = int16_t(immediate);
 
-	int rs = (instruction >> 21) & MASK_5B;
-	int base = rs;
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t base = rs;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = untwos_complement_16b(offset) << 2;
+	int b18_signed_offset = int16_t(offset) << 2;
 
 	int temp_32b = -1, address = -1;
 
 	pdc -> log("i_type_39 not known");
 }
 
-void processor::i_type_3a(int instruction)
+void processor::i_type_3a(uint32_t instruction)
 {
 	int immediate = instruction & MASK_16B;
-	int immediate_s = untwos_complement_16b(immediate);
+	int immediate_s = int16_t(immediate);
 
-	int rs = (instruction >> 21) & MASK_5B;
-	int base = rs;
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t base = rs;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = untwos_complement_16b(offset) << 2;
+	int b18_signed_offset = int16_t(offset) << 2;
 
 	int temp_32b = -1, address = -1;
 
 	pdc -> log("i_type_3a not known");
 }
 
-void processor::i_type_3b(int instruction)
+void processor::i_type_3b(uint32_t instruction)
 {
 	int immediate = instruction & MASK_16B;
-	int immediate_s = untwos_complement_16b(immediate);
+	int immediate_s = int16_t(immediate);
 
-	int rs = (instruction >> 21) & MASK_5B;
-	int base = rs;
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t base = rs;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = untwos_complement_16b(offset) << 2;
+	int b18_signed_offset = int16_t(offset) << 2;
 
 	int temp_32b = -1, address = -1;
 
 	pdc -> log("i_type_3b not known");
 }
 
-void processor::i_type_3c(int instruction)
+void processor::i_type_3c(uint32_t instruction)
 {
 	int immediate = instruction & MASK_16B;
-	int immediate_s = untwos_complement_16b(immediate);
+	int immediate_s = int16_t(immediate);
 
-	int rs = (instruction >> 21) & MASK_5B;
-	int base = rs;
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t base = rs;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = untwos_complement_16b(offset) << 2;
+	int b18_signed_offset = immediate_s << 2;
 
 	int temp_32b = -1, address = -1;
 
 	pdc -> log("i_type_3c not known");
 }
 
-void processor::i_type_3d(int instruction)
+void processor::i_type_3d(uint32_t instruction)
 {
 	int immediate = instruction & MASK_16B;
-	int immediate_s = untwos_complement_16b(immediate);
+	int immediate_s = int16_t(immediate);
 
-	int rs = (instruction >> 21) & MASK_5B;
-	int base = rs;
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t base = rs;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
-	int offset = immediate;
-	int offset_s = immediate_s;
-	int b18_signed_offset = untwos_complement_16b(offset) << 2;
+	int b18_signed_offset = immediate_s << 2;
 
 	int temp_32b = -1, address = -1;
 
 	pdc -> log("i_type_3d not known");
 }
 
-void processor::i_type_3e(int instruction)
+void processor::i_type_3e(uint32_t instruction)
 {
 	int immediate = instruction & MASK_16B;
-	int immediate_s = untwos_complement_16b(immediate);
+	int immediate_s = int16_t(immediate);
 
-	int rs = (instruction >> 21) & MASK_5B;
-	int base = rs;
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t base = rs;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
-	int offset = immediate;
-	int offset_s = immediate_s;
-	int b18_signed_offset = untwos_complement_16b(offset) << 2;
+	int b18_signed_offset = immediate_s << 2;
 
 	int temp_32b = -1, address = -1;
 
 	pdc -> log("i_type_3e not known");
 }
 
-void processor::i_type_3f(int instruction)
+void processor::i_type_3f(uint32_t instruction)
 {
 	int immediate = instruction & MASK_16B;
-	int immediate_s = untwos_complement_16b(immediate);
+	int immediate_s = int16_t(immediate);
 
-	int rs = (instruction >> 21) & MASK_5B;
-	int base = rs;
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t base = rs;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
-	int offset = immediate;
-	int offset_s = immediate_s;
-	int b18_signed_offset = untwos_complement_16b(offset) << 2;
+	int b18_signed_offset = immediate_s << 2;
 
 	int temp_32b = -1, address = -1;
 

@@ -1,13 +1,13 @@
 #include "processor.h"
 #include "processor_utils.h"
 
-void processor::regimm(int instruction)
+void processor::regimm(uint32_t instruction)
 {
-	int immediate = instruction & MASK_16B;
+	uint8_t immediate = instruction & MASK_16B;
 
-	int rs = (instruction >> 21) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int function = rt;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t function = rt;
 
 	int offset = immediate;
 	int b18_signed_offset = untwos_complement_16b(offset) << 2;

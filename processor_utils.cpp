@@ -2,15 +2,7 @@
 
 #include "processor_utils.h"
 
-int untwos_complement_16b(int value)
-{
-	if (value & 32768)
-		return -(MASK_16B - value + 1);
-
-	return value;
-}
-
-int untwos_complement(int value, int bits)
+int64_t untwos_complement(uint64_t value, uint8_t bits)
 {
 	ASSERT(bits >= 1 && bits <= 64);
 
@@ -20,26 +12,26 @@ int untwos_complement(int value, int bits)
 	return value;
 }
 
-int twos_complement(int value, int bits)
+uint64_t twos_complement(int64_t value, uint8_t bits)
 {
 	ASSERT(bits >= 1 && bits <= 64);
 
 	if (value >= 0)
 		return value;
 
-	int mask = MASK_N(bits);
+	uint64_t mask = MASK_N(bits);
 
 	return value & mask;
 }
 
-int count_leading_ones(int n_bits, int value)
+uint8_t count_leading_ones(uint8_t n_bits, uint64_t value)
 {
 	ASSERT(n_bits >= 1 && n_bits <= 64);
 
-	int n_bits_1 = 0;
-	int mask = 1 << (n_bits - 1);
+	uint8_t n_bits_1 = 0;
+	uint64_t mask = 1ll << (n_bits - 1);
 
-	for(int nr=0; nr<n_bits; nr++)
+	for(uint8_t nr=0; nr<n_bits; nr++)
 	{
 		if (!(value & mask))
 			break;
@@ -52,14 +44,14 @@ int count_leading_ones(int n_bits, int value)
 	return n_bits_1;
 }
 
-int count_leading_zeros(int n_bits, int value)
+uint8_t count_leading_zeros(uint8_t n_bits, uint64_t value)
 {
 	ASSERT(n_bits >= 1 && n_bits <= 64);
 
-	int n_bits_0 = 0;
-	int mask = 1 << (n_bits - 1);
+	uint8_t n_bits_0 = 0;
+	uint64_t mask = 1ll << (n_bits - 1);
 
-	for(int nr=0; nr<n_bits; nr++)
+	for(uint8_t nr=0; nr<n_bits; nr++)
 	{
 		if (value & mask)
 			break;
@@ -72,12 +64,12 @@ int count_leading_zeros(int n_bits, int value)
 	return n_bits_0;
 }
 
-int rotate_right(int value, int n, int width)
+uint64_t rotate_right(uint64_t value, uint8_t n, uint8_t width)
 {
 	ASSERT(n >= 0 && n <= 64);
 	ASSERT(width >= 0 && width <= 64);
 
-	int right_bits = value & MASK_N(n);
+	uint64_t right_bits = value & MASK_N(n);
 
 	value >>= n;
 
@@ -86,7 +78,7 @@ int rotate_right(int value, int n, int width)
 	return value;
 }
 
-int sign_extend_8b(int value)
+uint16_t sign_extend_8b(uint8_t value)
 {
 	ASSERT(value >= 0 && value <= 255);
 
@@ -96,7 +88,7 @@ int sign_extend_8b(int value)
 	return value;
 }
 
-int sign_extend_16b(int value)
+uint32_t sign_extend_16b(uint16_t value)
 {
 	ASSERT(value >= 0 && value <= 65535);
 
@@ -106,7 +98,7 @@ int sign_extend_16b(int value)
 	return value;
 }
 
-long long int sign_extend_32b(unsigned int value)
+uint64_t sign_extend_32b(uint32_t value)
 {
 	ASSERT(value >= 0 && value <= MASK_32B);
 
@@ -116,7 +108,7 @@ long long int sign_extend_32b(unsigned int value)
 	return value;
 }
 
-int sign_extend(int value, int bits)
+int64_t sign_extend(int64_t value, uint8_t bits)
 {
 	ASSERT(bits >= 1 && bits <= 64);
 
@@ -136,7 +128,7 @@ int sign_extend(int value, int bits)
 	return value;
 }
 
-int make_cmd_I_TYPE(int rs, int rt, int function, int immediate)
+uint32_t make_cmd_I_TYPE(uint8_t rs, uint8_t rt, uint8_t function, int immediate)
 {
 	ASSERT(rs >=0 && rs <= 31);
 	ASSERT(rt >=0 && rt <= 31);
@@ -149,7 +141,7 @@ int make_cmd_I_TYPE(int rs, int rt, int function, int immediate)
 		immediate;
 }
 
-int make_cmd_SPECIAL(int rt, int rd, int sa, int function, int extra)
+uint32_t make_cmd_SPECIAL(uint8_t rt, uint8_t rd, uint8_t sa, uint8_t function, uint8_t extra)
 {
 	ASSERT(rt >=0 && rt <= 31);
 	ASSERT(rd >=0 && rd <= 31);
@@ -164,7 +156,7 @@ int make_cmd_SPECIAL(int rt, int rd, int sa, int function, int extra)
 		(extra << 21);
 }
 
-int make_cmd_J_TYPE(int function, int target)
+uint32_t make_cmd_J_TYPE(uint8_t function, int target)
 {
 	ASSERT(function >=0 && function <= 63);
 	ASSERT(target >=0 && target <= MASK_26B);
@@ -173,7 +165,7 @@ int make_cmd_J_TYPE(int function, int target)
 		target;
 }
 
-int make_cmd_R_TYPE(int opcode, int sa, int rd, int rt, int rs, int function)
+uint32_t make_cmd_R_TYPE(uint8_t opcode, uint8_t sa, uint8_t rd, uint8_t rt, uint8_t rs, uint8_t function)
 {
 	return (opcode << 26) |
 		(rs << 21) |

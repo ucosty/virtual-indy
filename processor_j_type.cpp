@@ -2,7 +2,7 @@
 #include "processor.h"
 #include "processor_utils.h"
 
-void processor::j_type(int opcode, int instruction)
+void processor::j_type(uint8_t opcode, uint32_t instruction)
 {
 	ASSERT(opcode == 2 || opcode == 3);
 

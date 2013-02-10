@@ -1,19 +1,19 @@
 #include "processor.h"
 #include "processor_utils.h"
 
-void processor::special2(int instruction)
+void processor::special2(uint32_t instruction)
 {
-	int clo = instruction & MASK_6B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t clo = instruction & MASK_6B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
-	long long int temp_64b = -1;
+	int64_t temp_64b = -1;
 
 	switch(clo)
 	{
 		case 0x02:		// MUL
-			temp_64b = int(registers[rs]) * int(registers[rt]);
+			temp_64b = get_register_32b_signed(rs) * get_register_32b_signed(rt);
 			set_register_32b(rd, temp_64b & MASK_32B);
 			// LO/HI are said to be unpredictable after this command
 			break;

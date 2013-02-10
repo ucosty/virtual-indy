@@ -1,0 +1,3 @@
+SLTI/ADDI/ORI/etc	rs is signed?
+SLTIU/ADDIU/etc		rs is signed?
+

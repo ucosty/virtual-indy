@@ -69,31 +69,31 @@ void processor::init_r_type()
 	r_type_methods[63] = &processor::r_type_3f;
 }
 
-void processor::r_type_00(int instruction)	// NOP / SLL
+void processor::r_type_00(uint32_t instruction)	// NOP / SLL
 {
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t sa = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	if (sa) // if sa==0 then NOP
 		set_register_32b(rd, registers[rt] << sa);
 }
 
-void processor::r_type_01(int instruction)
+void processor::r_type_01(uint32_t instruction)
 {
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t sa = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	pdc -> log("r_type_01 not known");
 }
 
-void processor::r_type_02(int instruction)	// SRL / ROTR
+void processor::r_type_02(uint32_t instruction)	// SRL / ROTR
 {
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t sa = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	if (IS_BIT_OFF0_SET(21, instruction))
 		set_register_32b(rd, rotate_right(registers[rt] & MASK_32B, sa, 32));
@@ -101,39 +101,39 @@ void processor::r_type_02(int instruction)	// SRL / ROTR
 		set_register_32b(rd, (registers[rt] & MASK_32B) >> sa);
 }
 
-void processor::r_type_03(int instruction)	// SRA
+void processor::r_type_03(uint32_t instruction)	// SRA
 {
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t sa = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	set_register_32b(rd, sign_extend(registers[rt] >> sa, 32 - sa));
 }
 
-void processor::r_type_04(int instruction)	// SLLV
+void processor::r_type_04(uint32_t instruction)	// SLLV
 {
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
+	uint8_t sa = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	set_register_32b(rd, registers[rt] << sa);
 }
 
-void processor::r_type_05(int instruction)
+void processor::r_type_05(uint32_t instruction)
 {
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t sa = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	pdc -> log("r_type_05 not known");
 }
 
-void processor::r_type_06(int instruction)	// SRLV / ROTRV
+void processor::r_type_06(uint32_t instruction)	// SRLV / ROTRV
 {
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	if (IS_BIT_OFF0_SET(21, instruction))
 		set_register_32b(rd, rotate_right(registers[rt] & MASK_32B, registers[rs] & MASK_5B, 32));
@@ -141,32 +141,32 @@ void processor::r_type_06(int instruction)	// SRLV / ROTRV
 		set_register_32b(rd, (registers[rt] & MASK_32B) >> (registers[rs] & MASK_5B));
 }
 
-void processor::r_type_07(int instruction)
+void processor::r_type_07(uint32_t instruction)
 {
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t sa = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	pdc -> log("r_type_07 not known");
 }
 
-void processor::r_type_08(int instruction)	// JR
+void processor::r_type_08(uint32_t instruction)	// JR
 {
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t sa = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	tick();	// need to execute the next instruction - what if it is a JR as well? FIXME
 
 	PC = registers[rs];
 }
 
-void processor::r_type_09(int instruction)	// JALR
+void processor::r_type_09(uint32_t instruction)	// JALR
 {
-	int rd = (instruction >> 11) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	tick();
 
@@ -175,308 +175,308 @@ void processor::r_type_09(int instruction)	// JALR
 	PC = registers[rs];
 }
 
-void processor::r_type_0a(int instruction)	// MOVZ
+void processor::r_type_0a(uint32_t instruction)	// MOVZ
 {
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	if (registers[rt] == 0)
 		set_register_32b(rd, registers[rs]);
 }
 
-void processor::r_type_0b(int instruction)	// MOVN
+void processor::r_type_0b(uint32_t instruction)	// MOVN
 {
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	if (registers[rt])
 		set_register_32b(rd, registers[rs]);
 }
 
-void processor::r_type_0c(int instruction)
+void processor::r_type_0c(uint32_t instruction)
 {
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t sa = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	pdc -> log("r_type_0c not known");
 }
 
-void processor::r_type_0d(int instruction)	// BREAK for debugging FIXME
+void processor::r_type_0d(uint32_t instruction)	// BREAK for debugging FIXME
 {
 	pdc -> log("BREAK");
 }
 
-void processor::r_type_0e(int instruction)
+void processor::r_type_0e(uint32_t instruction)
 {
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t sa = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	pdc -> log("r_type_0e not known");
 }
 
-void processor::r_type_0f(int instruction)
+void processor::r_type_0f(uint32_t instruction)
 {
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t sa = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	pdc -> log("r_type_0f not known");
 }
 
-void processor::r_type_10(int instruction)	// MFHI
+void processor::r_type_10(uint32_t instruction)	// MFHI
 {
-	int rd = (instruction >> 11) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
 
 	set_register_32b(rd, HI);
 }
 
-void processor::r_type_11(int instruction)	// MTHI
+void processor::r_type_11(uint32_t instruction)	// MTHI
 {
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	HI = registers[rs];
 }
 
-void processor::r_type_12(int instruction)	// MFLO
+void processor::r_type_12(uint32_t instruction)	// MFLO
 {
-	int rd = (instruction >> 11) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
 
 	set_register_32b(rd, LO);
 }
 
-void processor::r_type_13(int instruction)	// MTLO
+void processor::r_type_13(uint32_t instruction)	// MTLO
 {
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	LO = registers[rs];
 }
 
-void processor::r_type_14(int instruction)
+void processor::r_type_14(uint32_t instruction)
 {
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t sa = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	pdc -> log("r_type_14 not known");
 }
 
-void processor::r_type_15(int instruction)
+void processor::r_type_15(uint32_t instruction)
 {
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t sa = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	pdc -> log("r_type_15 not known");
 }
 
-void processor::r_type_16(int instruction)
+void processor::r_type_16(uint32_t instruction)
 {
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t sa = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	pdc -> log("r_type_16 not known");
 }
 
-void processor::r_type_17(int instruction)
+void processor::r_type_17(uint32_t instruction)
 {
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t sa = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	pdc -> log("r_type_17 not known");
 }
 
-void processor::r_type_18(int instruction)
+void processor::r_type_18(uint32_t instruction)
 {
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t sa = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	pdc -> log("r_type_18 not known");
 }
 
-void processor::r_type_19(int instruction)
+void processor::r_type_19(uint32_t instruction)
 {
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t sa = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	pdc -> log("r_type_19 not known");
 }
 
-void processor::r_type_1a(int instruction)
+void processor::r_type_1a(uint32_t instruction)
 {
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t sa = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	pdc -> log("r_type_1a not known");
 }
 
-void processor::r_type_1b(int instruction)
+void processor::r_type_1b(uint32_t instruction)
 {
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t sa = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	pdc -> log("r_type_1b not known");
 }
 
-void processor::r_type_1c(int instruction)
+void processor::r_type_1c(uint32_t instruction)
 {
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t sa = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	pdc -> log("r_type_1c not known");
 }
 
-void processor::r_type_1d(int instruction)
+void processor::r_type_1d(uint32_t instruction)
 {
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t sa = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	pdc -> log("r_type_1d not known");
 }
 
-void processor::r_type_1e(int instruction)
+void processor::r_type_1e(uint32_t instruction)
 {
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t sa = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	pdc -> log("r_type_1e not known");
 }
 
-void processor::r_type_1f(int instruction)
+void processor::r_type_1f(uint32_t instruction)
 {
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t sa = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	pdc -> log("r_type_1f not known");
 }
-void processor::r_type_20(int instruction)
+void processor::r_type_20(uint32_t instruction)
 {
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t sa = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	pdc -> log("r_type_20 not known");
 }
 
-void processor::r_type_21(int instruction)	// ADDU
+void processor::r_type_21(uint32_t instruction)	// ADDU
 {
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	set_register_32b(rd, (registers[rs] + registers[rt]) & MASK_32B);
 }
 
-void processor::r_type_22(int instruction)
+void processor::r_type_22(uint32_t instruction)
 {
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t sa = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	pdc -> log("r_type_22 not known");
 }
 
-void processor::r_type_23(int instruction)	// SUBU
+void processor::r_type_23(uint32_t instruction)	// SUBU
 {
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	set_register_32b(rd, (registers[rs] - registers[rt]) & MASK_32B);
 }
 
-void processor::r_type_24(int instruction)	// AND
+void processor::r_type_24(uint32_t instruction)	// AND
 {
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	set_register_32b(rd, registers[rs] & registers[rt]);
 }
 
-void processor::r_type_25(int instruction)	// OR
+void processor::r_type_25(uint32_t instruction)	// OR
 {
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	set_register_32b(rd, registers[rs] | registers[rt]);
 }
 
-void processor::r_type_26(int instruction)	// XOR
+void processor::r_type_26(uint32_t instruction)	// XOR
 {
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	set_register_32b(rd, registers[rs] ^ registers[rt]);
 }
 
-void processor::r_type_27(int instruction)
+void processor::r_type_27(uint32_t instruction)
 {
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t sa = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	pdc -> log("r_type_27 not known");
 }
 
-void processor::r_type_28(int instruction)
+void processor::r_type_28(uint32_t instruction)
 {
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t sa = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	pdc -> log("r_type_28 not known");
 }
 
-void processor::r_type_29(int instruction)
+void processor::r_type_29(uint32_t instruction)
 {
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t sa = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	pdc -> log("r_type_29 not known");
 }
 
-void processor::r_type_2a(int instruction)	// SLT
+void processor::r_type_2a(uint32_t instruction)	// SLT
 {
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	if (untwos_complement(registers[rs], 32) < untwos_complement(registers[rt], 32))
 		set_register_32b(rd, 1);
@@ -484,11 +484,11 @@ void processor::r_type_2a(int instruction)	// SLT
 		set_register_32b(rd, 0);
 }
 
-void processor::r_type_2b(int instruction)	// SLTU
+void processor::r_type_2b(uint32_t instruction)	// SLTU
 {
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	if (registers[rs] < registers[rt])
 		set_register_32b(rd, 1);
@@ -496,202 +496,202 @@ void processor::r_type_2b(int instruction)	// SLTU
 		set_register_32b(rd, 0);
 }
 
-void processor::r_type_2c(int instruction)
+void processor::r_type_2c(uint32_t instruction)
 {
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t sa = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	pdc -> log("r_type_2c not known");
 }
 
-void processor::r_type_2d(int instruction)
+void processor::r_type_2d(uint32_t instruction)
 {
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t sa = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	pdc -> log("r_type_2d not known");
 }
 
-void processor::r_type_2e(int instruction)
+void processor::r_type_2e(uint32_t instruction)
 {
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t sa = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	pdc -> log("r_type_2e not known");
 }
 
-void processor::r_type_2f(int instruction)
+void processor::r_type_2f(uint32_t instruction)
 {
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t sa = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	pdc -> log("r_type_2f not known");
 }
 
-void processor::r_type_30(int instruction)
+void processor::r_type_30(uint32_t instruction)
 {
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t sa = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	pdc -> log("r_type_30 not known");
 }
 
-void processor::r_type_31(int instruction)
+void processor::r_type_31(uint32_t instruction)
 {
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t sa = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	pdc -> log("r_type_31 not known");
 }
 
-void processor::r_type_32(int instruction)
+void processor::r_type_32(uint32_t instruction)
 {
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t sa = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	pdc -> log("r_type_32 not known");
 }
 
-void processor::r_type_33(int instruction)
+void processor::r_type_33(uint32_t instruction)
 {
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t sa = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	pdc -> log("r_type_33 not known");
 }
 
-void processor::r_type_34(int instruction)
+void processor::r_type_34(uint32_t instruction)
 {
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t sa = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	pdc -> log("r_type_34 not known");
 }
 
-void processor::r_type_35(int instruction)
+void processor::r_type_35(uint32_t instruction)
 {
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t sa = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	pdc -> log("r_type_35 not known");
 }
 
-void processor::r_type_36(int instruction)
+void processor::r_type_36(uint32_t instruction)
 {
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t sa = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	pdc -> log("r_type_36 not known");
 }
 
-void processor::r_type_37(int instruction)
+void processor::r_type_37(uint32_t instruction)
 {
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t sa = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	pdc -> log("r_type_37 not known");
 }
 
-void processor::r_type_38(int instruction)
+void processor::r_type_38(uint32_t instruction)
 {
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t sa = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	pdc -> log("r_type_38 not known");
 }
 
-void processor::r_type_39(int instruction)
+void processor::r_type_39(uint32_t instruction)
 {
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t sa = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	pdc -> log("r_type_39 not known");
 }
 
-void processor::r_type_3a(int instruction)
+void processor::r_type_3a(uint32_t instruction)
 {
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t sa = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	pdc -> log("r_type_3a not known");
 }
 
-void processor::r_type_3b(int instruction)
+void processor::r_type_3b(uint32_t instruction)
 {
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t sa = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	pdc -> log("r_type_3b not known");
 }
 
-void processor::r_type_3c(int instruction)
+void processor::r_type_3c(uint32_t instruction)
 {
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t sa = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	pdc -> log("r_type_3c not known");
 }
 
-void processor::r_type_3d(int instruction)
+void processor::r_type_3d(uint32_t instruction)
 {
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t sa = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	pdc -> log("r_type_3d not known");
 }
 
-void processor::r_type_3e(int instruction)
+void processor::r_type_3e(uint32_t instruction)
 {
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t sa = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	pdc -> log("r_type_3e not known");
 }
 
-void processor::r_type_3f(int instruction)
+void processor::r_type_3f(uint32_t instruction)
 {
-	int sa = (instruction >> 6) & MASK_5B;
-	int rd = (instruction >> 11) & MASK_5B;
-	int rt = (instruction >> 16) & MASK_5B;
-	int rs = (instruction >> 21) & MASK_5B;
+	uint8_t sa = (instruction >> 6) & MASK_5B;
+	uint8_t rd = (instruction >> 11) & MASK_5B;
+	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	pdc -> log("r_type_3f not known");
 }
