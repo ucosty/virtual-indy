@@ -1,17 +1,33 @@
 #include <signal.h>
 #include <stdio.h>
+#include <unistd.h>
 
 #include "error.h"
 #include "processor.h"
 #include "processor_utils.h"
 #include "utils.h"
 #include "debug_console.h"
+#include "debug_console_simple.h"
 #include "log.h"
 
-bool single_step = true;
-const char *logfile = "bla.txt";
+bool single_step = false;
+const char *logfile = NULL;
 
 volatile bool terminate = false;
+
+void help()
+{
+	fprintf(stderr, "-d     debug (console) mode\n");
+	fprintf(stderr, "-S     enable single step mode\n");
+	fprintf(stderr, "-l x   logfile to write to\n");
+	fprintf(stderr, "-V     show version & exit\n");
+	fprintf(stderr, "-h     this help & exit\n");
+}
+
+void version()
+{
+	printf("miep v" VERSION ", (C) 2013 by folkert@vanheusden.com\n\n");
+}
 
 void sig_handler(int sig)
 {
@@ -20,6 +36,41 @@ void sig_handler(int sig)
 
 int main(int argc, char *argv[])
 {
+	int c = -1;
+	bool debug = false;
+
+	while((c = getopt(argc, argv, "dSl:")) != -1)
+	{
+		switch(c)
+		{
+			case 'd':
+				debug = true;
+				break;
+
+			case 'S':
+				single_step = true;
+				break;
+
+			case 'l':
+				logfile = optarg;
+				break;
+
+			case 'V':
+				version();
+				return 0;
+
+			case 'h':
+				version();
+				help();
+				return 0;
+
+			default:
+				version();
+				help();
+				return 1;
+		}
+	}
+
 	dolog("*** START ***");
 
 	signal(SIGHUP , SIG_IGN);
@@ -28,7 +79,7 @@ int main(int argc, char *argv[])
 	signal(SIGQUIT, sig_handler);
 	signal(SIGPIPE, SIG_IGN);
 
-	debug_console *dc = new debug_console();
+	debug_console *dc = debug ? new debug_console() : new debug_console_simple();
 
 	dc -> init();
 
@@ -44,16 +95,46 @@ int main(int argc, char *argv[])
 	mb -> register_memory(0xffffffffbfc00000, 0x7ffff, m_prom); // IP20, 32bit
 
 	processor *p = new processor(dc, mb);
-	p -> reset();
 
+#ifdef _PROFILE
+	int cnt = 0;
 	for(;!terminate;)
 	{
-		dc -> tick(p);
-		p -> tick();
+		p -> reset();
 
-		if (single_step)
-			getch();
+		for(int nr=0; nr<600; nr++)
+		{
+			// dc -> tick(p);
+			p -> tick();
+		}
+
+		cnt++;
+		if (cnt % 100 == 0)
+			printf("%d\r", cnt);
 	}
+
+#else
+
+	if (single_step)
+	{
+		for(;!terminate;)
+		{
+			dc -> tick(p);
+			p -> tick();
+
+			if (single_step)
+				getch();
+		}
+	}
+	else
+	{
+		for(;!terminate;)
+		{
+			dc -> tick(p);
+			p -> tick();
+		}
+	}
+#endif
 
 	delete dc;
 

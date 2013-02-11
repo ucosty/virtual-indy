@@ -16,8 +16,6 @@ private:
 	WINDOW *win_regs, *win_logs;
 	int max_x, max_y;
 	bool nc;
-	double start_ts;
-	long long int n_ticks;
 	int refresh_counter, refresh_limit;
 	bool refresh_limit_valid;
 	bool had_logging;
@@ -25,6 +23,10 @@ private:
 
 	void recreate_terminal();
 	void create_windows();
+
+protected:
+	double start_ts;
+	long long int n_ticks;
 
 public:
 	debug_console();

@@ -8,7 +8,7 @@ class debug_console_simple : public debug_console
 {
 public:
 	debug_console_simple();
-	~debug_console_simple();
+	virtual ~debug_console_simple();
 
 	void init();
 
