@@ -36,7 +36,7 @@ const memory_segment_t * memory_bus::find_segment(uint64_t offset) const
 		const memory_segment_t *psegment = &list[segment];
 
 		uint64_t seg_offset = psegment -> offset;
-		uint64_t seg_mask   = psegment -> mask ^ MASK_64B;
+		uint64_t seg_mask   = ~psegment -> mask;
 
 		if ((offset & seg_mask) == seg_offset)
 			return psegment;

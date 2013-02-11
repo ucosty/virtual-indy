@@ -6,3 +6,5 @@
 > this is applicable for e.g. AND: an ADD has a DADD counter part which AND does not seem to have
 
 - delay slot: next instruction (the delay slot) is always executed, even when the jump is not executed?
+
+- how does a mips react when there's nothing mapped in a memory range and data is read from/written to it?
