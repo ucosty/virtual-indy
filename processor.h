@@ -4,7 +4,10 @@
 #include <stdint.h>
 #include <string>
 
+#include "debug.h"
+#include "optimize.h"
 #include "debug_console.h"
+#include "processor_utils.h"
 #include "memory_bus.h"
 
 #define SR_EI 0			// status register "EI" bit
@@ -184,10 +187,6 @@ public:
 	void set_delay_slot(uint64_t offset);
 	uint64_t get_delay_slot_PC();
 
-	int32_t get_register_32b_signed(uint8_t nr) const;
-	uint32_t get_register_32b_unsigned(uint8_t nr) const;
-	int64_t get_register_64b_signed(uint8_t nr) const;
-	uint64_t get_register_64b_unsigned(uint8_t nr) const;
 	uint64_t get_PC() const { return PC; }
 	uint64_t get_HI() const { return HI; }
 	uint64_t get_LO() const { return LO; }
@@ -197,9 +196,6 @@ public:
 
 	uint32_t get_C0_register(uint8_t nr, uint8_t sel);
 
-	void set_register_32b(uint8_t nr, uint32_t value);
-	void set_register_32b_se(uint8_t nr, int32_t value); // < 32b signed d'r in, is dan niet automatisch s-e?
-	void set_register_64b(uint8_t nr, uint64_t value);
 	void set_PC(uint64_t value) { PC = value; }
 	void set_HI(uint64_t value) { HI = value; }
 	void set_LO(uint64_t value) { LO = value; }
@@ -212,6 +208,68 @@ public:
 	static const char * reg_to_name(uint8_t reg);
 	static std::string decode_to_text(uint32_t instr);
 	std::string da_logline(uint32_t instr);
+
+	inline int32_t get_register_32b_signed(uint8_t nr) const
+	{
+		ASSERT(nr >= 0 && nr <= 31);
+
+if (nr == 31) pdc -> log("GET 31 signed");
+
+		return int32_t(registers[nr]);
+	}
+
+	inline uint32_t get_register_32b_unsigned(uint8_t nr) const
+	{
+		ASSERT(nr >= 0 && nr <= 31);
+
+if (nr == 31) pdc -> log("GET 31 unsigned");
+
+		return uint32_t(registers[nr]);
+	}
+
+	inline int64_t get_register_64b_signed(uint8_t nr) const
+	{
+		ASSERT(nr >= 0 && nr <= 31);
+
+		return int64_t(registers[nr]);
+	}
+
+	inline uint64_t get_register_64b_unsigned(uint8_t nr) const
+	{
+		ASSERT(nr >= 0 && nr <= 31);
+
+		return uint64_t(registers[nr]);
+	}
+
+	inline void set_register_32b(uint8_t nr, uint32_t value)
+	{
+		ASSERT(nr >= 0 && nr <= 31);
+
+		if (likely(nr))
+			registers[nr] = (registers[nr] & ~MASK_32B) | value;
+		else
+			pdc -> log("(32b) trying to alter register 0! (%d)", nr);
+	}
+
+	inline void set_register_32b_se(uint8_t nr, int32_t value)
+	{
+		ASSERT(nr >= 0 && nr <= 31);
+
+		if (likely(nr))
+			registers[nr] = value;
+		else
+			pdc -> log("(32bse) trying to alter register 0! (%d)", nr);
+	}
+
+	inline void set_register_64b(uint8_t nr, uint64_t value)
+	{
+		ASSERT(nr >= 0 && nr <= 31);
+
+		if (likely(nr))
+			registers[nr] = value;
+		else
+			pdc -> log("(64b) trying to alter register 0! (%d)", nr);
+	}
 };
 
 #endif

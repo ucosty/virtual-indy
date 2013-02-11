@@ -156,7 +156,7 @@ void processor::r_type_08(uint32_t instruction)	// JR
 	uint8_t hint = (instruction >> 6) & MASK_5B;
 	uint8_t rs = (instruction >> 21) & MASK_5B;
 
-	if (hint)
+	if (unlikely(hint))
 		pdc -> log("r_type_08: hint is unexpected value (%d, expected 0)", hint);
 
 	set_delay_slot(PC);

@@ -194,12 +194,14 @@ void processor::i_type_08(uint32_t instruction)	// ADDI
 	int32_t val1 = get_register_32b_signed(rs);
 	int32_t val2 = immediate_s;
 
-	if (test_tc_overflow_32b(val1, val2))
+	if (unlikely(test_tc_overflow_32b(val1, val2)))
 	{
 		// FIXME integer overflow exception
 	}
 	else
+	{
 		set_register_32b_se(rt, val1 + val2);
+	}
 }
 
 void processor::i_type_09(uint32_t instruction)	// ADDIU
@@ -452,7 +454,7 @@ void processor::i_type_20(uint32_t instruction)	// LB / LBU
 	int address = get_register_32b_unsigned(base) + offset_s;
 	uint8_t temp_8b = -1;
 
-	if (!pmb -> read_8b(address, &temp_8b))
+	if (unlikely(!pmb -> read_8b(address, &temp_8b)))
 		pdc -> log("i-type read 8b from %08x failed", address);
 
 	uint8_t opcode = (instruction >> 26) & MASK_6B;
@@ -470,7 +472,7 @@ void processor::i_type_21(uint32_t instruction)	// LH / LHU
 	int offset_s = int16_t(instruction & MASK_16B);
 
 	int address = get_register_32b_unsigned(base) + offset_s;
-	if (address & 1)
+	if (unlikely(address & 1))
 	{
 		pdc -> log("i-type read 16b from %08x: unaligned", address);
 		// FIXME throw address error exception
@@ -479,7 +481,7 @@ void processor::i_type_21(uint32_t instruction)	// LH / LHU
 	{
 		uint16_t temp_16b = -1;
 
-		if (!pmb -> read_16b(address, &temp_16b))
+		if (unlikely(!pmb -> read_16b(address, &temp_16b)))
 			pdc -> log("i-type read 16b from %08x failed", address);
 
 		uint8_t opcode = (instruction >> 26) & MASK_6B;
@@ -517,7 +519,7 @@ void processor::i_type_23(uint32_t instruction)	// LW / LL
 	int offset_s = int16_t(instruction & MASK_16B);
 
 	int address = get_register_32b_unsigned(base) + offset_s;
-	if (address & 3)
+	if (unlikely(address & 3))
 	{
 		pdc -> log("i-type read 32b from %08x: unaligned", address);
 		// FIXME throw address error exception
@@ -526,7 +528,7 @@ void processor::i_type_23(uint32_t instruction)	// LW / LL
 	{
 		uint32_t temp_32b = -1;
 
-		if (!pmb -> read_32b(address, &temp_32b))
+		if (unlikely(!pmb -> read_32b(address, &temp_32b)))
 			pdc -> log("i-type read 32b from %08x failed", address);
 
 		uint8_t rt = (instruction >> 16) & MASK_5B;
@@ -582,7 +584,7 @@ void processor::i_type_28(uint32_t instruction)	// SB
 	uint8_t rt = (instruction >> 16) & MASK_5B;
 	int temp_32b = get_register_32b_unsigned(rt);
 
-	if (!pmb -> write_8b(address, temp_32b))
+	if (unlikely(!pmb -> write_8b(address, temp_32b)))
 		pdc -> log("i-type write 8b %02x to %08x failed", registers[rt] & 0xff, address);
 }
 
@@ -596,7 +598,7 @@ void processor::i_type_29(uint32_t instruction)	// SH
 
 	int address = get_register_32b_unsigned(base) + offset_s;
 
-	if (address & 1)
+	if (unlikely(address & 1))
 	{
 		pdc -> log("i-type write 16b %04x to %08x: unaligned", registers[rt] & 0xffff, address);
 		// FIXME throw address error exception
@@ -604,7 +606,7 @@ void processor::i_type_29(uint32_t instruction)	// SH
 	else
 	{
 		int temp_32b = get_register_32b_unsigned(rt);
-		if (!pmb -> write_16b(address, temp_32b))
+		if (unlikely(!pmb -> write_16b(address, temp_32b)))
 			pdc -> log("i-type write 16b %04x to %08x failed", registers[rt] & 0xffff, address);
 	}
 
@@ -638,7 +640,7 @@ void processor::i_type_2b(uint32_t instruction)	// SW
 
 	int address = get_register_32b_unsigned(base) + offset_s;
 
-	if (address & 3)
+	if (unlikely(address & 3))
 	{
 		pdc -> log("i-type write 32b %08x to %08x: unaligned", registers[rt], address);
 		// FIXME throw address error exception

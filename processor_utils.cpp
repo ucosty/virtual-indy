@@ -1,6 +1,7 @@
 #include <stdlib.h>
 
 #include "debug.h"
+#include "optimize.h"
 #include "processor_utils.h"
 
 int64_t untwos_complement(uint64_t value, uint8_t bits)
@@ -99,6 +100,7 @@ uint64_t sign_extend_32b(uint32_t value)
 	return value;
 }
 
+// FIXME need to optimize this
 int64_t sign_extend(int64_t value, uint8_t bits)
 {
 	ASSERT(bits >= 1 && bits <= 64);
@@ -127,7 +129,7 @@ bool test_tc_overflow_32b(int32_t val1, int32_t val2)
 		{
 			int32_t limit = S32_MAX - val1;
 
-			if (val2 > limit)
+			if (unlikely(val2 > limit))
 				return true;
 
 			return false;
@@ -136,7 +138,7 @@ bool test_tc_overflow_32b(int32_t val1, int32_t val2)
 		{
 			uint32_t limit = uint32_t(val1) + S32_MAX + 1;
 
-			if (abs(val2) > limit)
+			if (unlikely(abs(val2) > limit))
 				return true;
 
 			return false;
@@ -148,7 +150,7 @@ bool test_tc_overflow_32b(int32_t val1, int32_t val2)
 		{
 			uint32_t limit = abs(val1) + S32_MAX;
 
-			if (abs(val2) > limit)
+			if (unlikely(abs(val2) > limit))
 				return true;
 
 			return false;
@@ -157,7 +159,7 @@ bool test_tc_overflow_32b(int32_t val1, int32_t val2)
 		{
 			uint32_t limit = U32_MAX + val1;
 
-			if (abs(val2) > limit)
+			if (unlikely(abs(val2) > limit))
 				return true;
 
 			return false;

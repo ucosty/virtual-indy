@@ -39,7 +39,7 @@ void processor::tick()
 {
 	uint32_t instruction = -1;
 
-	if (have_delay_slot)
+	if (unlikely(have_delay_slot))
 	{
 		have_delay_slot = false;
 
@@ -55,12 +55,12 @@ void processor::tick()
 	}
 	else
 	{
-		if (PC & 0x03)
+		if (unlikely(PC & 0x03))
 		{
 			// address exception
 		}
 
-		if (!pmb -> read_32b(PC, &instruction))
+		if (unlikely(!pmb -> read_32b(PC, &instruction)))
 		{
 			// processor exception FIXME
 		}
@@ -91,68 +91,6 @@ uint64_t processor::get_delay_slot_PC()
 		pdc -> log("trying to retrieve delay slot address (%016llx) while it is not valid (set)", delay_slot_PC);
 
 	return delay_slot_PC;
-}
-
-int32_t processor::get_register_32b_signed(uint8_t nr) const
-{
-	ASSERT(nr >= 0 && nr <= 31);
-
-if (nr == 31) pdc -> log("GET 31 signed");
-
-	return int32_t(registers[nr]);
-}
-
-uint32_t processor::get_register_32b_unsigned(uint8_t nr) const
-{
-	ASSERT(nr >= 0 && nr <= 31);
-
-if (nr == 31) pdc -> log("GET 31 unsigned");
-
-	return uint32_t(registers[nr]);
-}
-
-int64_t processor::get_register_64b_signed(uint8_t nr) const
-{
-	ASSERT(nr >= 0 && nr <= 31);
-
-	return int64_t(registers[nr]);
-}
-
-uint64_t processor::get_register_64b_unsigned(uint8_t nr) const
-{
-	ASSERT(nr >= 0 && nr <= 31);
-
-	return uint64_t(registers[nr]);
-}
-
-void processor::set_register_32b(uint8_t nr, uint32_t value)
-{
-	ASSERT(nr >= 0 && nr <= 31);
-
-	if (nr == 0)
-		pdc -> log("(32b) trying to alter register 0! (%d)", nr);
-	else
-		registers[nr] = (registers[nr] & ~MASK_32B) | value;
-}
-
-void processor::set_register_32b_se(uint8_t nr, int32_t value)
-{
-	ASSERT(nr >= 0 && nr <= 31);
-
-	if (nr == 0)
-		pdc -> log("(32bse) trying to alter register 0! (%d)", nr);
-	else
-		registers[nr] = sign_extend_32b(uint32_t(value));
-}
-
-void processor::set_register_64b(uint8_t nr, uint64_t value)
-{
-	ASSERT(nr >= 0 && nr <= 31);
-
-	if (nr == 0)
-		pdc -> log("(64b) trying to alter register 0! (%d)", nr);
-	else
-		registers[nr] = value;
 }
 
 bool processor::get_mem_32b(int offset, uint32_t *value) const
