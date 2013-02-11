@@ -18,7 +18,8 @@ private:
 	bool nc;
 	double start_ts;
 	long long int n_ticks;
-	int refresh_counter;
+	int refresh_counter, refresh_limit;
+	bool refresh_limit_valid;
 	bool had_logging;
 	std::map<std::string, long int> instruction_counts;
 

@@ -9,6 +9,8 @@
 #include "log.h"
 #include "utils.h"
 
+#define SCREEN_REFRESHES_PER_SECOND	3
+
 extern bool single_step;
 extern const char *logfile;
 
@@ -58,7 +60,16 @@ debug_console::debug_console()
 	n_ticks = 0;
 	start_ts = get_ts();
 	had_logging = false;
-	refresh_counter = 0;
+
+	refresh_limit = refresh_counter = 0;
+	refresh_limit_valid = false;
+
+	// make sure the cpu runs at 100% before measuring the
+	// number of emulated instructions per second (used for
+	// the screen refresh)
+	while(get_ts() - start_ts < 0.1)
+	{
+	}
 }
 
 void debug_console::init()
@@ -145,7 +156,17 @@ void debug_console::tick(processor *p)
 {
 	n_ticks++;
 
-	if (++refresh_counter >= 1000000 || single_step)
+	if (!refresh_limit_valid)
+	{
+		double now_ts = get_ts();
+
+		refresh_limit++;
+
+		if (now_ts - start_ts >= 1.0 / double(SCREEN_REFRESHES_PER_SECOND))
+			refresh_limit_valid = true;
+	}
+
+	if (++refresh_counter >= refresh_limit || single_step)
 	{
 		double now_ts = get_ts();
 
