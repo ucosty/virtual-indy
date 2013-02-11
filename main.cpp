@@ -116,9 +116,7 @@ int main(int argc, char *argv[])
 		if (cnt % 100 == 0)
 			printf("%d\r", cnt);
 	}
-
 #else
-
 	if (single_step)
 	{
 		for(;!terminate;)
