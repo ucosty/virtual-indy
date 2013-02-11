@@ -19,12 +19,12 @@ void processor::special2(uint32_t instruction)
 			break;
 
 		case 0x1C:		// CLZ
-			set_register_32b(rd, count_leading_zeros(32, registers[rs]));
+			set_register_32b(rd, count_leading_zeros(32, get_register_32b_unsigned(rs)));
 			// FIXME also in rt?
 			break;
 
 		case 0x21:		// CLO
-			set_register_32b(rd, count_leading_ones(32, registers[rs]));
+			set_register_32b(rd, count_leading_ones(32, get_register_32b_unsigned(rs)));
 			// FIXME also in rt?
 			break;
 

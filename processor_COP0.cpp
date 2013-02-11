@@ -34,7 +34,7 @@ void processor::COP0(uint32_t instruction)
 				break;
 
 			case 0x04:	// MTC0
-				set_C0_register(rd, sel, registers[rt]);
+				set_C0_register(rd, sel, get_register_32b_unsigned(rt));
 				break;
 
 			case 0x0b:	// DI/EI

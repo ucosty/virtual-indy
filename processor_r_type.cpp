@@ -76,7 +76,7 @@ void processor::r_type_00(uint32_t instruction)	// NOP / SLL
 	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	if (sa) // if sa==0 then NOP
-		set_register_32b(rd, registers[rt] << sa);
+		set_register_32b(rd, get_register_32b_unsigned(rt) << sa);
 }
 
 void processor::r_type_01(uint32_t instruction)
@@ -96,9 +96,9 @@ void processor::r_type_02(uint32_t instruction)	// SRL / ROTR
 	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	if (IS_BIT_OFF0_SET(21, instruction))
-		set_register_32b(rd, rotate_right(registers[rt] & MASK_32B, sa, 32));
+		set_register_32b(rd, rotate_right(get_register_32b_unsigned(rt), sa, 32));
 	else
-		set_register_32b(rd, (registers[rt] & MASK_32B) >> sa);
+		set_register_32b(rd, get_register_32b_unsigned(rt) >> sa);
 }
 
 void processor::r_type_03(uint32_t instruction)	// SRA
@@ -107,7 +107,7 @@ void processor::r_type_03(uint32_t instruction)	// SRA
 	uint8_t rd = (instruction >> 11) & MASK_5B;
 	uint8_t rt = (instruction >> 16) & MASK_5B;
 
-	set_register_32b(rd, sign_extend(registers[rt] >> sa, 32 - sa));
+	set_register_32b(rd, sign_extend(get_register_32b_unsigned(rt) >> sa, 32 - sa));
 }
 
 void processor::r_type_04(uint32_t instruction)	// SLLV
@@ -116,7 +116,7 @@ void processor::r_type_04(uint32_t instruction)	// SLLV
 	uint8_t rd = (instruction >> 11) & MASK_5B;
 	uint8_t rt = (instruction >> 16) & MASK_5B;
 
-	set_register_32b(rd, registers[rt] << sa);
+	set_register_32b(rd, get_register_32b_unsigned(rt) << sa);
 }
 
 void processor::r_type_05(uint32_t instruction)
@@ -136,9 +136,9 @@ void processor::r_type_06(uint32_t instruction)	// SRLV / ROTRV
 	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	if (IS_BIT_OFF0_SET(21, instruction))
-		set_register_32b(rd, rotate_right(registers[rt] & MASK_32B, registers[rs] & MASK_5B, 32));
+		set_register_32b(rd, rotate_right(get_register_32b_unsigned(rt), get_register_32b_unsigned(rs) & MASK_5B, 32));
 	else
-		set_register_32b(rd, (registers[rt] & MASK_32B) >> (registers[rs] & MASK_5B));
+		set_register_32b(rd, get_register_32b_unsigned(rt) >> (get_register_32b_unsigned(rs) & MASK_5B));
 }
 
 void processor::r_type_07(uint32_t instruction)
@@ -161,7 +161,7 @@ void processor::r_type_08(uint32_t instruction)	// JR
 
 	set_delay_slot(PC);
 
-	PC = registers[rs];
+	PC = get_register_64b_unsigned(rs);
 }
 
 void processor::r_type_09(uint32_t instruction)	// JALR
@@ -173,7 +173,7 @@ void processor::r_type_09(uint32_t instruction)	// JALR
 
 	set_register_64b(rd, PC + 4);
 
-	PC = registers[rs];
+	PC = get_register_64b_unsigned(rs);
 }
 
 void processor::r_type_0a(uint32_t instruction)	// MOVZ
@@ -182,8 +182,8 @@ void processor::r_type_0a(uint32_t instruction)	// MOVZ
 	uint8_t rt = (instruction >> 16) & MASK_5B;
 	uint8_t rs = (instruction >> 21) & MASK_5B;
 
-	if (registers[rt] == 0)
-		set_register_32b(rd, registers[rs]);
+	if (get_register_32b_unsigned(rt) == 0)
+		set_register_32b(rd, get_register_32b_unsigned(rs));
 }
 
 void processor::r_type_0b(uint32_t instruction)	// MOVN
@@ -192,8 +192,8 @@ void processor::r_type_0b(uint32_t instruction)	// MOVN
 	uint8_t rt = (instruction >> 16) & MASK_5B;
 	uint8_t rs = (instruction >> 21) & MASK_5B;
 
-	if (registers[rt])
-		set_register_32b(rd, registers[rs]);
+	if (get_register_32b_unsigned(rt))
+		set_register_32b(rd, get_register_32b_unsigned(rs));
 }
 
 void processor::r_type_0c(uint32_t instruction)
@@ -242,7 +242,7 @@ void processor::r_type_11(uint32_t instruction)	// MTHI
 {
 	uint8_t rs = (instruction >> 21) & MASK_5B;
 
-	HI = registers[rs];
+	HI = get_register_64b_unsigned(rs);
 }
 
 void processor::r_type_12(uint32_t instruction)	// MFLO
@@ -256,7 +256,7 @@ void processor::r_type_13(uint32_t instruction)	// MTLO
 {
 	uint8_t rs = (instruction >> 21) & MASK_5B;
 
-	LO = registers[rs];
+	LO = get_register_64b_unsigned(rs);
 }
 
 void processor::r_type_14(uint32_t instruction)
@@ -394,7 +394,7 @@ void processor::r_type_21(uint32_t instruction)	// ADDU
 	uint8_t rt = (instruction >> 16) & MASK_5B;
 	uint8_t rs = (instruction >> 21) & MASK_5B;
 
-	set_register_32b(rd, (registers[rs] + registers[rt]) & MASK_32B);
+	set_register_32b(rd, uint32_t(get_register_32b_unsigned(rs) + get_register_32b_unsigned(rt)));
 }
 
 void processor::r_type_22(uint32_t instruction)
@@ -413,7 +413,7 @@ void processor::r_type_23(uint32_t instruction)	// SUBU
 	uint8_t rt = (instruction >> 16) & MASK_5B;
 	uint8_t rs = (instruction >> 21) & MASK_5B;
 
-	set_register_32b(rd, (registers[rs] - registers[rt]) & MASK_32B);
+	set_register_32b(rd, uint32_t(get_register_32b_unsigned(rs) - get_register_32b_unsigned(rt)));
 }
 
 void processor::r_type_24(uint32_t instruction)	// AND
@@ -422,7 +422,7 @@ void processor::r_type_24(uint32_t instruction)	// AND
 	uint8_t rt = (instruction >> 16) & MASK_5B;
 	uint8_t rs = (instruction >> 21) & MASK_5B;
 
-	set_register_32b(rd, registers[rs] & registers[rt]);
+	set_register_32b(rd, get_register_32b_unsigned(rs) & get_register_32b_unsigned(rt));
 }
 
 void processor::r_type_25(uint32_t instruction)	// OR
@@ -431,7 +431,7 @@ void processor::r_type_25(uint32_t instruction)	// OR
 	uint8_t rt = (instruction >> 16) & MASK_5B;
 	uint8_t rs = (instruction >> 21) & MASK_5B;
 
-	set_register_32b(rd, registers[rs] | registers[rt]);
+	set_register_32b(rd, get_register_32b_unsigned(rs) | get_register_32b_unsigned(rt));
 }
 
 void processor::r_type_26(uint32_t instruction)	// XOR
@@ -440,7 +440,7 @@ void processor::r_type_26(uint32_t instruction)	// XOR
 	uint8_t rt = (instruction >> 16) & MASK_5B;
 	uint8_t rs = (instruction >> 21) & MASK_5B;
 
-	set_register_32b(rd, registers[rs] ^ registers[rt]);
+	set_register_32b(rd, get_register_32b_unsigned(rs) ^ get_register_32b_unsigned(rt));
 }
 
 void processor::r_type_27(uint32_t instruction)
@@ -479,7 +479,7 @@ void processor::r_type_2a(uint32_t instruction)	// SLT
 	uint8_t rt = (instruction >> 16) & MASK_5B;
 	uint8_t rs = (instruction >> 21) & MASK_5B;
 
-	if (untwos_complement(registers[rs], 32) < untwos_complement(registers[rt], 32))
+	if (get_register_32b_signed(rs) < get_register_32b_signed(rt))
 		set_register_32b(rd, 1);
 	else
 		set_register_32b(rd, 0);
@@ -491,7 +491,7 @@ void processor::r_type_2b(uint32_t instruction)	// SLTU
 	uint8_t rt = (instruction >> 16) & MASK_5B;
 	uint8_t rs = (instruction >> 21) & MASK_5B;
 
-	if (registers[rs] < registers[rt])
+	if (get_register_32b_unsigned(rs) < get_register_32b_unsigned(rt))
 		set_register_32b(rd, 1);
 	else
 		set_register_32b(rd, 0);

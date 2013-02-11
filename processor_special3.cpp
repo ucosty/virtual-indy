@@ -12,9 +12,9 @@ void processor::special3(uint32_t instruction)
 	{
 		case 0x20:
 			if (sub_function == 0x18)	// SEH
-				set_register_32b(rt, sign_extend_16b(registers[rd] & MASK_16B));
+				set_register_32b(rt, sign_extend_16b(uint16_t(get_register_32b_unsigned(rd))));
 			else if (sub_function == 0x10)	// SEB
-				set_register_32b(rt, sign_extend_8b(registers[rd] & MASK_8B));
+				set_register_32b(rt, sign_extend_8b(uint8_t(get_register_32b_unsigned(rd))));
 			break;
 
 		default:

@@ -127,7 +127,7 @@ void processor::i_type_04(uint32_t instruction)	// BEQ
 	int offset = instruction & MASK_16B;
 	int b18_signed_offset = int16_t(offset) << 2;
 
-	if (registers[rs] == registers[rt])
+	if (get_register_32b_unsigned(rs) == get_register_32b_unsigned(rt))
 	{
 		set_delay_slot(PC);
 
@@ -141,7 +141,7 @@ void processor::i_type_05(uint32_t instruction)	// BNE/BNEL
 	uint8_t rt = (instruction >> 16) & MASK_5B;
 	int b18_signed_offset = int16_t(instruction & MASK_16B) << 2;
 
-	if (registers[rs] != registers[rt])
+	if (get_register_32b_unsigned(rs) != get_register_32b_unsigned(rt))
 	{
 		set_delay_slot(PC);
 
@@ -449,7 +449,7 @@ void processor::i_type_20(uint32_t instruction)	// LB / LBU
 
 	int offset_s = int16_t(instruction & MASK_16B);
 
-	int address = registers[base] + offset_s;
+	int address = get_register_32b_unsigned(base) + offset_s;
 	uint8_t temp_8b = -1;
 
 	if (!pmb -> read_8b(address, &temp_8b))
@@ -469,7 +469,7 @@ void processor::i_type_21(uint32_t instruction)	// LH / LHU
 
 	int offset_s = int16_t(instruction & MASK_16B);
 
-	int address = registers[base] + offset_s;
+	int address = get_register_32b_unsigned(base) + offset_s;
 	if (address & 1)
 	{
 		pdc -> log("i-type read 16b from %08x: unaligned", address);
@@ -516,7 +516,7 @@ void processor::i_type_23(uint32_t instruction)	// LW / LL
 
 	int offset_s = int16_t(instruction & MASK_16B);
 
-	int address = registers[base] + offset_s;
+	int address = get_register_32b_unsigned(base) + offset_s;
 	if (address & 3)
 	{
 		pdc -> log("i-type read 32b from %08x: unaligned", address);
@@ -577,10 +577,10 @@ void processor::i_type_28(uint32_t instruction)	// SB
 
 	int offset_s = int16_t(instruction & MASK_16B);
 
-	int address = registers[base] + offset_s;
+	int address = get_register_32b_unsigned(base) + offset_s;
 
 	uint8_t rt = (instruction >> 16) & MASK_5B;
-	int temp_32b = registers[rt];
+	int temp_32b = get_register_32b_unsigned(rt);
 
 	if (!pmb -> write_8b(address, temp_32b))
 		pdc -> log("i-type write 8b %02x to %08x failed", registers[rt] & 0xff, address);
@@ -594,7 +594,7 @@ void processor::i_type_29(uint32_t instruction)	// SH
 
 	uint8_t rt = (instruction >> 16) & MASK_5B;
 
-	int address = registers[base] + offset_s;
+	int address = get_register_32b_unsigned(base) + offset_s;
 
 	if (address & 1)
 	{
@@ -603,7 +603,7 @@ void processor::i_type_29(uint32_t instruction)	// SH
 	}
 	else
 	{
-		int temp_32b = registers[rt];
+		int temp_32b = get_register_32b_unsigned(rt);
 		if (!pmb -> write_16b(address, temp_32b))
 			pdc -> log("i-type write 16b %04x to %08x failed", registers[rt] & 0xffff, address);
 	}
@@ -636,7 +636,7 @@ void processor::i_type_2b(uint32_t instruction)	// SW
 
 	uint8_t rt = (instruction >> 16) & MASK_5B;
 
-	int address = registers[base] + offset_s;
+	int address = get_register_32b_unsigned(base) + offset_s;
 
 	if (address & 3)
 	{
@@ -645,7 +645,7 @@ void processor::i_type_2b(uint32_t instruction)	// SW
 	}
 	else
 	{
-		if (!pmb -> write_32b(address, registers[rt]))
+		if (!pmb -> write_32b(address, get_register_32b_unsigned(rt)))
 			pdc -> log("i-type write 32b %08x to %08x failed", registers[rt], address);
 	}
 }
