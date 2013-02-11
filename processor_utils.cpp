@@ -29,40 +29,36 @@ uint8_t count_leading_ones(uint8_t n_bits, uint64_t value)
 {
 	ASSERT(n_bits >= 1 && n_bits <= 64);
 
-	uint8_t n_bits_1 = 0;
 	uint64_t mask = 1ll << (n_bits - 1);
 
+	uint8_t nr = 0;
 	for(uint8_t nr=0; nr<n_bits; nr++)
 	{
 		if (!(value & mask))
 			break;
 
-		n_bits_1++;
-
 		value <<= 1;
 	}
 
-	return n_bits_1;
+	return nr;
 }
 
 uint8_t count_leading_zeros(uint8_t n_bits, uint64_t value)
 {
 	ASSERT(n_bits >= 1 && n_bits <= 64);
 
-	uint8_t n_bits_0 = 0;
 	uint64_t mask = 1ll << (n_bits - 1);
 
+	uint8_t nr = 0;
 	for(uint8_t nr=0; nr<n_bits; nr++)
 	{
 		if (value & mask)
 			break;
 
-		n_bits_0++;
-
 		value <<= 1;
 	}
 
-	return n_bits_0;
+	return nr;
 }
 
 uint64_t rotate_right(uint64_t value, uint8_t n, uint8_t width)
