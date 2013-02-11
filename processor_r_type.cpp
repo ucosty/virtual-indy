@@ -159,14 +159,9 @@ void processor::r_type_08(uint32_t instruction)	// JR
 	if (hint)
 		pdc -> log("r_type_08: hint is unexpected value (%d, expected 0)", hint);
 
-	tick();
+	set_delay_slot(PC);
 
 	PC = registers[rs];
-
-	if (PC & 3)
-	{
-		// FIXME address exception
-	}
 }
 
 void processor::r_type_09(uint32_t instruction)	// JALR
@@ -174,7 +169,7 @@ void processor::r_type_09(uint32_t instruction)	// JALR
 	uint8_t rd = (instruction >> 11) & MASK_5B;
 	uint8_t rs = (instruction >> 21) & MASK_5B;
 
-	tick();
+	set_delay_slot(PC);
 
 	set_register_64b(rd, PC + 4);
 

@@ -9,9 +9,7 @@ void processor::j_type(uint8_t opcode, uint32_t instruction)
 	if (opcode == 3)	// JAL
 		set_register_64b(31, PC);
 
-	uint64_t new_PC = ((instruction & MASK_26B) << 2) | (PC & 0xfffffffffc000000);
+	set_delay_slot(PC);
 
-	tick(); // delay slot
-
-	PC = new_PC;
+	PC = ((instruction & MASK_26B) << 2) | (PC & 0xfffffffffc000000);
 }

@@ -30,30 +30,68 @@ void processor::reset()
 	memset(C0_registers, 0x00, sizeof C0_registers);
 
 	set_PC(0xffffffffbfc00000);
+
+	have_delay_slot = false;
+	delay_slot_PC = -1;
 }
 
 #include "error.h"
 
 void processor::tick()
 {
-	if (PC & 0x03)
-	{
-		// address exception
-	}
-
 	uint32_t instruction = -1;
-	if (!pmb -> read_32b(PC, &instruction))
-	{
-		// processor exception FIXME
-	}
 
-	PC += 4;
+	if (have_delay_slot)
+	{
+		have_delay_slot = false;
+		if (delay_slot_PC & 0x03)
+		{
+			// address exception
+		}
+
+		if (!pmb -> read_32b(delay_slot_PC, &instruction))
+		{
+			// processor exception FIXME
+		}
+	}
+	else
+	{
+		if (PC & 0x03)
+		{
+			// address exception
+		}
+
+		if (!pmb -> read_32b(PC, &instruction))
+		{
+			// processor exception FIXME
+		}
+
+		PC += 4;
+	}
 
 	uint8_t opcode = (instruction >> 26) & MASK_6B;
 
 	// the other methods are really i_types with the opcode set to a certain value
 	// well maybe not in the cpu but logically they are
 	(((processor*)this)->*processor::i_type_methods[opcode])(instruction);
+}
+
+void processor::set_delay_slot(uint64_t offset)
+{
+	if (have_delay_slot)
+		pdc -> log("trying to set delay slot (%016llx) while already set (%016llx)", offset, delay_slot_PC);
+
+	have_delay_slot = true;
+
+	delay_slot_PC = offset;
+}
+
+uint64_t processor::get_delay_slot_PC()
+{
+	if (!have_delay_slot)
+		pdc -> log("trying to retrieve delay slot address (%016llx) while it is not valid (set)", delay_slot_PC);
+
+	return delay_slot_PC;
 }
 
 int32_t processor::get_register_32b_signed(uint8_t nr) const

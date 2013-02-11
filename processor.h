@@ -32,6 +32,9 @@ private:
 	uint32_t status_register;
 	uint32_t C0_registers[32];
 
+	bool have_delay_slot;
+	uint64_t delay_slot_PC;
+
 	long long int cycles;
 
 	void j_type(uint8_t opcode, uint32_t instruction);
@@ -176,6 +179,10 @@ private:
 public:
 	processor(debug_console *pdc_in, memory_bus *pmb_in);
 	~processor();
+
+	bool is_delay_slot() { return have_delay_slot; }
+	void set_delay_slot(uint64_t offset);
+	uint64_t get_delay_slot_PC();
 
 	int32_t get_register_32b_signed(uint8_t nr) const;
 	uint32_t get_register_32b_unsigned(uint8_t nr) const;

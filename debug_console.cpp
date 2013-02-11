@@ -190,8 +190,8 @@ void debug_console::tick(processor *p)
 			mvwprintw(win_regs, y, x, "%s %08x", processor::reg_to_name(registers), p -> get_register_64b_unsigned(registers));
 		}
 
-		uint64_t PC = p -> get_PC();
-		mvwprintw(win_regs, 0, 44, "PC: %016llx", PC);
+		uint64_t PC = p -> is_delay_slot() ? p -> get_delay_slot_PC() : p -> get_PC();
+		mvwprintw(win_regs, 0, 44, "PC: %016llx %c", PC, p -> is_delay_slot() ? 'D' : '.');
 		mvwprintw(win_regs, 1, 44, "LO: %08x", p -> get_LO());
 		mvwprintw(win_regs, 2, 44, "HI: %08x", p -> get_HI());
 		mvwprintw(win_regs, 3, 44, "SR: %08x", p -> get_SR());

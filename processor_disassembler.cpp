@@ -6,9 +6,10 @@
 std::string processor::da_logline(uint32_t instruction)
 {
 	uint32_t temp_32b = -1;
-	bool rc = pmb -> read_32b(PC, &temp_32b);
+	uint64_t cur_PC = is_delay_slot() ? get_delay_slot_PC() : get_PC();
+	bool rc = pmb -> read_32b(cur_PC, &temp_32b);
 
-	std::string line = format("PC: %016llx / %d|%08x", PC, rc, temp_32b);
+	std::string line = format("PC: %016llx %c / %d|%08x", cur_PC, is_delay_slot() ? 'D' : '.', rc, temp_32b);
 
 	uint8_t opcode = (instruction >> 26) & MASK_6B;
 
@@ -29,7 +30,7 @@ std::string processor::da_logline(uint32_t instruction)
 	}
 	else if (opcode == 2 || opcode == 3)	// J-type
 	{
-		uint64_t new_PC = ((instruction & MASK_26B) << 2) | (PC & 0xFC000000);
+		uint64_t new_PC = ((instruction & MASK_26B) << 2) | (cur_PC & 0xFC000000);
 
 		line += format("\tnPC %08x", new_PC);
 	}
