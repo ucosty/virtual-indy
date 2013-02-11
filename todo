@@ -1,1 +1,3 @@
 - testcases: untwos_complement_16b
+
+- testcases: branches; test delayed with something that sets vars
