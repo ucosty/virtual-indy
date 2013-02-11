@@ -160,7 +160,7 @@ void test_processor()
 	processor *p = NULL;
 	create_system(&mb, &m1, &m2, &p);
 
-	int cmp_val = 0xdeafbeef;
+	int cmp_val = 0xdeadbeef;
 
 	p -> reset();
 
@@ -419,7 +419,7 @@ void test_LW()
 			error_exit("failed to write to memory @ 0");
 		// printf("instruction: %08x\n", instr);
 
-		int addr_val = 0xdeafbeef;
+		uint32_t addr_val = 0xdeafbeef;
 		uint64_t addr = base_val + untwos_complement(offset, 16);
 		if (!m1 -> write_32b(addr, addr_val))
 			error_exit("failed to write to memory @ 0");
@@ -428,9 +428,9 @@ void test_LW()
 
 		temp_32b = p -> get_register_32b_signed(rt);
 
-		int expected = addr_val;
+		uint32_t expected = addr_val;
 		if (temp_32b != expected)
-			error_exit("LW: rt (%x) != %x", temp_32b, expected);
+			error_exit("LW: rt (%016llx) != %016llx", temp_32b, expected);
 	}
 
 	free_system(mb, m1, m2, p);
@@ -829,39 +829,25 @@ void test_BNE()
 int main(int argc, char *argv[])
 {
 	test_untows_complement();
-
 	test_twos_complement();
-
 	test_sign_extend();
-
 	test_count_leading();
-
 	test_rotate_right();
-
 	test_make_instruction();
 
 	test_memory();
-
 	test_memory_bus();
-
 	test_processor();
 
 	test_ADDIU();
-
 	test_AND();
-
 	test_BNE();
-
 	test_LUI();
-
 	test_LW();
-
+	test_NOP();
 	test_ORI();
-
 	test_SLL();
-
 	test_SRL();
-
 	test_SW();
 
 	printf("all fine\n");
