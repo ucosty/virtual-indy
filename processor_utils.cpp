@@ -81,8 +81,6 @@ uint64_t rotate_right(uint64_t value, uint8_t n, uint8_t width)
 
 uint64_t sign_extend_8b(uint8_t value)
 {
-	ASSERT(value >= 0 && value <= 255);
-
 	if (value & 128)
 		return uint64_t(value) | ~0xffll;
 
@@ -91,8 +89,6 @@ uint64_t sign_extend_8b(uint8_t value)
 
 uint64_t sign_extend_16b(uint16_t value)
 {
-	ASSERT(value >= 0 && value <= 65535);
-
 	if (value & 32768)
 		return uint64_t(value) | ~0xffffll;
 
@@ -101,8 +97,6 @@ uint64_t sign_extend_16b(uint16_t value)
 
 uint64_t sign_extend_32b(uint32_t value)
 {
-	ASSERT(value >= 0 && value <= MASK_32B);
-
 	if (IS_BIT_OFF0_SET(31, value))
 		return uint64_t(value) | ~0xffffffffll;
 

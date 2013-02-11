@@ -129,7 +129,7 @@ void processor::i_type_04(uint32_t instruction)	// BEQ
 
 	if (registers[rs] == registers[rt])
 	{
-		int new_PC = PC + b18_signed_offset;
+		int new_PC = PC + 4 + b18_signed_offset;
 		tick();
 		PC = new_PC;
 	}
@@ -143,7 +143,7 @@ void processor::i_type_05(uint32_t instruction)	// BNE/BNEL
 
 	if (registers[rs] != registers[rt])
 	{
-		int new_PC = PC + b18_signed_offset;
+		int new_PC = PC + 4 + b18_signed_offset;
 		tick();
 		PC = new_PC;
 	}
@@ -191,8 +191,15 @@ void processor::i_type_08(uint32_t instruction)	// ADDI
 	uint8_t rs = (instruction >> 21) & MASK_5B;
 	uint8_t rt = (instruction >> 16) & MASK_5B;
 
-	// FIXME 2's complement overflow check
-	set_register_32b_se(rt, get_register_32b_signed(rs) + immediate_s);
+	int32_t val1 = get_register_32b_signed(rs);
+	int32_t val2 = immediate_s;
+
+	if (test_tc_overflow_32b(val1, val2))
+	{
+		// FIXME integer overflow exception
+	}
+	else
+		set_register_32b_se(rt, val1 + val2);
 }
 
 void processor::i_type_09(uint32_t instruction)	// ADDIU

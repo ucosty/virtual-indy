@@ -4,3 +4,7 @@
 
 - if a 32bit action is performed, what happens to the upper 32 bit of a register? unchanged? sign extended? set to 0?
 > dit is dan van toepassing op bijv AND want je hebt een DADD e.d.
+
+- delay slot?
+	- always filled?
+	- next instruction always fetched from delay slot?

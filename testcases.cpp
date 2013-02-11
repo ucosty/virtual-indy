@@ -805,7 +805,7 @@ void test_BNE()
 
 	tick(p);
 
-	expected_PC = 4 + immediate_org * 4;
+	expected_PC = 8 + immediate_org * 4;
 
 	if (expected_PC != p -> get_PC())
 		error_exit("BNE(2): expected PC %08x, got %08x", expected_PC, p -> get_PC());

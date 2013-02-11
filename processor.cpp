@@ -97,7 +97,7 @@ void processor::set_register_32b_se(uint8_t nr, int32_t value)
 	if (nr == 0)
 		pdc -> log("(32bse) trying to alter register 0! (%d)", nr);
 	else
-		registers[nr] = sign_extend_32b((unsigned int)value);
+		registers[nr] = sign_extend_32b(uint32_t(value));
 }
 
 void processor::set_register_64b(uint8_t nr, uint64_t value)
