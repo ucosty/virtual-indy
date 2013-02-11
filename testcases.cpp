@@ -65,16 +65,16 @@ void free_system(memory_bus *mb, memory *m1, memory *m2, processor *p)
 
 void test_make_instruction()
 {
-	int rs = 13;
-	int rt = 4;
+	uint8_t rs = 13;
+	uint8_t rt = 4;
 	int function = 0x31;
 	int immediate = 0xabcd;
 
-	int expected = function << 26 |
+	uint32_t expected = function << 26 |
 			rs << 21 |
 			rt << 16 |
 			immediate;
-	int rc = make_cmd_I_TYPE(rs, rt, function, immediate);
+	uint32_t rc = make_cmd_I_TYPE(rs, rt, function, immediate);
 	if (rc != expected)
 		error_exit("i-type failed: expected %x, got %x", expected, rc);
 
@@ -86,7 +86,7 @@ void test_make_instruction()
 	if (rc != expected)
 		error_exit("j-type failed: expected %x, got %x", expected, rc);
 
-	int rd = 31;
+	uint8_t rd = 31;
 	int sa = 17;
 	int extra = rs;
 	expected = extra << 21 |
@@ -178,7 +178,7 @@ void test_processor()
 
 	for(int reg=0; reg<32; reg++)
 	{
-		if (p -> get_register(reg))
+		if (p -> get_register_32b_signed(reg))
 			error_exit("register %d has a value after a reset", reg);
 	}
 
@@ -187,13 +187,13 @@ void test_processor()
 
 	for(int reg=1; reg<32; reg++)
 	{
-		int val = p -> get_register(reg);
+		int val = p -> get_register_32b_signed(reg);
 		if (val != cmp_val)
 			error_exit("register %d has invalid value %x", val);
 	}
 
 	p -> set_register_32b(0, cmp_val);
-	if (p -> get_register(0))
+	if (p -> get_register_32b_signed(0))
 		error_exit("register 0 changed value!");
 
 	free_system(mb, m1, m2, p);
@@ -207,18 +207,18 @@ void test_memory()
 	int size = -1;
 	create_system(&mb, &m1, &m2, &p, &size);
 
-	int value = 0x12345678;
+	uint32_t value = 0x12345678;
 	if (m1 -> write_32b(-1, value))
 		error_exit("failed: write to negative address");
 
 	if (m1 -> write_32b(size - 1, value))
 		error_exit("failed: write to over maximum size");
 
-	int address = 8;
+	uint64_t address = 8;
 	if (!m1 -> write_32b(address, value))
 		error_exit("failed to write");
 
-	int temp_32b = -1;
+	uint32_t temp_32b = -1;
 	if (m1 -> read_32b(-1, &temp_32b))
 		error_exit("failed: read from negative address");
 
@@ -242,10 +242,10 @@ void test_memory_bus()
 	int o1 = -1, o2 = -1, dummy = -2;
 	create_system(&mb, &m1, &m2, &p, &dummy, &dummy, &o1, &o2);
 
-	int value = 0x11223344;
+	uint32_t value = 0x11223344;
 	if (!mb -> write_32b(o1, value))
 		error_exit("failed to write via bus");
-	int temp_32b = -1;
+	uint32_t temp_32b = -1;
 	if (!mb -> read_32b(o1, &temp_32b))
 		error_exit("failed to read via bus");
 
@@ -297,7 +297,7 @@ void test_untows_complement()
 		error_exit("untwos_complement failed 16b (a) %d expected -32768", rc);
 
 	value = 0x8000;
-	rc = untwos_complement_16b(value);
+	rc = int16_t(value);
 	if (rc != -32768)
 		error_exit("untwos_complement_16b failed (a) %d expected -32768", rc);
 
@@ -307,7 +307,7 @@ void test_untows_complement()
 		error_exit("untwos_complement failed 16b (a) %d expected -1", rc);
 
 	value = 0xffff;
-	rc = untwos_complement_16b(value);
+	rc = int16_t(value);
 	if (rc != -1)
 		error_exit("untwos_complement_16b failed (a) %d expected -32768", rc);
 
@@ -328,7 +328,7 @@ void test_untows_complement()
 		error_exit("untwos_complement failed 16b (b) %d expected 16384", rc);
 
 	value = 0x4000;
-	rc = untwos_complement_16b(value);
+	rc = int16_t(value);
 	if (rc != 16384)
 		error_exit("untwos_complement_16b failed (b) %d expected 16384", rc);
 
@@ -340,16 +340,16 @@ void test_untows_complement()
 
 void test_sign_extend()
 {
-	int rc = sign_extend_8b(0x80), cmp = 0xffffff80;
+	uint64_t rc = sign_extend_8b(0x80), cmp = 0xffffffffffffff80ll;
 	if (rc != cmp)
 		error_exit("sign_extend_8b mismatch (%x / %x)", cmp, rc);
 
 	rc = sign_extend_16b(0x8000);
-	cmp = 0xffff8000;
+	cmp = 0xffffffffffff8000ll;
 	if (rc != cmp)
 		error_exit("sign_extend_16b mismatch (%x / %x)", cmp, rc);
 
-	rc = sign_extend(8, 4), cmp = 0xfffffff8;
+	rc = sign_extend(8, 4), cmp = 0xfffffffffffffff8ll;
 	if (rc != cmp)
 		error_exit("sign_extend mismatch (%x / %x)", cmp, rc);
 }
@@ -369,7 +369,7 @@ void test_LW()
 		int base_val = 9;
 		p -> set_register_32b(base, base_val);
 
-		int rt = 2;
+		uint8_t rt = 2;
 
 		int offset = 0xff;
 
@@ -387,7 +387,7 @@ void test_LW()
 
 		tick(p);
 
-		int temp_32b = p -> get_register(rt);
+		int temp_32b = p -> get_register_32b_signed(rt);
 
 		int expected = addr_val;
 		if (temp_32b != expected)
@@ -402,7 +402,7 @@ void test_LW()
 		int base_val = 0xf0000;
 		p -> set_register_32b(base, base_val);
 
-		int rt = 2;
+		uint8_t rt = 2;
 
 		int offset = 0x9014;
 
@@ -422,7 +422,7 @@ void test_LW()
 
 		tick(p);
 
-		temp_32b = p -> get_register(rt);
+		temp_32b = p -> get_register_32b_signed(rt);
 
 		int expected = addr_val;
 		if (temp_32b != expected)
@@ -441,11 +441,11 @@ void test_SLL()
 
 	p -> reset();
 
-	int rd = 1;
+	uint8_t rd = 1;
 	p -> set_register_32b(rd, 13);
 
 	int input_val = 0xf000;
-	int rt = 2;
+	uint8_t rt = 2;
 	p -> set_register_32b(rt, input_val);
 
 	int sa = 3;
@@ -461,11 +461,11 @@ void test_SLL()
 
 	tick(p);
 
-	int input_val_check = p -> get_register(rt);
+	int input_val_check = p -> get_register_32b_signed(rt);
 	if (input_val_check != input_val)
 		error_exit("SLL: rt changed from %d to %d", input_val, input_val_check);
 
-	temp_32b = p -> get_register(rd);
+	temp_32b = p -> get_register_32b_signed(rd);
 
 	int expected = input_val << sa;
 	if (temp_32b != expected)
@@ -483,11 +483,11 @@ void test_SRL()
 
 	p -> reset();
 
-	int rd = 1;
+	uint8_t rd = 1;
 	p -> set_register_32b(rd, 13);
 
 	int input_val = 191;
-	int rt = 2;
+	uint8_t rt = 2;
 	p -> set_register_32b(rt, input_val);
 
 	int sa = 3;
@@ -501,11 +501,11 @@ void test_SRL()
 
 	tick(p);
 
-	int input_val_check = p -> get_register(2);
+	int input_val_check = p -> get_register_32b_signed(2);
 	if (input_val_check != input_val)
 		error_exit("SRL: rt changed from %d to %d", input_val, input_val_check);
 
-	int temp_32b = p -> get_register(1);
+	int temp_32b = p -> get_register_32b_signed(1);
 	int expected = input_val >> sa;
 	if (temp_32b != expected)
 		error_exit("SRL: rd (%d) != %d", temp_32b, expected);
@@ -522,7 +522,7 @@ void test_LUI()
 
 	p -> reset();
 
-	int rt = 4;
+	uint8_t rt = 4;
 	int function = 0x0f;
 	int immediate = 0xabcd;
 	int expected = immediate << 16;
@@ -532,7 +532,7 @@ void test_LUI()
 		error_exit("failed to write to memory @ 0");
 	tick(p);
 
-	int rc = p -> get_register(rt);
+	int rc = p -> get_register_32b_signed(rt);
 	if (rc != expected)
 		error_exit("LUI failed: expected %x got %x", expected, rc);
 
@@ -548,8 +548,8 @@ void test_SW()
 
 	p -> reset();
 
-	int verify_val = 0x1234beef;
-	int rt = 1;
+	uint32_t verify_val = 0x1234beef;
+	uint8_t rt = 1;
 	p -> set_register_32b(rt, verify_val);
 
 	int address_base = 0x1000;
@@ -568,7 +568,7 @@ void test_SW()
 
 	tick(p);
 
-	int result_mem_val = -1;
+	uint32_t result_mem_val = -1;
 	if (!m1 -> read_32b(final_address, &result_mem_val))
 		error_exit("failed to read memory @ %08x", final_address);
 
@@ -590,16 +590,16 @@ void test_ORI()
 	p -> reset();
 
 	int old_val = 0x1234beef;
-	int rt = 1;
+	uint8_t rt = 1;
 	p -> set_register_32b(rt, old_val);
 
 	int immediate = 0x1234;
 
 	int or_value = 0x4321;
-	int rs = 9;
+	uint8_t rs = 9;
 	p -> set_register_32b(rs, or_value);
 
-	int expected = p -> get_register(rs) | immediate;
+	int expected = p -> get_register_32b_signed(rs) | immediate;
 
 	int function = 0x0d;
 	int instruction = make_cmd_I_TYPE(rs, rt, function, immediate);
@@ -609,7 +609,7 @@ void test_ORI()
 
 	tick(p);
 
-	int result = p -> get_register(rt);
+	int result = p -> get_register_32b_signed(rt);
 	if (result != expected)
 		error_exit("ORI: result is %08x, expected %08x", result, expected);
 
@@ -626,16 +626,16 @@ void test_ADDIU()
 	p -> reset();
 
 	int old_val = 0x1234beef;
-	int rt = 1;
+	uint8_t rt = 1;
 	p -> set_register_32b(rt, old_val);
 
 	int immediate = 0x1234;
 
 	int addiu_value = 0x4321;
-	int rs = 9;
+	uint8_t rs = 9;
 	p -> set_register_32b(rs, addiu_value);
 
-	int expected = (p -> get_register(rs) + untwos_complement_16b(immediate)) & MASK_32B;
+	int expected = (p -> get_register_32b_signed(rs) + int16_t(immediate)) & MASK_32B;
 
 	int function = 0x09;
 	int instruction = make_cmd_I_TYPE(rs, rt, function, immediate);
@@ -645,7 +645,7 @@ void test_ADDIU()
 
 	tick(p);
 
-	int result = p -> get_register(rt);
+	int result = p -> get_register_32b_signed(rt);
 	if (result != expected)
 		error_exit("ADDIU: result is %08x, expected %08x", result, expected);
 
@@ -664,18 +664,18 @@ void test_AND()
 	int sa = 31;
 
 	int rt_val = 0x1234beef;
-	int rt = 1;
+	uint8_t rt = 1;
 	p -> set_register_32b(rt, rt_val);
 
 	int rs_val = 0xdeaf5678;
-	int rs = 9;
+	uint8_t rs = 9;
 	p -> set_register_32b(rs, rs_val);
 
 	int rd_val = 0xaaaabbbb;
-	int rd = 9;
+	uint8_t rd = 9;
 	p -> set_register_32b(rd, rd_val);
 
-	int expected = p -> get_register(rs) & p -> get_register(rt);
+	int expected = p -> get_register_32b_signed(rs) & p -> get_register_32b_signed(rt);
 
 	int function = 0x24, extra = rs;
 	int instruction = make_cmd_SPECIAL(rt, rd, sa, function, extra);
@@ -685,7 +685,7 @@ void test_AND()
 
 	tick(p);
 
-	int result = p -> get_register(rd);
+	int result = p -> get_register_32b_signed(rd);
 	if (result != expected)
 		error_exit("AND: result is %08x, expected %08x", result, expected);
 
@@ -694,8 +694,8 @@ void test_AND()
 
 typedef struct
 {
-	int registers[32], PC, HI, LO, status_register;
-	int C0_registers[32];
+	uint64_t registers[32], PC, HI, LO, status_register;
+	uint32_t C0_registers[32];
 }
 all_registers_t;
 
@@ -705,7 +705,7 @@ all_registers_t * copy_registers(processor *p)
 
 	for(int nr=0; nr<32; nr++)
 	{
-		s -> registers[nr] = p -> get_register(nr);
+		s -> registers[nr] = p -> get_register_32b_signed(nr);
 		s -> C0_registers[nr] = p -> get_C0_register(nr, 0);
 	}
 
@@ -740,14 +740,14 @@ void test_NOP()
 
 	for(int nr=0; nr<32; nr++)
 	{
-		if (p -> get_register(nr) != reg_copy -> registers[nr])
+		if (p -> get_register_32b_unsigned(nr) != reg_copy -> registers[nr])
 			error_exit("NOP: register %s (%d) mismatch", processor::reg_to_name(nr), nr);
 
 		if (p -> get_C0_register(nr, 0) != reg_copy -> C0_registers[nr])
 			error_exit("NOP: C0 register %d mismatch", nr);
 	}
 
-	int expected_PC = reg_copy -> PC + 4;
+	uint64_t expected_PC = reg_copy -> PC + 4;
 	if (expected_PC != p -> get_PC())
 		error_exit("NOP: expected PC %08x, got %08x", expected_PC, p -> get_PC());
 
@@ -775,11 +775,11 @@ void test_BNE()
 	p -> reset();
 
 	int rs_value = 0xdeadbeef;
-	int rs = 3;
+	uint8_t rs = 3;
 	p -> set_register_32b(rs, rs_value);
 
 	int rt_value = rs_value;
-	int rt = 18;
+	uint8_t rt = 18;
 	p -> set_register_32b(rt, rt_value);
 
 	int immediate_org = -1235;
@@ -793,7 +793,7 @@ void test_BNE()
 
 	tick(p);
 
-	int expected_PC = 4;
+	uint64_t expected_PC = 4;
 	if (expected_PC != p -> get_PC())
 		error_exit("BNE(1): expected PC %08x, got %08x", expected_PC, p -> get_PC());
 

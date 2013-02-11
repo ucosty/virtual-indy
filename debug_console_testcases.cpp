@@ -23,7 +23,7 @@ void debug_console_testcases::tick(processor *p)
 {
 	int PC = p -> get_PC();
 
-	int instruction = -1;
+	uint32_t instruction = -1;
 	(void)p -> get_mem_32b(PC, &instruction);
 
 	std::string logline = p -> da_logline(instruction);

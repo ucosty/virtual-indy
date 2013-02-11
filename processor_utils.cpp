@@ -1,5 +1,6 @@
-#include "debug.h"
+#include <stdlib.h>
 
+#include "debug.h"
 #include "processor_utils.h"
 
 int64_t untwos_complement(uint64_t value, uint8_t bits)
@@ -78,22 +79,22 @@ uint64_t rotate_right(uint64_t value, uint8_t n, uint8_t width)
 	return value;
 }
 
-uint16_t sign_extend_8b(uint8_t value)
+uint64_t sign_extend_8b(uint8_t value)
 {
 	ASSERT(value >= 0 && value <= 255);
 
 	if (value & 128)
-		return value | 0xffffff00;
+		return uint64_t(value) | ~0xffll;
 
 	return value;
 }
 
-uint32_t sign_extend_16b(uint16_t value)
+uint64_t sign_extend_16b(uint16_t value)
 {
 	ASSERT(value >= 0 && value <= 65535);
 
 	if (value & 32768)
-		return value | 0xffff0000;
+		return uint64_t(value) | ~0xffffll;
 
 	return value;
 }
@@ -103,7 +104,7 @@ uint64_t sign_extend_32b(uint32_t value)
 	ASSERT(value >= 0 && value <= MASK_32B);
 
 	if (IS_BIT_OFF0_SET(31, value))
-		return value | 0xffffffff00000000;
+		return uint64_t(value) | ~0xffffffffll;
 
 	return value;
 }
@@ -116,7 +117,7 @@ int64_t sign_extend(int64_t value, uint8_t bits)
 
 	if (value & mask)
 	{
-		while(bits <= 32)
+		while(bits <= 64)
 		{
 			value |= mask;
 
@@ -126,6 +127,52 @@ int64_t sign_extend(int64_t value, uint8_t bits)
 	}
 
 	return value;
+}
+
+bool test_tc_overflow_32b(int32_t val1, int32_t val2)
+{
+	if (val1 >= 0)
+	{
+		if (val2 >= 0)
+		{
+			int32_t limit = S32_MAX - val1;
+
+			if (val2 > limit)
+				return true;
+
+			return false;
+		}
+		else
+		{
+			uint32_t limit = uint32_t(val1) + S32_MAX + 1;
+
+			if (abs(val2) > limit)
+				return true;
+
+			return false;
+		}
+	}
+	else
+	{
+		if (val2 >= 0)
+		{
+			uint32_t limit = abs(val1) + S32_MAX;
+
+			if (abs(val2) > limit)
+				return true;
+
+			return false;
+		}
+		else
+		{
+			uint32_t limit = U32_MAX + val1;
+
+			if (abs(val2) > limit)
+				return true;
+
+			return false;
+		}
+	}
 }
 
 uint32_t make_cmd_I_TYPE(uint8_t rs, uint8_t rt, uint8_t function, int immediate)

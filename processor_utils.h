@@ -8,20 +8,23 @@
 #define MASK_26B	0x3FFFFFF
 #define MASK_32B	0xffffffff
 #define MASK_N(n)	((1 << n) - 1)
+#define S32_MAX		0x7fffffff
+#define U32_MAX		0x80000000
 
 #define IS_BIT_OFF0_SET(bit, val)	((val) & (1 << (bit)))
 #define SET_BIT(bit, val)		(val) |= (1 << (bit))
 #define RESET_BIT(bit, val)		(val) &= ~(1 << (bit))
 
-int twos_complement(int value, uint8_t bits);
-int untwos_complement(int value, uint8_t bits);
-int count_leading_ones(int n_bits, uint8_t value);
-int count_leading_zeros(int n_bits, uint8_t value);
-int rotate_right(int value, int n, int width);
-uint16_t sign_extend_8b (uint8_t value);	// to 16b
-uint32_t sign_extend_16b(uint16_t value);	// to 32b
-uint64_t sign_extend_32b(uint32_t value);	// to 64b
-int sign_extend(int value, uint8_t bits);
+int64_t untwos_complement(uint64_t value, uint8_t bits);
+uint64_t twos_complement(int64_t value, uint8_t bits);
+uint8_t count_leading_ones(uint8_t n_bits, uint64_t value);
+uint8_t count_leading_zeros(uint8_t n_bits, uint64_t value);
+uint64_t rotate_right(uint64_t value, uint8_t n, uint8_t width);
+uint64_t sign_extend_8b(uint8_t value);
+uint64_t sign_extend_16b(uint16_t value);
+uint64_t sign_extend_32b(uint32_t value);
+int64_t sign_extend(int64_t value, uint8_t bits);
+bool test_tc_overflow_32b(int32_t val1, int32_t val2);
 
 uint32_t make_cmd_I_TYPE(uint8_t rs, uint8_t rt, uint8_t function, int immediate);
 uint32_t make_cmd_SPECIAL(uint8_t rt, uint8_t rd, uint8_t sa, uint8_t function, uint8_t extra);

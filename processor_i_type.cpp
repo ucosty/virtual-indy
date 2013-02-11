@@ -201,7 +201,7 @@ void processor::i_type_09(uint32_t instruction)	// ADDIU
 	uint8_t rs = (instruction >> 21) & MASK_5B;
 	uint8_t rt = (instruction >> 16) & MASK_5B;
 
-	set_register_32b_se(rt, get_register_32b(rs) + immediate_s);
+	set_register_32b_se(rt, get_register_32b_signed(rs) + immediate_s);
 }
 
 void processor::i_type_0a(uint32_t instruction)	// SLTI
@@ -222,7 +222,7 @@ void processor::i_type_0b(uint32_t instruction)	// SLTIU
 	uint8_t rs = (instruction >> 21) & MASK_5B;
 	uint8_t rt = (instruction >> 16) & MASK_5B;
 
-	if (get_register_32b(rs) < (unsigned int)int(immediate))
+	if (get_register_32b_unsigned(rs) < (unsigned int)int(immediate))
 		set_register_32b(rt, 1);
 	else
 		set_register_32b(rt, 0);
@@ -234,7 +234,7 @@ void processor::i_type_0c(uint32_t instruction)	// ANDI
 	uint8_t rs = (instruction >> 21) & MASK_5B;
 	uint8_t rt = (instruction >> 16) & MASK_5B;
 
-	set_register_32b(rt, get_register_32b(rs) & immediate);
+	set_register_32b(rt, get_register_32b_unsigned(rs) & immediate);
 }
 
 void processor::i_type_0d(uint32_t instruction)	// ORI
@@ -243,7 +243,7 @@ void processor::i_type_0d(uint32_t instruction)	// ORI
 	uint8_t rs = (instruction >> 21) & MASK_5B;
 	uint8_t rt = (instruction >> 16) & MASK_5B;
 
-	set_register_32b(rt, get_register_32b(rs) | immediate);
+	set_register_32b(rt, get_register_32b_unsigned(rs) | immediate);
 }
 
 void processor::i_type_0e(uint32_t instruction)	// XORI
@@ -252,7 +252,7 @@ void processor::i_type_0e(uint32_t instruction)	// XORI
 	uint8_t rs = (instruction >> 21) & MASK_5B;
 	uint8_t rt = (instruction >> 16) & MASK_5B;
 
-	set_register_32b(rt, get_register_32b(rs) ^ immediate);
+	set_register_32b(rt, get_register_32b_unsigned(rs) ^ immediate);
 }
 
 void processor::i_type_0f(uint32_t instruction)	// LUI

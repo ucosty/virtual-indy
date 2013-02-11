@@ -1,3 +1,5 @@
-SLTI/ADDI/ORI/etc	rs is signed?
-SLTIU/ADDIU/etc		rs is signed?
+- SLTI/ADDI/ORI/etc	rs is signed?
 
+- SLTIU/ADDIU/etc	rs is signed?
+
+- if a 32bit action is performed, what happens to the upper 32 bit of a register? unchanged? sign extended? set to 0?

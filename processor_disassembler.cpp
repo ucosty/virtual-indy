@@ -36,7 +36,7 @@ std::string processor::da_logline(uint32_t instruction)
 	else if (opcode != 16 && opcode != 17 && opcode != 18 && opcode != 19) // I-type
 	{
 		int immediate = instruction & MASK_16B;
-		int immediate_s = untwos_complement_16b(immediate);
+		int immediate_s = int16_t(immediate);
 
 		uint8_t rs = (instruction >> 21) & MASK_5B;
 		uint8_t rt = (instruction >> 16) & MASK_5B;
@@ -247,7 +247,7 @@ std::string processor::decode_to_text(uint32_t instruction)
 	else if (opcode != 16 && opcode != 17 && opcode != 18 && opcode != 19) // I-type
 	{
 		int immediate = instruction & MASK_16B;
-		int immediate_s = untwos_complement_16b(immediate);
+		int immediate_s = int16_t(immediate);
 
 		uint8_t rs = (instruction >> 21) & MASK_5B;
 		uint8_t rt = (instruction >> 16) & MASK_5B;
