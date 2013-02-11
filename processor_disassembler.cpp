@@ -240,7 +240,7 @@ std::string processor::decode_to_text(uint32_t instruction)
 		int offset = (instruction & MASK_26B) << 2;
 
 		if (opcode == 2)
-			format("J 0x%08x", offset);
+			return format("J 0x%08x", offset);
 
 		return format("JAL 0x%08x", offset);
 	}
