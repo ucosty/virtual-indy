@@ -185,22 +185,22 @@ void debug_console::tick(processor *p)
 			}
 			else
 			{
-				x = 22;
+				x = 24;
 				y = registers - 16;
 			}
 
-			mvwprintw(win_regs, y, x, "%s %08x", processor::reg_to_name(registers), p -> get_register_64b_unsigned(registers));
+			mvwprintw(win_regs, y, x, "%s %016llx", processor::reg_to_name(registers), p -> get_register_64b_unsigned(registers));
 		}
 
 		uint64_t PC = p -> is_delay_slot() ? p -> get_delay_slot_PC() : p -> get_PC();
-		mvwprintw(win_regs, 0, 44, "PC: %016llx %c", PC, p -> is_delay_slot() ? 'D' : '.');
-		mvwprintw(win_regs, 1, 44, "LO: %08x", p -> get_LO());
-		mvwprintw(win_regs, 2, 44, "HI: %08x", p -> get_HI());
-		mvwprintw(win_regs, 3, 44, "SR: %08x", p -> get_SR());
+		mvwprintw(win_regs, 0, 48, "PC: %016llx %c", PC, p -> is_delay_slot() ? 'D' : '.');
+		mvwprintw(win_regs, 1, 48, "LO: %08x", p -> get_LO());
+		mvwprintw(win_regs, 2, 48, "HI: %08x", p -> get_HI());
+		mvwprintw(win_regs, 3, 48, "SR: %08x", p -> get_SR());
 
 		uint32_t instruction = -1;
 		bool r_ok = p -> get_mem_32b(PC, &instruction);
-		mvwprintw(win_regs, 5, 44, "mem: %d/%08x", r_ok, instruction);
+		mvwprintw(win_regs, 4, 48, "mem: %d/%08x", r_ok, instruction);
 
 		int opcode = (instruction >> 26) & MASK_6B;
 		int function = instruction & MASK_6B;
@@ -210,18 +210,18 @@ void debug_console::tick(processor *p)
 		int rs = (instruction >> 21) & MASK_5B;
 		int immediate = instruction & MASK_16B;
 		int b18_signed_offset = untwos_complement(immediate << 2, 18);
-		mvwprintw(win_regs,  6, 44, "op: %02x", opcode);
-		mvwprintw(win_regs,  7, 44, "rs: %02x", rs);
-		mvwprintw(win_regs,  8, 44, "rt: %02x", rt);
-		mvwprintw(win_regs,  9, 44, "rd: %02x", rd);
-		mvwprintw(win_regs, 10, 44, "sa: %02x", sa);
-		mvwprintw(win_regs, 11, 44, "fu: %02x", function);
-		mvwprintw(win_regs, 12, 44, "im: %04x", immediate);
-		mvwprintw(win_regs, 13, 44, "of: %d", b18_signed_offset);
+		mvwprintw(win_regs,  5, 48, "op: %02x", opcode);
+		mvwprintw(win_regs,  6, 48, "rs: %02x", rs);
+		mvwprintw(win_regs,  7, 48, "rt: %02x", rt);
+		mvwprintw(win_regs,  8, 48, "rd: %02x", rd);
+		mvwprintw(win_regs,  9, 48, "sa: %02x", sa);
+		mvwprintw(win_regs, 10, 48, "fu: %02x", function);
+		mvwprintw(win_regs, 11, 48, "im: %04x", immediate);
+		mvwprintw(win_regs, 12, 48, "of: %d", b18_signed_offset);
 
 		std::string decoded = p -> decode_to_text(instruction);
-		mvwprintw(win_regs, 14, 44, "  :                       ");
-		mvwprintw(win_regs, 14, 44, "  : %s", decoded.c_str());
+		mvwprintw(win_regs, 13, 48, "  :                       ");
+		mvwprintw(win_regs, 13, 48, "  : %s", decoded.c_str());
 
 		unsigned int space = decoded.find(' ');
 		if (space == std::string::npos)
@@ -238,7 +238,8 @@ void debug_console::tick(processor *p)
 
 		double t_diff = now_ts - start_ts;
 		if (t_diff)
-			mvwprintw(win_regs, 15, 44, "I/S: %f", double(n_ticks) / t_diff);
+			mvwprintw(win_regs, 14, 48, "I/S: %f", double(n_ticks) / t_diff);
+		mvwprintw(win_regs, 15, 48, "cnt: %lld", n_ticks);
 
 		std::string logline = p -> da_logline(instruction);
 		dolog(logline.c_str());
