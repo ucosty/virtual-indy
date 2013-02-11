@@ -1,33 +1,39 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "error.h"
 #include "memory_bus.h"
 #include "processor_utils.h"
 
-memory_bus::memory_bus()
+memory_bus::memory_bus() : list(NULL), n_elements(0)
 {
 }
 
 memory_bus::~memory_bus()
 {
+	free(list);
 }
 
 void memory_bus::register_memory(uint64_t offset, uint64_t mask, memory *target)
 {
-	memory_segment_t segment = { offset, mask, target };
+	n_elements++;
 
-	list.push_back(segment);
+	list = (memory_segment_t *)realloc(list, n_elements * sizeof(memory_segment_t)); 
+	if (!list)
+		error_exit("Memory allocation error (register_memory)");
+
+	list[n_elements - 1].offset = offset;
+	list[n_elements - 1].mask   = mask;
+	list[n_elements - 1].target = target;
 }
 
 // r/w might overlap segments? FIXME
 const memory_segment_t * memory_bus::find_segment(uint64_t offset) const
 {
-	unsigned int n = list.size();
-
-	for(unsigned int segment = 0; segment < n; segment++)
+	for(unsigned int segment = 0; segment < n_elements; segment++)
 	{
-		const memory_segment_t *psegment = &list.at(segment);
+		const memory_segment_t *psegment = &list[segment];
 
 		uint64_t seg_offset = psegment -> offset;
 		uint64_t seg_mask   = psegment -> mask ^ MASK_64B;

@@ -15,7 +15,8 @@ typedef struct
 class memory_bus
 {
 private:
-	std::vector<memory_segment_t> list;
+	memory_segment_t *list;
+	int n_elements;
 
 	const memory_segment_t * find_segment(uint64_t offset) const;
 
