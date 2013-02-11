@@ -212,20 +212,12 @@ void test_memory()
 	int size = -1;
 	create_system(&mb, &m1, &m2, &p, &size);
 
-	uint32_t value = 0x12345678;
-	if (m1 -> write_32b(size - 1, value))
-		error_exit("failed: write to over maximum size");
-
 	uint64_t address = 8;
-	if (!m1 -> write_32b(address, value))
-		error_exit("failed to write");
+	uint32_t value = 1;
+	m1 -> write_32b(address, value);
 
 	uint32_t temp_32b = -1;
-	if (m1 -> read_32b(size - 1, &temp_32b))
-		error_exit("failed: read from over maximum size");
-
-	if (!m1 -> read_32b(address, &temp_32b))
-		error_exit("failed to read");
+	m1 -> read_32b(address, &temp_32b);
 
 	if (temp_32b != value)
 		error_exit("failed to verify data");
@@ -245,6 +237,7 @@ void test_memory_bus()
 	uint32_t value = 0x11223344;
 	if (!mb -> write_32b(o1, value))
 		error_exit("failed to write via bus");
+
 	uint32_t temp_32b = -1;
 	if (!mb -> read_32b(o1, &temp_32b))
 		error_exit("failed to read via bus");
@@ -379,14 +372,12 @@ void test_LW()
 		uint8_t function = 0x23;	// LW
 
 		uint32_t instr = make_cmd_I_TYPE(base, rt, function, offset);
-		if (!m1 -> write_32b(0, instr))
-			error_exit("LW: failed to write to offset 0 in memory");
+		m1 -> write_32b(0, instr);
 		// printf("instruction: %08x\n", instr);
 
 		int addr_val = 0xdeafbeef;
 		int addr = base_val + untwos_complement(offset, 16);
-		if (!m1 -> write_32b(addr, addr_val))
-			error_exit("LW: failed to write to offset %x in memory", addr);
+		m1 -> write_32b(addr, addr_val);
 
 		tick(p);
 
@@ -415,14 +406,12 @@ void test_LW()
 		uint32_t temp_32b = -1;
 
 		uint32_t instr = make_cmd_I_TYPE(base, rt, function, offset);
-		if (!m1 -> write_32b(0, instr))
-			error_exit("failed to write to memory @ 0");
+		m1 -> write_32b(0, instr);
 		// printf("instruction: %08x\n", instr);
 
 		uint32_t addr_val = 0xdeafbeef;
 		uint64_t addr = base_val + untwos_complement(offset, 16);
-		if (!m1 -> write_32b(addr, addr_val))
-			error_exit("failed to write to memory @ 0");
+		m1 -> write_32b(addr, addr_val);
 
 		tick(p);
 
@@ -460,9 +449,7 @@ void test_SLL()
 	uint32_t instr = make_cmd_SPECIAL(rt, rd, sa, function, extra);
 
 	// printf("instruction: %08x\n", instr);
-	if (!m1 -> write_32b(0, instr))
-		error_exit("failed to write to memory @ 0");
-	int32_t temp_32b;
+	m1 -> write_32b(0, instr);
 
 	tick(p);
 
@@ -470,7 +457,7 @@ void test_SLL()
 	if (input_val_check != input_val)
 		error_exit("SLL: rt changed from %d to %d", input_val, input_val_check);
 
-	temp_32b = p -> get_register_32b_signed(rd);
+	int32_t temp_32b = p -> get_register_32b_signed(rd);
 
 	int expected = input_val << sa;
 	if (temp_32b != expected)
@@ -502,8 +489,7 @@ void test_SRL()
 	uint32_t instr = make_cmd_SPECIAL(rt, rd, sa, function, extra);
 	// printf("instruction: %08x\n", instr);
 
-	if (!m1 -> write_32b(0, instr))
-		error_exit("failed to write to memory @ 0");
+	m1 -> write_32b(0, instr);
 
 	tick(p);
 
@@ -535,8 +521,8 @@ void test_LUI()
 	int expected = immediate << 16;
 	uint32_t instr = make_cmd_I_TYPE(0, rt, function, immediate);
 
-	if (!m1 -> write_32b(0, instr))
-		error_exit("failed to write to memory @ 0");
+	m1 -> write_32b(0, instr);
+
 	tick(p);
 
 	int rc = p -> get_register_32b_signed(rt);
@@ -571,14 +557,12 @@ void test_SW()
 	uint8_t function = 0x2b;
 	uint32_t instruction = make_cmd_I_TYPE(rs, rt, function, immediate);
 
-	if (!m1 -> write_32b(0, instruction))
-		error_exit("failed to write to memory @ 0");
+	m1 -> write_32b(0, instruction);
 
 	tick(p);
 
 	uint32_t result_mem_val = -1;
-	if (!m1 -> read_32b(final_address, &result_mem_val))
-		error_exit("failed to read memory @ %08x", final_address);
+	m1 -> read_32b(final_address, &result_mem_val);
 
 	if (result_mem_val != verify_val)
 		error_exit("SW: expected %08x, got %08x", verify_val, result_mem_val);
@@ -613,8 +597,7 @@ void test_ORI()
 	uint8_t function = 0x0d;
 	uint32_t instruction = make_cmd_I_TYPE(rs, rt, function, immediate);
 
-	if (!m1 -> write_32b(0, instruction))
-		error_exit("failed to write to memory @ 0");
+	m1 -> write_32b(0, instruction);
 
 	tick(p);
 
@@ -650,8 +633,7 @@ void test_ADDIU()
 	uint8_t function = 0x09;
 	uint32_t instruction = make_cmd_I_TYPE(rs, rt, function, immediate);
 
-	if (!m1 -> write_32b(0, instruction))
-		error_exit("failed to write to memory @ 0");
+	m1 -> write_32b(0, instruction);
 
 	tick(p);
 
@@ -691,8 +673,7 @@ void test_AND()
 	uint8_t function = 0x24, extra = rs;
 	uint32_t instruction = make_cmd_SPECIAL(rt, rd, sa, function, extra);
 
-	if (!m1 -> write_32b(0, instruction))
-		error_exit("failed to write to memory @ 0");
+	m1 -> write_32b(0, instruction);
 
 	tick(p);
 
@@ -745,8 +726,7 @@ void test_NOP()
 	uint8_t sa = 0, rd = 0, rt = 0, rs = 0;
 	uint32_t instruction = make_cmd_R_TYPE(opcode, sa, rd, rt, rs, function);
 
-	if (!m1 -> write_32b(0, instruction))
-		error_exit("failed to write to memory @ 0");
+	m1 -> write_32b(0, instruction);
 
 	tick(p);
 
@@ -801,8 +781,7 @@ void test_BNE()
 	uint8_t function = 0x05;
 	uint32_t instruction = make_cmd_I_TYPE(rs, rt, function, immediate);
 
-	if (!m1 -> write_32b(0, instruction))
-		error_exit("failed to write to memory @ 0");
+	m1 -> write_32b(0, instruction);
 
 	tick(p);
 
