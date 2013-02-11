@@ -21,7 +21,7 @@ debug_console_testcases::~debug_console_testcases()
 
 void debug_console_testcases::tick(processor *p)
 {
-	int PC = p -> get_PC();
+	uint64_t PC = p -> get_PC();
 
 	uint32_t instruction = -1;
 	(void)p -> get_mem_32b(PC, &instruction);

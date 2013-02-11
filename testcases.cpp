@@ -208,9 +208,6 @@ void test_memory()
 	create_system(&mb, &m1, &m2, &p, &size);
 
 	uint32_t value = 0x12345678;
-	if (m1 -> write_32b(-1, value))
-		error_exit("failed: write to negative address");
-
 	if (m1 -> write_32b(size - 1, value))
 		error_exit("failed: write to over maximum size");
 
@@ -219,9 +216,6 @@ void test_memory()
 		error_exit("failed to write");
 
 	uint32_t temp_32b = -1;
-	if (m1 -> read_32b(-1, &temp_32b))
-		error_exit("failed: read from negative address");
-
 	if (m1 -> read_32b(size - 1, &temp_32b))
 		error_exit("failed: read from over maximum size");
 

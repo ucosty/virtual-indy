@@ -8,7 +8,7 @@ std::string processor::da_logline(uint32_t instruction)
 	uint32_t temp_32b = -1;
 	bool rc = pmb -> read_32b(PC, &temp_32b);
 
-	std::string line = format("PC: %08x / %d|%08x", PC, rc, temp_32b);
+	std::string line = format("PC: %016llx / %d|%08x", PC, rc, temp_32b);
 
 	uint8_t opcode = (instruction >> 26) & MASK_6B;
 

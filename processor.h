@@ -193,9 +193,9 @@ public:
 	void set_register_32b(uint8_t nr, uint32_t value);
 	void set_register_32b_se(uint8_t nr, int32_t value); // < 32b signed d'r in, is dan niet automatisch s-e?
 	void set_register_64b(uint8_t nr, uint64_t value);
-	void set_PC(uint32_t value) { PC = value; }
-	void set_HI(uint32_t value) { HI = value; }
-	void set_LO(uint32_t value) { LO = value; }
+	void set_PC(uint64_t value) { PC = value; }
+	void set_HI(uint64_t value) { HI = value; }
+	void set_LO(uint64_t value) { LO = value; }
 
 	void set_C0_register(uint8_t nr, uint8_t sel, uint32_t value);
 

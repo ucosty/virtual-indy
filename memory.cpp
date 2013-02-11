@@ -24,7 +24,7 @@ memory::~memory()
 	delete [] pm;
 }
 
-bool memory::read_64b(int offset, uint64_t *data) const
+bool memory::read_64b(uint64_t offset, uint64_t *data) const
 {
 	// TODO: if big endin processor, read directly from memory
 
@@ -43,7 +43,7 @@ bool memory::read_64b(int offset, uint64_t *data) const
 	return true;
 }
 
-bool memory::read_32b(int offset, uint32_t *data) const
+bool memory::read_32b(uint64_t offset, uint32_t *data) const
 {
 	// TODO: if big endin processor, read directly from memory
 
@@ -58,7 +58,7 @@ bool memory::read_32b(int offset, uint32_t *data) const
 	return true;
 }
 
-bool memory::read_16b(int offset, uint16_t *data) const
+bool memory::read_16b(uint64_t offset, uint16_t *data) const
 {
 	// TODO: if big endin processor, read directly from memory
 
@@ -71,7 +71,7 @@ bool memory::read_16b(int offset, uint16_t *data) const
 	return true;
 }
 
-bool memory::read_8b(int offset, uint8_t *data) const
+bool memory::read_8b(uint64_t offset, uint8_t *data) const
 {
 	// TODO: if big endin processor, read directly from memory
 
@@ -83,7 +83,7 @@ bool memory::read_8b(int offset, uint8_t *data) const
 	return true;
 }
 
-bool memory::write_64b(int offset, uint64_t data)
+bool memory::write_64b(uint64_t offset, uint64_t data)
 {
 	// TODO: if big endin processor, put directly in memory
 
@@ -102,7 +102,7 @@ bool memory::write_64b(int offset, uint64_t data)
 	return true;
 }
 
-bool memory::write_32b(int offset, uint32_t data)
+bool memory::write_32b(uint64_t offset, uint32_t data)
 {
 	// TODO: if big endin processor, put directly in memory
 
@@ -117,11 +117,11 @@ bool memory::write_32b(int offset, uint32_t data)
 	return true;
 }
 
-bool memory::write_16b(int offset, uint16_t data)
+bool memory::write_16b(uint64_t offset, uint16_t data)
 {
 	// TODO: if big endin processor, put directly in memory
 
-	if (offset + 2 >= len || offset < 0)
+	if (offset + 2 >= len || offset < 0) // + 2 might wrap if size == 64b
 		return false;
 
 	pm[offset + 0] = (data >>  8) & 255;
@@ -130,7 +130,7 @@ bool memory::write_16b(int offset, uint16_t data)
 	return true;
 }
 
-bool memory::write_8b(int offset, uint8_t data)
+bool memory::write_8b(uint64_t offset, uint8_t data)
 {
 	// TODO: if big endin processor, put directly in memory
 

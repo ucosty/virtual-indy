@@ -14,14 +14,14 @@ public:
 	memory(unsigned char *p, int len);
 	~memory();
 
-	bool read_64b(int offset, uint64_t *data) const;
-	bool read_32b(int offset, uint32_t *data) const;
-	bool read_16b(int offset, uint16_t *data) const;
-	bool read_8b(int offset, uint8_t *data) const;
-	bool write_64b(int offset, uint64_t data);
-	bool write_32b(int offset, uint32_t data);
-	bool write_16b(int offset, uint16_t data);
-	bool write_8b(int offset, uint8_t data);
+	bool read_64b(uint64_t offset, uint64_t *data) const;
+	bool read_32b(uint64_t offset, uint32_t *data) const;
+	bool read_16b(uint64_t offset, uint16_t *data) const;
+	bool read_8b(uint64_t offset, uint8_t *data) const;
+	bool write_64b(uint64_t offset, uint64_t data);
+	bool write_32b(uint64_t offset, uint32_t data);
+	bool write_16b(uint64_t offset, uint16_t data);
+	bool write_8b(uint64_t offset, uint8_t data);
 };
 
 #endif

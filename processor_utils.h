@@ -7,6 +7,7 @@
 #define MASK_16B	0xffff
 #define MASK_26B	0x3FFFFFF
 #define MASK_32B	0xffffffff
+#define MASK_64B	0xffffffffffffffff
 #define MASK_N(n)	((1 << n) - 1)
 #define S32_MAX		0x7fffffff
 #define U32_MAX		0x80000000

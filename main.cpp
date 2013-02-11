@@ -8,7 +8,7 @@
 #include "debug_console.h"
 #include "log.h"
 
-bool single_step = false;
+bool single_step = true;
 const char *logfile = "bla.txt";
 
 volatile bool terminate = false;
@@ -41,10 +41,10 @@ int main(int argc, char *argv[])
 	int prom_len = -1;
 	load_file("ip20prom.070-8116-004.BE.bin", &prom, &prom_len);
 	memory *m_prom = new memory(prom, prom_len);
-	mb -> register_memory(0xbfc00000, 0x7ffff, m_prom); // IP20, 32bit
+	mb -> register_memory(0xffffffffbfc00000, 0x7ffff, m_prom); // IP20, 32bit
 
 	processor *p = new processor(dc, mb);
-	p -> set_PC(0xbfc00000);
+	p -> reset();
 
 	for(;!terminate;)
 	{
