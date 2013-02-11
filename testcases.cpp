@@ -29,18 +29,18 @@ void exec(memory_bus *mb, std::vector<int> instructions, processor *p)
 	tick(p);
 }
 
-void create_system(memory_bus **mb, memory **m1, memory **m2, processor **p, int *m1s = NULL, int *m2s = NULL, int *po1 = NULL, int *po2 = NULL)
+void create_system(memory_bus **mb, memory **m1, memory **m2, processor **p, int *m1s = NULL, int *m2s = NULL, uint64_t *po1 = NULL, uint64_t *po2 = NULL)
 {
 	*mb = new memory_bus();
 
 	int mem_size1 = 0x100000; // FIXME verify power2
 	*m1 = new memory(mem_size1, true);
-	int o1 = 0;
+	uint64_t o1 = 0;
 	(*mb) -> register_memory(o1, mem_size1 - 1, *m1);
 
 	int mem_size2 = 0x200; // verify power2
 	*m2 = new memory(mem_size2, true);
-	int o2 = 0xf00000;
+	uint64_t o2 = 0xf00000;
 	(*mb) -> register_memory(o2, mem_size2 - 1, *m2);
 
 	*p = new processor(dc, *mb);
@@ -67,7 +67,7 @@ void test_make_instruction()
 {
 	uint8_t rs = 13;
 	uint8_t rt = 4;
-	int function = 0x31;
+	uint8_t function = 0x31;
 	int immediate = 0xabcd;
 
 	uint32_t expected = function << 26 |
@@ -87,8 +87,8 @@ void test_make_instruction()
 		error_exit("j-type failed: expected %x, got %x", expected, rc);
 
 	uint8_t rd = 31;
-	int sa = 17;
-	int extra = rs;
+	uint8_t sa = 17;
+	uint8_t extra = rs;
 	expected = extra << 21 |
 			rt << 16 |
 			rd << 11 |
@@ -137,8 +137,8 @@ void test_count_leading()
 void test_rotate_right()
 {
 	int value = 2;
-	int n = 2; 
-	int width = 3;
+	uint8_t n = 2; 
+	uint8_t width = 3;
 	int expected = 4;
 	int rc = rotate_right(value, n, width);
 	if (rc != expected)
@@ -192,7 +192,7 @@ void test_processor()
 
 	for(int reg=1; reg<32; reg++)
 	{
-		int val = p -> get_register_32b_signed(reg);
+		int32_t val = p -> get_register_32b_signed(reg);
 		if (val != cmp_val)
 			error_exit("register %d has invalid value %x", val);
 	}
@@ -238,7 +238,8 @@ void test_memory_bus()
 	memory_bus *mb = NULL;
 	memory *m1 = NULL, *m2 = NULL;
 	processor *p = NULL;
-	int o1 = -1, o2 = -1, dummy = -2;
+	uint64_t o1 = -1, o2 = -1;
+	int dummy = -2;
 	create_system(&mb, &m1, &m2, &p, &dummy, &dummy, &o1, &o2);
 
 	uint32_t value = 0x11223344;
@@ -262,7 +263,8 @@ void test_memory_bus()
 
 void test_twos_complement()
 {
-	int value = -1, bits = 8, expected = 255;
+	uint8_t bits = 8;
+	int value = -1, expected = 255;
 	int rc = twos_complement(value, bits);
 	if (rc != expected)
 		error_exit("failed: twos_complement for -1/8, expected %d got %d", expected, rc);
@@ -285,7 +287,8 @@ void test_twos_complement()
 void test_untows_complement()
 {
 	/* int untwos_complement(int value, int bits) */
-	int value = 0x80, bits = 8;
+	int value = 0x80;
+	uint8_t bits = 8;
 	int rc = untwos_complement(value, bits);
 	if (rc != -128)
 		error_exit("untwos_complement failed 8b (a): %d expected -128", rc);
@@ -365,7 +368,7 @@ void test_LW()
 		p -> reset();
 		p -> set_PC(0);
 
-		int base = 1;
+		uint8_t base = 1;
 		int base_val = 9;
 		p -> set_register_32b(base, base_val);
 
@@ -373,9 +376,9 @@ void test_LW()
 
 		int offset = 0xff;
 
-		int function = 0x23;	// LW
+		uint8_t function = 0x23;	// LW
 
-		int instr = make_cmd_I_TYPE(base, rt, function, offset);
+		uint32_t instr = make_cmd_I_TYPE(base, rt, function, offset);
 		if (!m1 -> write_32b(0, instr))
 			error_exit("LW: failed to write to offset 0 in memory");
 		// printf("instruction: %08x\n", instr);
@@ -399,7 +402,7 @@ void test_LW()
 		p -> reset();
 		p -> set_PC(0);
 
-		int base = 1;
+		uint8_t base = 1;
 		int base_val = 0xf0000;
 		p -> set_register_32b(base, base_val);
 
@@ -407,17 +410,17 @@ void test_LW()
 
 		int offset = 0x9014;
 
-		int function = 0x23;	// LW
+		uint8_t function = 0x23;	// LW
 
-		int temp_32b = -1;
+		uint32_t temp_32b = -1;
 
-		int instr = make_cmd_I_TYPE(base, rt, function, offset);
+		uint32_t instr = make_cmd_I_TYPE(base, rt, function, offset);
 		if (!m1 -> write_32b(0, instr))
 			error_exit("failed to write to memory @ 0");
 		// printf("instruction: %08x\n", instr);
 
 		int addr_val = 0xdeafbeef;
-		int addr = base_val + untwos_complement(offset, 16);
+		uint64_t addr = base_val + untwos_complement(offset, 16);
 		if (!m1 -> write_32b(addr, addr_val))
 			error_exit("failed to write to memory @ 0");
 
@@ -450,16 +453,16 @@ void test_SLL()
 	uint8_t rt = 2;
 	p -> set_register_32b(rt, input_val);
 
-	int sa = 3;
+	uint8_t sa = 3;
 
-	int function = 0, extra = 0;
+	uint8_t function = 0, extra = 0;
 
-	int instr = make_cmd_SPECIAL(rt, rd, sa, function, extra);
+	uint32_t instr = make_cmd_SPECIAL(rt, rd, sa, function, extra);
 
 	// printf("instruction: %08x\n", instr);
 	if (!m1 -> write_32b(0, instr))
 		error_exit("failed to write to memory @ 0");
-	int temp_32b;
+	int32_t temp_32b;
 
 	tick(p);
 
@@ -493,10 +496,10 @@ void test_SRL()
 	uint8_t rt = 2;
 	p -> set_register_32b(rt, input_val);
 
-	int sa = 3;
+	uint8_t sa = 3;
 
 	int function = 2, extra = 0;
-	int instr = make_cmd_SPECIAL(rt, rd, sa, function, extra);
+	uint32_t instr = make_cmd_SPECIAL(rt, rd, sa, function, extra);
 	// printf("instruction: %08x\n", instr);
 
 	if (!m1 -> write_32b(0, instr))
@@ -527,10 +530,10 @@ void test_LUI()
 	p -> set_PC(0);
 
 	uint8_t rt = 4;
-	int function = 0x0f;
+	uint8_t function = 0x0f;
 	int immediate = 0xabcd;
 	int expected = immediate << 16;
-	int instr = make_cmd_I_TYPE(0, rt, function, immediate);
+	uint32_t instr = make_cmd_I_TYPE(0, rt, function, immediate);
 
 	if (!m1 -> write_32b(0, instr))
 		error_exit("failed to write to memory @ 0");
@@ -558,15 +561,15 @@ void test_SW()
 	p -> set_register_32b(rt, verify_val);
 
 	int address_base = 0x1000;
-	int base = 9, rs = base;
+	uint8_t base = 9, rs = base;
 	p -> set_register_32b(base, address_base);
 
 	int offset = 0x100, immediate = offset;
 
 	int final_address = address_base + offset;
 
-	int function = 0x2b;
-	int instruction = make_cmd_I_TYPE(rs, rt, function, immediate);
+	uint8_t function = 0x2b;
+	uint32_t instruction = make_cmd_I_TYPE(rs, rt, function, immediate);
 
 	if (!m1 -> write_32b(0, instruction))
 		error_exit("failed to write to memory @ 0");
@@ -607,8 +610,8 @@ void test_ORI()
 
 	int expected = p -> get_register_32b_signed(rs) | immediate;
 
-	int function = 0x0d;
-	int instruction = make_cmd_I_TYPE(rs, rt, function, immediate);
+	uint8_t function = 0x0d;
+	uint32_t instruction = make_cmd_I_TYPE(rs, rt, function, immediate);
 
 	if (!m1 -> write_32b(0, instruction))
 		error_exit("failed to write to memory @ 0");
@@ -644,15 +647,15 @@ void test_ADDIU()
 
 	int expected = (p -> get_register_32b_signed(rs) + int16_t(immediate)) & MASK_32B;
 
-	int function = 0x09;
-	int instruction = make_cmd_I_TYPE(rs, rt, function, immediate);
+	uint8_t function = 0x09;
+	uint32_t instruction = make_cmd_I_TYPE(rs, rt, function, immediate);
 
 	if (!m1 -> write_32b(0, instruction))
 		error_exit("failed to write to memory @ 0");
 
 	tick(p);
 
-	int result = p -> get_register_32b_signed(rt);
+	int32_t result = p -> get_register_32b_signed(rt);
 	if (result != expected)
 		error_exit("ADDIU: result is %08x, expected %08x", result, expected);
 
@@ -685,8 +688,8 @@ void test_AND()
 
 	int expected = p -> get_register_32b_signed(rs) & p -> get_register_32b_signed(rt);
 
-	int function = 0x24, extra = rs;
-	int instruction = make_cmd_SPECIAL(rt, rd, sa, function, extra);
+	uint8_t function = 0x24, extra = rs;
+	uint32_t instruction = make_cmd_SPECIAL(rt, rd, sa, function, extra);
 
 	if (!m1 -> write_32b(0, instruction))
 		error_exit("failed to write to memory @ 0");
@@ -737,17 +740,17 @@ void test_NOP()
 
 	all_registers_t *reg_copy = copy_registers(p);
 
-	int opcode = 0;
-	int function = 0;
-	int sa = 0, rd = 0, rt = 0, rs = 0;
-	int instruction = make_cmd_R_TYPE(opcode, sa, rd, rt, rs, function);
+	uint8_t opcode = 0;
+	uint8_t function = 0;
+	uint8_t sa = 0, rd = 0, rt = 0, rs = 0;
+	uint32_t instruction = make_cmd_R_TYPE(opcode, sa, rd, rt, rs, function);
 
 	if (!m1 -> write_32b(0, instruction))
 		error_exit("failed to write to memory @ 0");
 
 	tick(p);
 
-	for(int nr=0; nr<32; nr++)
+	for(uint8_t nr=0; nr<32; nr++)
 	{
 		if (p -> get_register_32b_unsigned(nr) != reg_copy -> registers[nr])
 			error_exit("NOP: register %s (%d) mismatch", processor::reg_to_name(nr), nr);
@@ -795,8 +798,8 @@ void test_BNE()
 	int immediate_org = -1235;
 	int immediate = immediate_org & 0xffff;
 
-	int function = 0x05;
-	int instruction = make_cmd_I_TYPE(rs, rt, function, immediate);
+	uint8_t function = 0x05;
+	uint32_t instruction = make_cmd_I_TYPE(rs, rt, function, immediate);
 
 	if (!m1 -> write_32b(0, instruction))
 		error_exit("failed to write to memory @ 0");
