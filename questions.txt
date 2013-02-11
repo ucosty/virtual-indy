@@ -1,5 +1,6 @@
 - SLTI/ADDI/ORI/etc	rs is signed?
-
 - SLTIU/ADDIU/etc	rs is signed?
+* e.e.a. is of ge-sign-extended of de compare is unsigned
 
 - if a 32bit action is performed, what happens to the upper 32 bit of a register? unchanged? sign extended? set to 0?
+> dit is dan van toepassing op bijv AND want je hebt een DADD e.d.
