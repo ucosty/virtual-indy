@@ -1,3 +1,4 @@
+#include <endian.h>
 #include <string.h>
 
 #include "memory.h"
@@ -24,120 +25,57 @@ memory::~memory()
 	delete [] pm;
 }
 
-bool memory::read_64b(uint64_t offset, uint64_t *data) const
+void memory::read_64b(uint64_t offset, uint64_t *data) const
 {
-	// TODO: if big endin processor, read directly from memory
+	unsigned char *dummy_p = &pm[offset];
+	uint64_t dummy = *(uint64_t *)dummy_p;
 
-	if (offset + 8 >= len || offset < 0)
-		return false;
-
-	*data = (uint64_t(pm[offset + 0]) << 56) |
-		(uint64_t(pm[offset + 1]) << 48) |
-		(uint64_t(pm[offset + 2]) << 40) |
-		(uint64_t(pm[offset + 3]) << 32) |
-		(uint64_t(pm[offset + 4]) << 24) |
-		(uint64_t(pm[offset + 5]) << 16) |
-		(uint64_t(pm[offset + 6]) <<  8) |
-		(uint64_t(pm[offset + 7])      );
-
-	return true;
+	*data = be64toh(dummy);
 }
 
-bool memory::read_32b(uint64_t offset, uint32_t *data) const
+void memory::read_32b(uint64_t offset, uint32_t *data) const
 {
-	// TODO: if big endin processor, read directly from memory
+	unsigned char *dummy_p = &pm[offset];
+	uint32_t dummy = *(uint32_t *)dummy_p;
 
-	if (offset + 4 >= len || offset < 0)
-		return false;
-
-	*data = (pm[offset + 0] << 24) |
-		(pm[offset + 1] << 16) |
-		(pm[offset + 2] <<  8) |
-		(pm[offset + 3]      );
-
-	return true;
+	*data = be32toh(dummy);
 }
 
-bool memory::read_16b(uint64_t offset, uint16_t *data) const
+void memory::read_16b(uint64_t offset, uint16_t *data) const
 {
-	// TODO: if big endin processor, read directly from memory
+	unsigned char *dummy_p = &pm[offset];
+	uint16_t dummy = *(uint16_t *)dummy_p;
 
-	if (offset + 2 >= len || offset < 0)
-		return false;
-
-	*data = (pm[offset + 0] <<  8) |
-		(pm[offset + 1]      );
-
-	return true;
+	*data = be16toh(dummy);
 }
 
-bool memory::read_8b(uint64_t offset, uint8_t *data) const
+void memory::read_8b(uint64_t offset, uint8_t *data) const
 {
-	// TODO: if big endin processor, read directly from memory
-
-	if (offset >= len || offset < 0)
-		return false;
-
-	*data = pm[offset + 0];
-
-	return true;
+	*data = pm[offset];
 }
 
-bool memory::write_64b(uint64_t offset, uint64_t data)
+void memory::write_64b(uint64_t offset, uint64_t data)
 {
-	// TODO: if big endin processor, put directly in memory
+	unsigned char *dummy_p = &pm[offset];
 
-	if (offset + 8 >= len || offset < 0)
-		return false;
-
-	pm[offset + 0] = (data >> 56) & 255;
-	pm[offset + 1] = (data >> 48) & 255;
-	pm[offset + 2] = (data >> 40) & 255;
-	pm[offset + 3] = (data >> 32) & 255;
-	pm[offset + 4] = (data >> 24) & 255;
-	pm[offset + 5] = (data >> 16) & 255;
-	pm[offset + 6] = (data >>  8) & 255;
-	pm[offset + 7] = (data      ) & 255;
-
-	return true;
+	*(uint64_t *)dummy_p = htobe64(data);
 }
 
-bool memory::write_32b(uint64_t offset, uint32_t data)
+void memory::write_32b(uint64_t offset, uint32_t data)
 {
-	// TODO: if big endin processor, put directly in memory
+	unsigned char *dummy_p = &pm[offset];
 
-	if (offset + 4 >= len || offset < 0)
-		return false;
-
-	pm[offset + 0] = (data >> 24) & 255;
-	pm[offset + 1] = (data >> 16) & 255;
-	pm[offset + 2] = (data >>  8) & 255;
-	pm[offset + 3] = (data      ) & 255;
-
-	return true;
+	*(uint32_t *)dummy_p = htobe32(data);
 }
 
-bool memory::write_16b(uint64_t offset, uint16_t data)
+void memory::write_16b(uint64_t offset, uint16_t data)
 {
-	// TODO: if big endin processor, put directly in memory
+	unsigned char *dummy_p = &pm[offset];
 
-	if (offset + 2 >= len || offset < 0) // + 2 might wrap if size == 64b
-		return false;
-
-	pm[offset + 0] = (data >>  8) & 255;
-	pm[offset + 1] = (data      ) & 255;
-
-	return true;
+	*(uint16_t *)dummy_p = htobe16(data);
 }
 
-bool memory::write_8b(uint64_t offset, uint8_t data)
+void memory::write_8b(uint64_t offset, uint8_t data)
 {
-	// TODO: if big endin processor, put directly in memory
-
-	if (offset >= len || offset < 0)
-		return false;
-
-	pm[offset + 0] = data & 255;
-
-	return true;
+	pm[offset] = data;
 }
