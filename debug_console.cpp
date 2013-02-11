@@ -238,8 +238,27 @@ void debug_console::tick(processor *p)
 
 		double t_diff = now_ts - start_ts;
 		if (t_diff)
-			mvwprintw(win_regs, 14, 48, "I/S: %f", double(n_ticks) / t_diff);
-		mvwprintw(win_regs, 15, 48, "cnt: %lld", n_ticks);
+		{
+			double i_per_s = double(n_ticks) / t_diff;
+
+			if (i_per_s >= 1000000000.0)
+				mvwprintw(win_regs, 14, 48, "I/S: %6.2fG", i_per_s / 1000000000.0);
+			else if (i_per_s >= 1000000.0)
+				mvwprintw(win_regs, 14, 48, "I/S: %6.2fM", i_per_s / 1000000.0);
+			else if (i_per_s >= 1000.0)
+				mvwprintw(win_regs, 14, 48, "I/S: %6.2fk", i_per_s / 1000.0);
+			else
+				mvwprintw(win_regs, 14, 48, "I/S: %6.2f", i_per_s);
+		}
+
+		if (n_ticks >= 1000000000)
+			mvwprintw(win_regs, 15, 48, "cnt: %7.2fG", double(n_ticks) / 1000000000.0);
+		else if (n_ticks >= 1000000)
+			mvwprintw(win_regs, 15, 48, "cnt: %7.2fM", double(n_ticks) / 1000000.0);
+		else if (n_ticks >= 1000)
+			mvwprintw(win_regs, 15, 48, "cnt: %7.2fk", double(n_ticks) / 1000.0);
+		else
+			mvwprintw(win_regs, 15, 48, "cnt: %lld", n_ticks);
 
 		std::string logline = p -> da_logline(instruction);
 		dolog(logline.c_str());
