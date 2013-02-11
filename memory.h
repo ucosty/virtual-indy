@@ -7,11 +7,11 @@ class memory
 {
 private:
 	unsigned char *pm;
-	int len;
+	uint64_t len;
 
 public:
-	memory(int size, bool init);
-	memory(unsigned char *p, int len);
+	memory(uint64_t size, bool init);
+	memory(unsigned char *p, uint64_t len);
 	~memory();
 
 	bool read_64b(uint64_t offset, uint64_t *data) const;

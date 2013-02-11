@@ -2,7 +2,7 @@
 
 #include "memory.h"
 
-memory::memory(int size, bool init) : len(size)
+memory::memory(uint64_t size, bool init) : len(size)
 {
 	if (size < 0)
 		throw "memory::memory invalid size"; // format() met size er in FIXME
@@ -13,7 +13,7 @@ memory::memory(int size, bool init) : len(size)
 		memset(pm, 0x00, size);
 }
 
-memory::memory(unsigned char *p, int size) : pm(p), len(size)
+memory::memory(unsigned char *p, uint64_t size) : pm(p), len(size)
 {
 	if (size < 0)
 		throw "memory::memory invalid size"; // format() met size er in FIXME
