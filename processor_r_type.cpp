@@ -153,14 +153,20 @@ void processor::r_type_07(uint32_t instruction)
 
 void processor::r_type_08(uint32_t instruction)	// JR
 {
-	uint8_t sa = (instruction >> 6) & MASK_5B;
-	uint8_t rd = (instruction >> 11) & MASK_5B;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t hint = (instruction >> 6) & MASK_5B;
 	uint8_t rs = (instruction >> 21) & MASK_5B;
 
-	tick();	// need to execute the next instruction - what if it is a JR as well? FIXME
+	if (hint)
+		pdc -> log("r_type_08: hint is unexpected value (%d, expected 0)", hint);
+
+	tick();
 
 	PC = registers[rs];
+
+	if (PC & 3)
+	{
+		// FIXME address exception
+	}
 }
 
 void processor::r_type_09(uint32_t instruction)	// JALR
@@ -170,7 +176,7 @@ void processor::r_type_09(uint32_t instruction)	// JALR
 
 	tick();
 
-	set_register_32b(rd, PC + 4);
+	set_register_64b(rd, PC + 4);
 
 	PC = registers[rs];
 }

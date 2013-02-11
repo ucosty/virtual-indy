@@ -25,7 +25,7 @@ void processor::regimm(uint32_t instruction)
 
 			if (int32_t(registers[rs]) >= 0)
 			{
-				set_register_32b(31, PC + 4);
+				set_register_64b(31, PC + 4);
 
 				PC += b18_signed_offset;
 			}

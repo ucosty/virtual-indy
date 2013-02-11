@@ -129,7 +129,7 @@ void processor::i_type_04(uint32_t instruction)	// BEQ
 
 	if (registers[rs] == registers[rt])
 	{
-		int new_PC = PC + 4 + b18_signed_offset;
+		uint64_t new_PC = PC + 4 + b18_signed_offset;
 		tick();
 		PC = new_PC;
 	}
@@ -143,7 +143,7 @@ void processor::i_type_05(uint32_t instruction)	// BNE/BNEL
 
 	if (registers[rs] != registers[rt])
 	{
-		int new_PC = PC + 4 + b18_signed_offset;
+		uint64_t new_PC = PC + 4 + b18_signed_offset;
 		tick();
 		PC = new_PC;
 	}

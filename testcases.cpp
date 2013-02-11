@@ -164,8 +164,12 @@ void test_processor()
 
 	p -> reset();
 
-	if (p -> get_PC())
-		error_exit("failed: pc != 0 after reset");
+	uint64_t reset_vector = 0xffffffffbfc00000;
+
+	if (p -> get_PC() != reset_vector)
+		error_exit("failed: pc != %016llx after reset", reset_vector);
+
+	p -> set_PC(0);
 
 	tick(p);
 	if (p -> get_PC() != 4)
@@ -175,6 +179,7 @@ void test_processor()
 		p -> set_register_32b(reg, cmp_val);
 
 	p -> reset();
+	p -> set_PC(0);
 
 	for(int reg=0; reg<32; reg++)
 	{
@@ -358,6 +363,7 @@ void test_LW()
 	// unsigned offset
 	{
 		p -> reset();
+		p -> set_PC(0);
 
 		int base = 1;
 		int base_val = 9;
@@ -391,6 +397,7 @@ void test_LW()
 	// signed offset
 	{
 		p -> reset();
+		p -> set_PC(0);
 
 		int base = 1;
 		int base_val = 0xf0000;
@@ -434,6 +441,7 @@ void test_SLL()
 	create_system(&mb, &m1, &m2, &p);
 
 	p -> reset();
+	p -> set_PC(0);
 
 	uint8_t rd = 1;
 	p -> set_register_32b(rd, 13);
@@ -476,6 +484,7 @@ void test_SRL()
 	create_system(&mb, &m1, &m2, &p);
 
 	p -> reset();
+	p -> set_PC(0);
 
 	uint8_t rd = 1;
 	p -> set_register_32b(rd, 13);
@@ -515,6 +524,7 @@ void test_LUI()
 	create_system(&mb, &m1, &m2, &p);
 
 	p -> reset();
+	p -> set_PC(0);
 
 	uint8_t rt = 4;
 	int function = 0x0f;
@@ -541,6 +551,7 @@ void test_SW()
 	create_system(&mb, &m1, &m2, &p);
 
 	p -> reset();
+	p -> set_PC(0);
 
 	uint32_t verify_val = 0x1234beef;
 	uint8_t rt = 1;
@@ -582,6 +593,7 @@ void test_ORI()
 	create_system(&mb, &m1, &m2, &p);
 
 	p -> reset();
+	p -> set_PC(0);
 
 	int old_val = 0x1234beef;
 	uint8_t rt = 1;
@@ -618,6 +630,7 @@ void test_ADDIU()
 	create_system(&mb, &m1, &m2, &p);
 
 	p -> reset();
+	p -> set_PC(0);
 
 	int old_val = 0x1234beef;
 	uint8_t rt = 1;
@@ -654,6 +667,7 @@ void test_AND()
 	create_system(&mb, &m1, &m2, &p);
 
 	p -> reset();
+	p -> set_PC(0);
 
 	int sa = 31;
 
@@ -719,6 +733,7 @@ void test_NOP()
 	create_system(&mb, &m1, &m2, &p);
 
 	p -> reset();
+	p -> set_PC(0);
 
 	all_registers_t *reg_copy = copy_registers(p);
 
@@ -767,6 +782,7 @@ void test_BNE()
 	create_system(&mb, &m1, &m2, &p);
 
 	p -> reset();
+	p -> set_PC(0);
 
 	int rs_value = 0xdeadbeef;
 	uint8_t rs = 3;
