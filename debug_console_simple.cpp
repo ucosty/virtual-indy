@@ -26,7 +26,7 @@ void debug_console_simple::tick(processor *p)
 
 void debug_console_simple::log(const char *fmt, ...)
 {
-#ifndef _PROFILE
+#ifndef _PROFILING
 	char buffer[4096];
 	va_list ap;
 

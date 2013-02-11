@@ -79,7 +79,11 @@ int main(int argc, char *argv[])
 	signal(SIGQUIT, sig_handler);
 	signal(SIGPIPE, SIG_IGN);
 
+#ifdef _PROFILING
+	debug_console *dc = new debug_console_simple();
+#else
 	debug_console *dc = debug ? new debug_console() : new debug_console_simple();
+#endif
 
 	dc -> init();
 
@@ -96,7 +100,7 @@ int main(int argc, char *argv[])
 
 	processor *p = new processor(dc, mb);
 
-#ifdef _PROFILE
+#ifdef _PROFILING
 	int cnt = 0;
 	for(;!terminate;)
 	{
@@ -104,7 +108,7 @@ int main(int argc, char *argv[])
 
 		for(int nr=0; nr<600; nr++)
 		{
-			// dc -> tick(p);
+			dc -> tick(p);
 			p -> tick();
 		}
 

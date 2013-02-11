@@ -67,7 +67,7 @@ debug_console::debug_console()
 	// make sure the cpu runs at 100% before measuring the
 	// number of emulated instructions per second (used for
 	// the screen refresh)
-#ifndef _PROFILE
+#ifndef _PROFILING
 	while(get_ts() - start_ts < 0.1)
 	{
 	}

@@ -35,8 +35,6 @@ void processor::reset()
 	delay_slot_PC = -1;
 }
 
-#include "error.h"
-
 void processor::tick()
 {
 	uint32_t instruction = -1;
@@ -44,6 +42,7 @@ void processor::tick()
 	if (have_delay_slot)
 	{
 		have_delay_slot = false;
+
 		if (delay_slot_PC & 0x03)
 		{
 			// address exception

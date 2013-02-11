@@ -1,15 +1,18 @@
 VERSION=0.1
 
-PROFILE=0
+# 1: mode for "valgrind --tool=cachegrind ./miep"
+# 2: mode for "gprof ./miep"
+PROFILING=1
+# yes/no, will be set to no in profiling mode
 DEBUG=no
 
 DEBUG_FLAGS=-g3
-ifeq ($(PROFILE),1)
-	DEBUG_FLAGS+=-D_PROFILE=1
+ifeq ($(PROFILING),1)
+	DEBUG_FLAGS+=-D_PROFILING=1
 	DEBUG=no
 endif
-ifeq ($(PROFILE),2)
-	DEBUG_FLAGS+=-D_PROFILE -pg
+ifeq ($(PROFILING),2)
+	DEBUG_FLAGS+=-D_PROFILING=2 -pg
 	DEBUG=no
 endif
 ifeq ($(DEBUG),yes)
