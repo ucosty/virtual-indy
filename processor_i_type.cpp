@@ -129,7 +129,7 @@ void processor::i_type_04(uint32_t instruction)	// BEQ
 
 	cycles += 3;
 
-	if (get_register_32b_unsigned(rs) == get_register_32b_unsigned(rt))
+	if (get_register_64b_unsigned(rs) == get_register_64b_unsigned(rt))
 	{
 		set_delay_slot(PC);
 
@@ -145,12 +145,15 @@ void processor::i_type_05(uint32_t instruction)	// BNE/BNEL
 
 	cycles += 3;
 
-	if (get_register_32b_unsigned(rs) != get_register_32b_unsigned(rt))
+	if (get_register_64b_unsigned(rs) != get_register_64b_unsigned(rt))
 	{
 		set_delay_slot(PC);
 
 		PC += 4 + b18_signed_offset;
 	}
+
+	if ((instruction & MASK_6B) == 0x15) // BNEL
+		PC += 4; // skip delay slot
 }
 
 void processor::i_type_06(uint32_t instruction)
@@ -191,7 +194,7 @@ void processor::i_type_07(uint32_t instruction)
 
 void processor::i_type_08(uint32_t instruction)	// ADDI
 {
-	int immediate_s = int16_t(instruction & MASK_16B);
+	int immediate_s = int16_t(instruction);
 	uint8_t rs = (instruction >> 21) & MASK_5B;
 	uint8_t rt = (instruction >> 16) & MASK_5B;
 
@@ -239,7 +242,7 @@ void processor::i_type_0b(uint32_t instruction)	// SLTIU
 
 void processor::i_type_0c(uint32_t instruction)	// ANDI
 {
-	int immediate = instruction & MASK_16B;
+	uint16_t immediate = instruction;
 	uint8_t rs = (instruction >> 21) & MASK_5B;
 	uint8_t rt = (instruction >> 16) & MASK_5B;
 
@@ -248,7 +251,7 @@ void processor::i_type_0c(uint32_t instruction)	// ANDI
 
 void processor::i_type_0d(uint32_t instruction)	// ORI
 {
-	int immediate = instruction & MASK_16B;
+	uint16_t immediate = instruction;
 	uint8_t rs = (instruction >> 21) & MASK_5B;
 	uint8_t rt = (instruction >> 16) & MASK_5B;
 
@@ -257,7 +260,7 @@ void processor::i_type_0d(uint32_t instruction)	// ORI
 
 void processor::i_type_0e(uint32_t instruction)	// XORI
 {
-	int immediate = instruction & MASK_16B;
+	uint16_t immediate = instruction;
 	uint8_t rs = (instruction >> 21) & MASK_5B;
 	uint8_t rt = (instruction >> 16) & MASK_5B;
 
@@ -449,7 +452,7 @@ void processor::i_type_20(uint32_t instruction)	// LB / LBU
 	uint8_t base = (instruction >> 21) & MASK_5B;
 	uint8_t rt = (instruction >> 16) & MASK_5B;
 
-	int offset_s = int16_t(instruction & MASK_16B);
+	int offset_s = int16_t(instruction);
 
 	uint64_t address = get_register_64b_unsigned(base) + offset_s;
 	uint8_t temp_8b = -1;
@@ -470,7 +473,7 @@ void processor::i_type_21(uint32_t instruction)	// LH / LHU
 {
 	uint8_t base = (instruction >> 21) & MASK_5B;
 
-	int offset_s = int16_t(instruction & MASK_16B);
+	int offset_s = int16_t(instruction);
 
 	uint64_t address = get_register_64b_unsigned(base) + offset_s;
 	if (unlikely(address & 1))
@@ -522,7 +525,7 @@ void processor::i_type_23(uint32_t instruction)	// LW / LL
 {
 	uint8_t base = (instruction >> 21) & MASK_5B;
 
-	int offset_s = int16_t(instruction & MASK_16B);
+	int offset_s = int16_t(instruction);
 
 	uint64_t address = get_register_64b_unsigned(base) + offset_s;
 	if (unlikely(address & 3))
@@ -541,7 +544,7 @@ void processor::i_type_23(uint32_t instruction)	// LW / LL
 
 		uint8_t rt = (instruction >> 16) & MASK_5B;
 
-		set_register_32b(rt, temp_32b);
+		set_register_32b_se(rt, temp_32b);
 
 		cycles += 5;
 	}
@@ -587,7 +590,7 @@ void processor::i_type_28(uint32_t instruction)	// SB
 {
 	uint8_t base = (instruction >> 21) & MASK_5B;
 
-	int offset_s = int16_t(instruction & MASK_16B);
+	int offset_s = int16_t(instruction);
 
 	uint64_t address = get_register_64b_unsigned(base) + offset_s;
 
@@ -603,7 +606,7 @@ void processor::i_type_29(uint32_t instruction)	// SH
 {
 	uint8_t base = (instruction >> 21) & MASK_5B;
 
-	int offset_s = int16_t(instruction & MASK_16B);
+	int offset_s = int16_t(instruction);
 
 	uint8_t rt = (instruction >> 16) & MASK_5B;
 
@@ -648,7 +651,7 @@ void processor::i_type_2b(uint32_t instruction)	// SW
 {
 	uint8_t base = (instruction >> 21) & MASK_5B;
 
-	int offset_s = int16_t(instruction & MASK_16B);
+	int offset_s = int16_t(instruction);
 
 	uint8_t rt = (instruction >> 16) & MASK_5B;
 
