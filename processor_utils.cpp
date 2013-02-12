@@ -117,6 +117,16 @@ int64_t sign_extend(int64_t value, uint8_t bits)
 			mask <<= 1;
 		}
 	}
+	else
+	{
+		while(bits <= 64)
+		{
+			value &= ~mask;
+
+			bits++;
+			mask <<= 1;
+		}
+	}
 
 	return value;
 }
