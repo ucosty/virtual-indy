@@ -4,6 +4,7 @@
 #include "debug_console_testcases.h"
 #include "processor.h"
 #include "processor_utils.h"
+#include "exceptions.h"
 
 bool single_step = false; // not applicable
 debug_console *dc = new debug_console_testcases();
@@ -22,8 +23,14 @@ void exec(memory_bus *mb, std::vector<int> instructions, processor *p)
 	{
 		unsigned int offset = index * 4;
 
-		if (!mb -> write_32b(offset, instructions.at(index)))
-			error_exit("failed to write to offset %d in memory", offset);
+		try
+		{
+			mb -> write_32b(offset, instructions.at(index));
+		}
+		catch(processor_exceptions_t pe)
+		{
+			error_exit("failed to write to offset %d in memory! exception: %d", offset, pe);
+		}
 	}
 
 	tick(p);
@@ -234,22 +241,26 @@ void test_memory_bus()
 	int dummy = -2;
 	create_system(&mb, &m1, &m2, &p, &dummy, &dummy, &o1, &o2);
 
-	uint32_t value = 0x11223344;
-	if (!mb -> write_32b(o1, value))
-		error_exit("failed to write via bus");
+	try
+	{
+		uint32_t value = 0x11223344;
+		mb -> write_32b(o1, value);
 
-	uint32_t temp_32b = -1;
-	if (!mb -> read_32b(o1, &temp_32b))
-		error_exit("failed to read via bus");
+		uint32_t temp_32b = -1;
+		mb -> read_32b(o1, &temp_32b);
 
-	if (temp_32b != value)
-		error_exit("failed: write verify error");
+		if (temp_32b != value)
+			error_exit("failed: write verify error");
 
-	if (!mb -> read_32b(o2, &temp_32b))
-		error_exit("failed to read via bus");
+		mb -> read_32b(o2, &temp_32b);
 
-	if (temp_32b == value)
-		error_exit("failed: segment selection failure");
+		if (temp_32b == value)
+			error_exit("failed: segment selection failure");
+	}
+	catch(processor_exceptions_t pe)
+	{
+		error_exit("failed to access memory via bus: %d", pe);
+	}
 
 	free_system(mb, m1, m2, p);
 }

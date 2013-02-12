@@ -195,13 +195,9 @@ void processor::i_type_08(uint32_t instruction)	// ADDI
 	int32_t val2 = immediate_s;
 
 	if (unlikely(test_tc_overflow_32b(val1, val2)))
-	{
-		// FIXME integer overflow exception
-	}
+		throw PE_ARITHMETIC_OVERFLOW;
 	else
-	{
 		set_register_32b_se(rt, val1 + val2);
-	}
 }
 
 void processor::i_type_09(uint32_t instruction)	// ADDIU
@@ -474,7 +470,8 @@ void processor::i_type_21(uint32_t instruction)	// LH / LHU
 	if (unlikely(address & 1))
 	{
 		pdc -> log("i-type read 16b from %08llx: unaligned", address);
-		// FIXME throw address error exception
+
+		throw PE_ADDRESS_ERROR;
 	}
 	else
 	{
@@ -520,7 +517,8 @@ void processor::i_type_23(uint32_t instruction)	// LW / LL
 	if (unlikely(address & 3))
 	{
 		pdc -> log("i-type read 32b from %08llx: unaligned", address);
-		// FIXME throw address error exception
+
+		throw PE_ADDRESS_ERROR;
 	}
 	else
 	{
@@ -597,7 +595,8 @@ void processor::i_type_29(uint32_t instruction)	// SH
 	if (unlikely(address & 1))
 	{
 		pdc -> log("i-type write 16b %04x to %08x: unaligned", registers[rt] & 0xffff, address);
-		// FIXME throw address error exception
+
+		throw PE_ADDRESS_ERROR;
 	}
 	else
 	{
@@ -637,7 +636,8 @@ void processor::i_type_2b(uint32_t instruction)	// SW
 	if (unlikely(address & 3))
 	{
 		pdc -> log("i-type write 32b %08x to %08x: unaligned", registers[rt], address);
-		// FIXME throw address error exception
+
+		throw PE_ADDRESS_ERROR;
 	}
 	else
 	{

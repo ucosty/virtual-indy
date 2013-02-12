@@ -6,6 +6,7 @@
 #include "debug_console.h"
 #include "processor.h"
 #include "processor_utils.h"
+#include "exceptions.h"
 #include "log.h"
 #include "utils.h"
 
@@ -199,7 +200,16 @@ void debug_console::tick(processor *p)
 		mvwprintw(win_regs, 3, 48, "SR: %08x", p -> get_SR());
 
 		uint32_t instruction = -1;
-		bool r_ok = p -> get_mem_32b(PC, &instruction);
+		bool r_ok = true;
+		try
+		{
+			p -> get_mem_32b(PC, &instruction);
+		}
+		catch(processor_exceptions_t pe)
+		{
+			// FIXME show exception type
+			r_ok = false;
+		}
 		mvwprintw(win_regs, 4, 48, "mem: %d/%08x", r_ok, instruction);
 
 		int opcode = (instruction >> 26) & MASK_6B;
