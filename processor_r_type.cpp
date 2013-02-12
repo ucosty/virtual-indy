@@ -479,10 +479,10 @@ void processor::r_type_2a(uint32_t instruction)	// SLT
 	uint8_t rt = (instruction >> 16) & MASK_5B;
 	uint8_t rs = (instruction >> 21) & MASK_5B;
 
-	if (get_register_32b_signed(rs) < get_register_32b_signed(rt))
-		set_register_32b(rd, 1);
+	if (get_register_64b_signed(rs) < get_register_64b_signed(rt))
+		set_register_64b(rd, 1);
 	else
-		set_register_32b(rd, 0);
+		set_register_64b(rd, 0);
 }
 
 void processor::r_type_2b(uint32_t instruction)	// SLTU
@@ -491,10 +491,10 @@ void processor::r_type_2b(uint32_t instruction)	// SLTU
 	uint8_t rt = (instruction >> 16) & MASK_5B;
 	uint8_t rs = (instruction >> 21) & MASK_5B;
 
-	if (get_register_32b_unsigned(rs) < get_register_32b_unsigned(rt))
-		set_register_32b(rd, 1);
+	if (get_register_64b_unsigned(rs) < get_register_64b_unsigned(rt))
+		set_register_64b(rd, 1);
 	else
-		set_register_32b(rd, 0);
+		set_register_64b(rd, 0);
 }
 
 void processor::r_type_2c(uint32_t instruction)

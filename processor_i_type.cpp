@@ -125,8 +125,7 @@ void processor::i_type_04(uint32_t instruction)	// BEQ
 {
 	uint8_t rs = (instruction >> 21) & MASK_5B;
 	uint8_t rt = (instruction >> 16) & MASK_5B;
-	int offset = instruction & MASK_16B;
-	int b18_signed_offset = int16_t(offset) << 2;
+	int b18_signed_offset = int16_t(instruction) << 2;
 
 	cycles += 3;
 
@@ -142,7 +141,7 @@ void processor::i_type_05(uint32_t instruction)	// BNE/BNEL
 {
 	uint8_t rs = (instruction >> 21) & MASK_5B;
 	uint8_t rt = (instruction >> 16) & MASK_5B;
-	int b18_signed_offset = int16_t(instruction & MASK_16B) << 2;
+	int b18_signed_offset = int16_t(instruction) << 2;
 
 	cycles += 3;
 
@@ -207,7 +206,7 @@ void processor::i_type_08(uint32_t instruction)	// ADDI
 
 void processor::i_type_09(uint32_t instruction)	// ADDIU
 {
-	int immediate_s = int16_t(instruction & MASK_16B);
+	int immediate_s = int16_t(instruction);
 	uint8_t rs = (instruction >> 21) & MASK_5B;
 	uint8_t rt = (instruction >> 16) & MASK_5B;
 
@@ -216,26 +215,26 @@ void processor::i_type_09(uint32_t instruction)	// ADDIU
 
 void processor::i_type_0a(uint32_t instruction)	// SLTI
 {
-	int immediate_s = int16_t(instruction & MASK_16B);
+	int immediate_s = int16_t(instruction);
 	uint8_t rs = (instruction >> 21) & MASK_5B;
 	uint8_t rt = (instruction >> 16) & MASK_5B;
 
-	if (get_register_32b_signed(rs) < immediate_s)
-		set_register_32b(rt, 1);
+	if (get_register_64b_signed(rs) < immediate_s)
+		set_register_64b(rt, 1);
 	else
-		set_register_32b(rt, 0);
+		set_register_64b(rt, 0);
 }
 
 void processor::i_type_0b(uint32_t instruction)	// SLTIU
 {
-	int immediate = instruction & MASK_16B;
+	int immediate = int16_t(instruction;
 	uint8_t rs = (instruction >> 21) & MASK_5B;
 	uint8_t rt = (instruction >> 16) & MASK_5B;
 
-	if (get_register_32b_unsigned(rs) < (unsigned int)int(immediate))
-		set_register_32b(rt, 1);
+	if (get_register_64b_unsigned(rs) < uint64_t(immediate))
+		set_register_64b(rt, 1);
 	else
-		set_register_32b(rt, 0);
+		set_register_64b(rt, 0);
 }
 
 void processor::i_type_0c(uint32_t instruction)	// ANDI
