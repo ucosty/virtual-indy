@@ -4,7 +4,7 @@ VERSION=0.1
 # 2: mode for "gprof ./miep"
 PROFILING=0
 # yes/no, will be set to no in profiling mode
-DEBUG=no
+DEBUG=yes
 
 DEBUG_FLAGS=-g3
 ifeq ($(PROFILING),1)

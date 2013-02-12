@@ -105,6 +105,7 @@ void debug_console::init()
 
 debug_console::~debug_console()
 {
+#ifdef _DEBUG
 	log("");
 	log("instruction usage counts");
 	log("------------------------");
@@ -116,6 +117,7 @@ debug_console::~debug_console()
 
 		it++;
 	}
+#endif
 
 	if (nc)
 	{
@@ -288,7 +290,7 @@ void debug_console::tick(processor *p)
 
 void debug_console::log(const char *fmt, ...)
 {
-	if (logfile)
+	if (logfile || win_logs)
 	{
 		char buffer[4096];
 		va_list ap;
@@ -297,7 +299,8 @@ void debug_console::log(const char *fmt, ...)
 		(void)vsnprintf(buffer, sizeof buffer, fmt, ap);
 		va_end(ap);
 
-		wprintw(win_logs, "%s\n", buffer);
+		if (win_logs)
+			wprintw(win_logs, "%s\n", buffer);
 
 		dolog("%s", buffer);
 

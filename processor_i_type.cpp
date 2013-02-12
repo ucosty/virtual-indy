@@ -1,5 +1,6 @@
 #include "processor.h"
 #include "processor_utils.h"
+#include "exceptions.h"
 
 void processor::init_i_type()
 {
