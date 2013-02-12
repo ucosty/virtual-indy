@@ -1,9 +1,14 @@
 VERSION=0.1
 
 # 1: mode for "valgrind --tool=cachegrind ./miep"
+#    no logging, tight loop that runs 600 instructions and then resets the processor
+#    disables DEBUG flag
 # 2: mode for "gprof ./miep"
+#    standard with -pg flag added
 PROFILING=0
 # yes/no, will be set to no in profiling mode
+# enables instruction-usage counting
+# enables logging in non '-d'-mode
 DEBUG=yes
 
 DEBUG_FLAGS=-g3
