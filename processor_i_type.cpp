@@ -227,7 +227,7 @@ void processor::i_type_0a(uint32_t instruction)	// SLTI
 
 void processor::i_type_0b(uint32_t instruction)	// SLTIU
 {
-	int immediate = int16_t(instruction;
+	int immediate = int16_t(instruction);
 	uint8_t rs = (instruction >> 21) & MASK_5B;
 	uint8_t rt = (instruction >> 16) & MASK_5B;
 

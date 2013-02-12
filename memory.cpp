@@ -3,6 +3,10 @@
 
 #include "memory.h"
 
+memory::memory()
+{
+}
+
 memory::memory(uint64_t size, bool init) : len(size)
 {
 	if (size < 0)

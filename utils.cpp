@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string>
 #include <unistd.h>
@@ -9,8 +10,9 @@
 
 #include "error.h"
 
-void load_file(const char *filename, unsigned char **data, int *len)
+void load_file(std::string filename_in, unsigned char **data, uint64_t *len)
 {
+	const char *filename = filename_in.c_str();
         FILE *fh = fopen(filename, "r");
         if (!fh)
                 error_exit("Problem opening file %s", filename);

@@ -5,14 +5,18 @@
 
 class memory
 {
-private:
+protected:
 	unsigned char *pm;
 	uint64_t len;
+
+	memory();
 
 public:
 	memory(uint64_t size, bool init);
 	memory(unsigned char *p, uint64_t len);
 	~memory();
+
+	uint64_t get_size() { return len; }
 
 	void read_64b(uint64_t offset, uint64_t *data) const;
 	void read_32b(uint64_t offset, uint32_t *data) const;
