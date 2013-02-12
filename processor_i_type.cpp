@@ -128,6 +128,8 @@ void processor::i_type_04(uint32_t instruction)	// BEQ
 	int offset = instruction & MASK_16B;
 	int b18_signed_offset = int16_t(offset) << 2;
 
+	cycles += 3;
+
 	if (get_register_32b_unsigned(rs) == get_register_32b_unsigned(rt))
 	{
 		set_delay_slot(PC);
@@ -141,6 +143,8 @@ void processor::i_type_05(uint32_t instruction)	// BNE/BNEL
 	uint8_t rs = (instruction >> 21) & MASK_5B;
 	uint8_t rt = (instruction >> 16) & MASK_5B;
 	int b18_signed_offset = int16_t(instruction & MASK_16B) << 2;
+
+	cycles += 3;
 
 	if (get_register_32b_unsigned(rs) != get_register_32b_unsigned(rt))
 	{
@@ -459,6 +463,8 @@ void processor::i_type_20(uint32_t instruction)	// LB / LBU
 		set_register_32b(rt, temp_8b);
 	else
 		set_register_32b(rt, int(temp_8b));
+
+	cycles += 5;
 }
 
 void processor::i_type_21(uint32_t instruction)	// LH / LHU
@@ -471,6 +477,8 @@ void processor::i_type_21(uint32_t instruction)	// LH / LHU
 	if (unlikely(address & 1))
 	{
 		pdc -> log("i-type read 16b from %08llx: unaligned", address);
+
+		cycles += 5; // FIXME
 
 		throw PE_ADDRESS_ERROR;
 	}
@@ -487,6 +495,9 @@ void processor::i_type_21(uint32_t instruction)	// LH / LHU
 			set_register_32b(rt, temp_16b);
 		else
 			set_register_32b(rt, int(temp_16b));
+
+		cycles += 5;
+		cycles += 5; // FIXME
 	}
 }
 
@@ -519,6 +530,8 @@ void processor::i_type_23(uint32_t instruction)	// LW / LL
 	{
 		pdc -> log("i-type read 32b from %08llx: unaligned", address);
 
+		cycles += 5; // FIXME
+
 		throw PE_ADDRESS_ERROR;
 	}
 	else
@@ -530,6 +543,8 @@ void processor::i_type_23(uint32_t instruction)	// LW / LL
 		uint8_t rt = (instruction >> 16) & MASK_5B;
 
 		set_register_32b(rt, temp_32b);
+
+		cycles += 5;
 	}
 }
 
@@ -580,6 +595,8 @@ void processor::i_type_28(uint32_t instruction)	// SB
 	uint8_t rt = (instruction >> 16) & MASK_5B;
 	int temp_32b = get_register_32b_unsigned(rt);
 
+	cycles += 4;
+
 	pmb -> write_8b(address, temp_32b);
 }
 
@@ -597,12 +614,16 @@ void processor::i_type_29(uint32_t instruction)	// SH
 	{
 		pdc -> log("i-type write 16b %04x to %08x: unaligned", registers[rt] & 0xffff, address);
 
+		cycles += 4; // FIXME
+
 		throw PE_ADDRESS_ERROR;
 	}
 	else
 	{
 		int temp_32b = get_register_32b_unsigned(rt);
 		pmb -> write_16b(address, temp_32b);
+
+		cycles += 4;
 	}
 }
 
@@ -638,11 +659,15 @@ void processor::i_type_2b(uint32_t instruction)	// SW
 	{
 		pdc -> log("i-type write 32b %08x to %08x: unaligned", registers[rt], address);
 
+		cycles += 4; // FIXME
+
 		throw PE_ADDRESS_ERROR;
 	}
 	else
 	{
 		pmb -> write_32b(address, get_register_32b_unsigned(rt));
+
+		cycles += 4; // FIXME
 	}
 }
 

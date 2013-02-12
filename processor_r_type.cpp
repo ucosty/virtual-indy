@@ -76,7 +76,7 @@ void processor::r_type_00(uint32_t instruction)	// NOP / SLL
 	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	if (sa) // if sa==0 then NOP
-		set_register_32b(rd, get_register_32b_unsigned(rt) << sa);
+		set_register_32b_se(rd, get_register_32b_unsigned(rt) << sa);
 }
 
 void processor::r_type_01(uint32_t instruction)
@@ -98,7 +98,7 @@ void processor::r_type_02(uint32_t instruction)	// SRL / ROTR
 	if (IS_BIT_OFF0_SET(21, instruction))
 		set_register_32b(rd, rotate_right(get_register_32b_unsigned(rt), sa, 32));
 	else
-		set_register_32b(rd, get_register_32b_unsigned(rt) >> sa);
+		set_register_32b_se(rd, get_register_32b_unsigned(rt) >> sa);
 }
 
 void processor::r_type_03(uint32_t instruction)	// SRA
@@ -107,7 +107,7 @@ void processor::r_type_03(uint32_t instruction)	// SRA
 	uint8_t rd = (instruction >> 11) & MASK_5B;
 	uint8_t rt = (instruction >> 16) & MASK_5B;
 
-	set_register_32b(rd, sign_extend(get_register_32b_unsigned(rt) >> sa, 32 - sa));
+	set_register_32b_se(rd, sign_extend(get_register_32b_unsigned(rt) >> sa, 32 - sa));
 }
 
 void processor::r_type_04(uint32_t instruction)	// SLLV
@@ -116,7 +116,7 @@ void processor::r_type_04(uint32_t instruction)	// SLLV
 	uint8_t rd = (instruction >> 11) & MASK_5B;
 	uint8_t rt = (instruction >> 16) & MASK_5B;
 
-	set_register_32b(rd, get_register_32b_unsigned(rt) << sa);
+	set_register_32b_se(rd, get_register_32b_unsigned(rt) << sa);
 }
 
 void processor::r_type_05(uint32_t instruction)
@@ -138,7 +138,7 @@ void processor::r_type_06(uint32_t instruction)	// SRLV / ROTRV
 	if (IS_BIT_OFF0_SET(21, instruction))
 		set_register_32b(rd, rotate_right(get_register_32b_unsigned(rt), get_register_32b_unsigned(rs) & MASK_5B, 32));
 	else
-		set_register_32b(rd, get_register_32b_unsigned(rt) >> (get_register_32b_unsigned(rs) & MASK_5B));
+		set_register_32b_se(rd, get_register_32b_unsigned(rt) >> (get_register_32b_unsigned(rs) & MASK_5B));
 }
 
 void processor::r_type_07(uint32_t instruction)
