@@ -196,7 +196,7 @@ std::string processor::decode_to_text(uint32_t instruction)
 			case 0x06:
 				return format("SRLV %s,%s,%d", reg_to_name(rd), reg_to_name(rt), reg_to_name(rs));
 			case 0x07:
-				return format("SRLV %s,%s,%d", reg_to_name(rd), reg_to_name(rt), reg_to_name(rs));
+				return format("SRAV %s,%s,%d", reg_to_name(rd), reg_to_name(rt), reg_to_name(rs));
 			case 0x08:
 				return format("JR %s", reg_to_name(rs));
 			case 0x09:
