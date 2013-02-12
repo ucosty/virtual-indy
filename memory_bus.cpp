@@ -5,6 +5,7 @@
 #include "error.h"
 #include "memory_bus.h"
 #include "processor_utils.h"
+#include "exceptions.h"
 
 memory_bus::memory_bus() : list(NULL), n_elements(0)
 {
@@ -42,93 +43,63 @@ const memory_segment_t * memory_bus::find_segment(uint64_t offset) const
 			return psegment;
 	}
 
-	return NULL;
+	throw PE_TLB_MISS;
+
+	return NULL; // should not be reached
 }
 
-bool memory_bus::read_64b(uint64_t offset, uint64_t *data) const
+void memory_bus::read_64b(uint64_t offset, uint64_t *data) const
 {
 	const memory_segment_t * segment = find_segment(offset);
-	if (!segment)
-		return false;	// throw and exception instead? try catch in tick() which converts the exception to an e.g. address exception(?)
 
 	segment -> target -> read_64b(offset - segment -> offset, data);
-
-	return true;
 }
 
-bool memory_bus::write_64b(uint64_t offset, uint64_t data)
+void memory_bus::write_64b(uint64_t offset, uint64_t data)
 {
 	const memory_segment_t * segment = find_segment(offset);
-	if (!segment)
-		return false;
 
 	segment -> target -> write_64b(offset - segment -> offset, data);
-
-	return true;
 }
 
-bool memory_bus::read_32b(uint64_t offset, uint32_t *data) const
+void memory_bus::read_32b(uint64_t offset, uint32_t *data) const
 {
 	const memory_segment_t * segment = find_segment(offset);
-	if (!segment)
-		return false;
 
 	segment -> target -> read_32b(offset - segment -> offset, data);
-
-	return true;
 }
 
-bool memory_bus::write_32b(uint64_t offset, uint32_t data)
+void memory_bus::write_32b(uint64_t offset, uint32_t data)
 {
 	const memory_segment_t * segment = find_segment(offset);
-	if (!segment)
-		return false;
 
 	segment -> target -> write_32b(offset - segment -> offset, data);
-
-	return true;
 }
 
-bool memory_bus::read_16b(uint64_t offset, uint16_t *data) const
+void memory_bus::read_16b(uint64_t offset, uint16_t *data) const
 {
 	const memory_segment_t * segment = find_segment(offset);
-	if (!segment)
-		return false;
 
 	segment -> target -> read_16b(offset - segment -> offset, data);
-
-	return true;
 }
 
-bool memory_bus::write_16b(uint64_t offset, uint16_t data)
+void memory_bus::write_16b(uint64_t offset, uint16_t data)
 {
 	const memory_segment_t * segment = find_segment(offset);
-	if (!segment)
-		return false;
 
 	segment -> target -> write_16b(offset - segment -> offset, data);
-
-	return true;
 }
 
-bool memory_bus::read_8b(uint64_t offset, uint8_t *data) const
+void memory_bus::read_8b(uint64_t offset, uint8_t *data) const
 {
 	const memory_segment_t * segment = find_segment(offset);
-	if (!segment)
-		return false;
 
 	segment -> target -> read_8b(offset - segment -> offset, data);
-
-	return true;
 }
 
-bool memory_bus::write_8b(uint64_t offset, uint8_t data)
+void memory_bus::write_8b(uint64_t offset, uint8_t data)
 {
 	const memory_segment_t * segment = find_segment(offset);
-	if (!segment)
-		return false;
 
 	segment -> target -> write_8b(offset - segment -> offset, data);
-
-	return true;
 }

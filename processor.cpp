@@ -5,6 +5,7 @@
 #include "debug_console.h"
 #include "processor.h"
 #include "processor_utils.h"
+#include "exceptions.h"
 #include "utils.h"
 
 processor::processor(debug_console *pdc_in, memory_bus *pmb_in) : pdc(pdc_in), pmb(pmb_in)
@@ -37,42 +38,40 @@ void processor::reset()
 
 void processor::tick()
 {
-	uint32_t instruction = -1;
-
-	if (unlikely(have_delay_slot))
+	try
 	{
-		have_delay_slot = false;
+		uint32_t instruction = -1;
 
-		if (delay_slot_PC & 0x03)
+		if (unlikely(have_delay_slot))
 		{
-			// address exception
+			have_delay_slot = false;
+
+			if (unlikely(delay_slot_PC & 0x03))
+				throw PE_ADDRESS_ERROR;
+
+			pmb -> read_32b(delay_slot_PC, &instruction);
+		}
+		else
+		{
+			if (unlikely(PC & 0x03))
+				throw PE_ADDRESS_ERROR;
+
+			pmb -> read_32b(PC, &instruction);
+
+			PC += 4;
 		}
 
-		if (!pmb -> read_32b(delay_slot_PC, &instruction))
-		{
-			// processor exception FIXME
-		}
+		uint8_t opcode = (instruction >> 26) & MASK_6B;
+
+		// the other methods are really i_types with the opcode set to a certain value
+		// well maybe not in the cpu but logically they are
+		(((processor*)this)->*processor::i_type_methods[opcode])(instruction);
 	}
-	else
+	catch(processor_exceptions_t pe)
 	{
-		if (unlikely(PC & 0x03))
-		{
-			// address exception
-		}
-
-		if (unlikely(!pmb -> read_32b(PC, &instruction)))
-		{
-			// processor exception FIXME
-		}
-
-		PC += 4;
+		// FIXME handle PE_*
+		pdc -> log("EXCEPTION %d", pe);
 	}
-
-	uint8_t opcode = (instruction >> 26) & MASK_6B;
-
-	// the other methods are really i_types with the opcode set to a certain value
-	// well maybe not in the cpu but logically they are
-	(((processor*)this)->*processor::i_type_methods[opcode])(instruction);
 }
 
 void processor::set_delay_slot(uint64_t offset)
@@ -93,9 +92,9 @@ uint64_t processor::get_delay_slot_PC()
 	return delay_slot_PC;
 }
 
-bool processor::get_mem_32b(int offset, uint32_t *value) const
+void processor::get_mem_32b(int offset, uint32_t *value) const
 {
-	return pmb -> read_32b(offset, value);
+	pmb -> read_32b(offset, value);
 }
 
 uint32_t processor::get_C0_register(uint8_t nr, uint8_t sel)

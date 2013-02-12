@@ -1,13 +1,22 @@
 #include "debug.h"
 #include "processor.h"
 #include "processor_utils.h"
+#include "exceptions.h"
 #include "utils.h"
 
 std::string processor::da_logline(uint32_t instruction)
 {
 	uint32_t temp_32b = -1;
 	uint64_t cur_PC = is_delay_slot() ? get_delay_slot_PC() : get_PC();
-	bool rc = pmb -> read_32b(cur_PC, &temp_32b);
+	bool rc = true;
+	try
+	{
+		pmb -> read_32b(cur_PC, &temp_32b);
+	}
+	catch(processor_exceptions_t pe)
+	{
+		rc = false;
+	}
 
 	std::string line = format("PC: %016llx %c / %d|%08x", cur_PC, is_delay_slot() ? 'D' : '.', rc, temp_32b);
 

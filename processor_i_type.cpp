@@ -454,8 +454,7 @@ void processor::i_type_20(uint32_t instruction)	// LB / LBU
 	uint64_t address = get_register_64b_unsigned(base) + offset_s;
 	uint8_t temp_8b = -1;
 
-	if (unlikely(!pmb -> read_8b(address, &temp_8b)))
-		pdc -> log("i-type read 8b from %016llx failed", address);
+	pmb -> read_8b(address, &temp_8b);
 
 	uint8_t opcode = (instruction >> 26) & MASK_6B;
 
@@ -481,8 +480,7 @@ void processor::i_type_21(uint32_t instruction)	// LH / LHU
 	{
 		uint16_t temp_16b = -1;
 
-		if (unlikely(!pmb -> read_16b(address, &temp_16b)))
-			pdc -> log("i-type read 16b from %016llx failed", address);
+		pmb -> read_16b(address, &temp_16b);
 
 		uint8_t opcode = (instruction >> 26) & MASK_6B;
 		uint8_t rt = (instruction >> 16) & MASK_5B;
@@ -528,8 +526,7 @@ void processor::i_type_23(uint32_t instruction)	// LW / LL
 	{
 		uint32_t temp_32b = -1;
 
-		if (unlikely(!pmb -> read_32b(address, &temp_32b)))
-			pdc -> log("i-type read 32b from %016llx failed", address);
+		pmb -> read_32b(address, &temp_32b);
 
 		uint8_t rt = (instruction >> 16) & MASK_5B;
 
@@ -584,8 +581,7 @@ void processor::i_type_28(uint32_t instruction)	// SB
 	uint8_t rt = (instruction >> 16) & MASK_5B;
 	int temp_32b = get_register_32b_unsigned(rt);
 
-	if (unlikely(!pmb -> write_8b(address, temp_32b)))
-		pdc -> log("i-type write 8b %02x to %016llx failed", registers[rt] & 0xff, address);
+	pmb -> write_8b(address, temp_32b);
 }
 
 void processor::i_type_29(uint32_t instruction)	// SH
@@ -606,10 +602,8 @@ void processor::i_type_29(uint32_t instruction)	// SH
 	else
 	{
 		int temp_32b = get_register_32b_unsigned(rt);
-		if (unlikely(!pmb -> write_16b(address, temp_32b)))
-			pdc -> log("i-type write 16b %04x to %016llx failed", registers[rt] & 0xffff, address);
+		pmb -> write_16b(address, temp_32b);
 	}
-
 }
 
 void processor::i_type_2a(uint32_t instruction)
@@ -647,8 +641,7 @@ void processor::i_type_2b(uint32_t instruction)	// SW
 	}
 	else
 	{
-		if (!pmb -> write_32b(address, get_register_32b_unsigned(rt)))
-			pdc -> log("i-type write 32b %08x to %016llx failed", registers[rt], address);
+		pmb -> write_32b(address, get_register_32b_unsigned(rt));
 	}
 }
 

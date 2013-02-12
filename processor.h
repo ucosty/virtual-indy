@@ -192,7 +192,7 @@ public:
 	uint64_t get_LO() const { return LO; }
 	uint64_t get_SR() const { return status_register; }
 
-	bool get_mem_32b(int offset, uint32_t *value) const;
+	void get_mem_32b(int offset, uint32_t *value) const;
 
 	uint32_t get_C0_register(uint8_t nr, uint8_t sel);
 
