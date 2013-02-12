@@ -93,6 +93,9 @@ int main(int argc, char *argv[])
 	memory *m = new memory(64 * 1024 * 1024, true);
 	mb -> register_memory(0, m -> get_size() - 1, m);
 
+	memory *mf = new memory(256, true);
+	mb -> register_memory(0xffffffffbfa00000, 255, mf);
+
 	rom *m_prom = new rom("ip20prom.070-8116-004.BE.bin");
 	mb -> register_memory(0xffffffffbfc00000, m_prom -> get_size() - 1, m_prom); // IP20, 32bit
 
