@@ -27,9 +27,9 @@ void exec(memory_bus *mb, std::vector<int> instructions, processor *p)
 		{
 			mb -> write_32b(offset, instructions.at(index));
 		}
-		catch(processor_exceptions_t pe)
+		catch(processor_exception & pe)
 		{
-			error_exit("failed to write to offset %d in memory! exception: %d", offset, pe);
+			error_exit("failed to write to offset %d in memory! exception: %s", pe.get_address(), pe.get_type_str());
 		}
 	}
 
@@ -38,7 +38,7 @@ void exec(memory_bus *mb, std::vector<int> instructions, processor *p)
 
 void create_system(memory_bus **mb, memory **m1, memory **m2, processor **p, int *m1s = NULL, int *m2s = NULL, uint64_t *po1 = NULL, uint64_t *po2 = NULL)
 {
-	*mb = new memory_bus();
+	*mb = new memory_bus(dc);
 
 	int mem_size1 = 0x100000; // FIXME verify power2
 	*m1 = new memory(mem_size1, true);
@@ -257,9 +257,9 @@ void test_memory_bus()
 		if (temp_32b == value)
 			error_exit("failed: segment selection failure");
 	}
-	catch(processor_exceptions_t pe)
+	catch(processor_exception pe)
 	{
-		error_exit("failed to access memory via bus: %d", pe);
+		error_exit("failed to access memory %016llx via bus: %s", pe.get_address(), pe.get_type_str());
 	}
 
 	free_system(mb, m1, m2, p);
@@ -727,46 +727,6 @@ void test_ADDIU()
 	free_system(mb, m1, m2, p);
 }
 
-void test_ADDI()
-{
-	memory_bus *mb = NULL;
-	memory *m1 = NULL, *m2 = NULL;
-	processor *p = NULL;
-	create_system(&mb, &m1, &m2, &p);
-
-	p -> reset();
-	p -> set_PC(0);
-
-	uint64_t rt_val = 0x1234beefccccdddd;
-	uint8_t rt = 1;
-	p -> set_register_64b(rt, rt_val);
-
-	int immediate = 0x1234;
-
-	uint64_t rs_val = 0x4321abcdaaaabbbb;
-	uint8_t rs = 9;
-	p -> set_register_64b(rs, rs_val);
-
-FIXME
-test overflow exception stuff
-
-	int32_t expected_s32 = rs_val + int16_t(immediate);
-	uint64_t expected = expected_s32; // sign extended
-
-	uint8_t function = 0x09;
-	uint32_t instruction = make_cmd_I_TYPE(rs, rt, function, immediate);
-
-	m1 -> write_32b(0, instruction);
-
-	tick(p);
-
-	uint64_t result = p -> get_register_64b_signed(rt);
-	if (result != expected)
-		error_exit("ADDI: result is %08x, expected %08x", result, expected);
-
-	free_system(mb, m1, m2, p);
-}
-
 void test_AND()
 {
 	memory_bus *mb = NULL;
@@ -968,6 +928,48 @@ void test_BNE()
 	free_system(mb, m1, m2, p);
 }
 
+/*
+void test_ADDI()
+{
+	memory_bus *mb = NULL;
+	memory *m1 = NULL, *m2 = NULL;
+	processor *p = NULL;
+	create_system(&mb, &m1, &m2, &p);
+
+	p -> reset();
+	p -> set_PC(0);
+
+	uint64_t rt_val = 0x1234beefccccdddd;
+	uint8_t rt = 1;
+	p -> set_register_64b(rt, rt_val);
+
+	int immediate = 0x1234;
+
+	uint64_t rs_val = 0x4321abcdaaaabbbb;
+	uint8_t rs = 9;
+	p -> set_register_64b(rs, rs_val);
+
+FIXME
+test overflow exception stuff
+
+	int32_t expected_s32 = rs_val + int16_t(immediate);
+	uint64_t expected = expected_s32; // sign extended
+
+	uint8_t function = 0x09;
+	uint32_t instruction = make_cmd_I_TYPE(rs, rt, function, immediate);
+
+	m1 -> write_32b(0, instruction);
+
+	tick(p);
+
+	uint64_t result = p -> get_register_64b_signed(rt);
+	if (result != expected)
+		error_exit("ADDI: result is %08x, expected %08x", result, expected);
+
+	free_system(mb, m1, m2, p);
+}
+*/
+
 int main(int argc, char *argv[])
 {
 	test_untows_complement();
@@ -981,7 +983,7 @@ int main(int argc, char *argv[])
 	test_memory_bus();
 	test_processor();
 
-	test_ADDI();
+	// test_ADDI();
 	test_ADDIU();
 	test_AND();
 	test_ANDI();

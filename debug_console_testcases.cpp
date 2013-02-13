@@ -30,7 +30,7 @@ void debug_console_testcases::tick(processor *p)
 	dolog(logline.c_str());
 }
 
-void debug_console_testcases::log(const char *fmt, ...)
+void debug_console_testcases::dc_log(const char *fmt, ...)
 {
 	if (logfile)
 	{
