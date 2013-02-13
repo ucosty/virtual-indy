@@ -64,15 +64,6 @@ debug_console::debug_console()
 
 	refresh_limit = refresh_counter = 0;
 	refresh_limit_valid = false;
-
-	// make sure the cpu runs at 100% before measuring the
-	// number of emulated instructions per second (used for
-	// the screen refresh)
-#ifndef _PROFILING
-	while(get_ts() - start_ts < 0.1)
-	{
-	}
-#endif
 }
 
 void debug_console::init()
@@ -164,10 +155,14 @@ void debug_console::tick(processor *p)
 	if (!refresh_limit_valid)
 	{
 		double now_ts = get_ts();
+		double t_diff = now_ts - start_ts;
 
-		refresh_limit++;
+		// first second: ignore as the cpu might need to come out of
+		// reduced clock frequency (linux: "ondemand" scaling governor)
+		if (t_diff >= 1.0)
+			refresh_limit++;
 
-		if (now_ts - start_ts >= 1.0 / double(SCREEN_REFRESHES_PER_SECOND))
+		if (t_diff >= 1.0 + 1.0 / double(SCREEN_REFRESHES_PER_SECOND))
 		{
 			dc_log("Refresh screen every %d instructions", refresh_limit);
 			refresh_limit_valid = true;
@@ -209,7 +204,7 @@ void debug_console::tick(processor *p)
 		instruction_counts.insert(std::pair<std::string, long int>(instruction_name, 1));
 #endif
 
-	if (++refresh_counter >= refresh_limit || single_step || refresh_limit_valid == false)
+	if ((++refresh_counter >= refresh_limit && refresh_limit_valid == true) || single_step)
 	{
 		double now_ts = get_ts();
 
@@ -226,19 +221,19 @@ void debug_console::tick(processor *p)
 			}
 			else
 			{
-				x = 24;
+				x = 22;
 				y = registers - 16;
 			}
 
-			mvwprintw(win_regs, y, x, "%s %016llx", processor::reg_to_name(registers), p -> get_register_64b_unsigned(registers));
+			mvwprintw(win_regs, y, x, "%s %016llx", registers == 0 ? "0  " : processor::reg_to_name(registers), p -> get_register_64b_unsigned(registers));
 		}
 
-		mvwprintw(win_regs, 0, 48, "PC: %016llx %c", PC, p -> is_delay_slot() ? 'D' : '.');
-		mvwprintw(win_regs, 1, 48, "LO: %08x", p -> get_LO());
-		mvwprintw(win_regs, 2, 48, "HI: %08x", p -> get_HI());
-		mvwprintw(win_regs, 3, 48, "SR: %08x", p -> get_SR());
+		mvwprintw(win_regs, 0, 44, "PC: %016llx %c", PC, p -> is_delay_slot() ? 'D' : '.');
+		mvwprintw(win_regs, 1, 44, "LO: %016llx", p -> get_LO());
+		mvwprintw(win_regs, 2, 44, "HI: %016llx", p -> get_HI());
+		mvwprintw(win_regs, 3, 44, "SR: %016llx", p -> get_SR());
 
-		mvwprintw(win_regs, 4, 48, "mem: %d/%08x", r_ok, instruction);
+		mvwprintw(win_regs, 4, 44, "mem: %d/%08x", r_ok, instruction);
 
 		int opcode = (instruction >> 26) & MASK_6B;
 		int function = instruction & MASK_6B;
@@ -248,17 +243,13 @@ void debug_console::tick(processor *p)
 		int rs = (instruction >> 21) & MASK_5B;
 		int immediate = instruction & MASK_16B;
 		int b18_signed_offset = untwos_complement(immediate << 2, 18);
-		mvwprintw(win_regs,  5, 48, "op: %02x", opcode);
-		mvwprintw(win_regs,  6, 48, "rs: %02x", rs);
-		mvwprintw(win_regs,  7, 48, "rt: %02x", rt);
-		mvwprintw(win_regs,  8, 48, "rd: %02x", rd);
-		mvwprintw(win_regs,  9, 48, "sa: %02x", sa);
-		mvwprintw(win_regs, 10, 48, "fu: %02x", function);
-		mvwprintw(win_regs, 11, 48, "im: %04x", immediate);
-		mvwprintw(win_regs, 12, 48, "of: %d", b18_signed_offset);
+		mvwprintw(win_regs,  5, 44, "op: %02x  rs: %02x", opcode, rs);
+		mvwprintw(win_regs,  6, 44, "rt: %02x  rd: %02x", rt, rd);
+		mvwprintw(win_regs,  7, 44, "sa: %02x  fu: %02d", sa, function);
+		mvwprintw(win_regs,  8, 44, "im: %04x  of: %d", immediate, b18_signed_offset);
 
-		mvwprintw(win_regs, 13, 48, "  :                       ");
-		mvwprintw(win_regs, 13, 48, "  : %s", decoded.c_str());
+		mvwprintw(win_regs,  9, 44, ">                       ");
+		mvwprintw(win_regs,  9, 44, "> %s", decoded.c_str());
 
 		double t_diff = now_ts - start_ts;
 		if (t_diff)
@@ -266,23 +257,23 @@ void debug_console::tick(processor *p)
 			double i_per_s = double(n_ticks) / t_diff;
 
 			if (i_per_s >= 1000000000.0)
-				mvwprintw(win_regs, 14, 48, "I/S: %6.2fG", i_per_s / 1000000000.0);
+				mvwprintw(win_regs, 10, 44, "I/S: %6.2fG", i_per_s / 1000000000.0);
 			else if (i_per_s >= 1000000.0)
-				mvwprintw(win_regs, 14, 48, "I/S: %6.2fM", i_per_s / 1000000.0);
+				mvwprintw(win_regs, 10, 44, "I/S: %6.2fM", i_per_s / 1000000.0);
 			else if (i_per_s >= 1000.0)
-				mvwprintw(win_regs, 14, 48, "I/S: %6.2fk", i_per_s / 1000.0);
+				mvwprintw(win_regs, 10, 44, "I/S: %6.2fk", i_per_s / 1000.0);
 			else
-				mvwprintw(win_regs, 14, 48, "I/S: %6.2f", i_per_s);
+				mvwprintw(win_regs, 10, 44, "I/S: %6.2f", i_per_s);
 		}
 
 		if (n_ticks >= 1000000000)
-			mvwprintw(win_regs, 15, 48, "cnt: %7.2fG", double(n_ticks) / 1000000000.0);
+			mvwprintw(win_regs, 11, 44, "cnt: %7.2fG", double(n_ticks) / 1000000000.0);
 		else if (n_ticks >= 1000000)
-			mvwprintw(win_regs, 15, 48, "cnt: %7.2fM", double(n_ticks) / 1000000.0);
+			mvwprintw(win_regs, 11, 44, "cnt: %7.2fM", double(n_ticks) / 1000000.0);
 		else if (n_ticks >= 1000)
-			mvwprintw(win_regs, 15, 48, "cnt: %7.2fk", double(n_ticks) / 1000.0);
+			mvwprintw(win_regs, 11, 44, "cnt: %7.2fk", double(n_ticks) / 1000.0);
 		else
-			mvwprintw(win_regs, 15, 48, "cnt: %lld", n_ticks);
+			mvwprintw(win_regs, 11, 44, "cnt: %lld", n_ticks);
 
 		if (had_logging)
 		{
