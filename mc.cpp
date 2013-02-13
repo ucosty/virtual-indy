@@ -28,11 +28,11 @@ void mc::read_32b(uint64_t offset, uint32_t *data)
 	{
 		pdc -> dc_log("CPUCTRL0/1 read (%08x)", *data);
 	}
-	else if (offset == 0x28 || offset == 0x2c)	// RPSS_DIVIDER 
+	else if (offset == 0x2c)	// RPSS_DIVIDER 
 	{
 		pdc -> dc_log("RPSS_DIVIDER read (%08x)", *data);
 	}
-	else if (offset == 0x30 || offset == 0x34)	// EEROM
+	else if (offset == 0x34)	// EEROM
 	{
 		pdc -> dc_log("EEROM read (%08x)", *data);
 
@@ -40,12 +40,12 @@ void mc::read_32b(uint64_t offset, uint32_t *data)
 		// bit 2: register size (32/64)
 		// *data = 0x0f;
 	}
-	else if (offset == 0x48 || offset == 0x4c)	// REF_CTR - refresh counter
+	else if (offset == 0x4c)	// REF_CTR - refresh counter
 	{
 		*data = refresh_counter--;
 		pdc -> dc_log("REF_CTR read (%08x)", *data);
 	}
-	else if (offset == 0xc0 || offset == 0xc4)	// MEMCFG0
+	else if (offset == 0xc4)	// MEMCFG0
 	{
 		// BASE0
 		// 31 1 served
@@ -65,7 +65,7 @@ void mc::read_32b(uint64_t offset, uint32_t *data)
 		*data = 0xFF20FF40;
 		pdc -> dc_log("MEMCFG0 read (%08x)", *data);
 	}
-	else if (offset == 0xc8 || offset == 0xcc)	// MEMCFG1
+	else if (offset == 0xcc)	// MEMCFG1
 	{
 		// BASE0
 		// 31 1 served
@@ -85,15 +85,15 @@ void mc::read_32b(uint64_t offset, uint32_t *data)
 		*data = 0xFF40FF80;
 		pdc -> dc_log("MEMCFG1 read (%08x)", *data);
 	}
-	else if (offset == 0xd0 || offset == 0xd4)	// CPU_MEMACC
+	else if (offset == 0xd4)	// CPU_MEMACC
 	{
 		pdc -> dc_log("CPU_MEMACC read (%08x)", *data);
 	}
-	else if (offset == 0xd8 || offset == 0xdc)	// GIO_MEMACC
+	else if (offset == 0xdc)	// GIO_MEMACC
 	{
 		pdc -> dc_log("GIO_MEMACC read (%08x)", *data);
 	}
-	else if (offset == 0xe8 || offset == 0xec)	// CPU_ERROR_STAT 
+	else if (offset == 0xec)	// CPU_ERROR_STAT 
 	{
 		pdc -> dc_log("CPU_ERROR_STAT read (%08x)", *data);
 	}
@@ -102,14 +102,14 @@ void mc::read_32b(uint64_t offset, uint32_t *data)
 		pdc -> dc_log("GIO_ERROR_STATUS read (%08x)", *data);
 	}
 		// 0x10000 - 0x1f000
-	else if (offset == 0x100 || offset == 0x104)	// SYS_SEMAPHORE
+	else if (offset == 0x104)	// SYS_SEMAPHORE
 	{
 		pthread_mutex_lock(&semaphore_lock);
 		*data = sys_semaphore;
 		sys_semaphore = 1;
 		pthread_mutex_unlock(&semaphore_lock);
 	}
-	else if (offset == 0x1000 || offset == 0x1004)	// RPSS_CTR
+	else if (offset == 0x1004)	// RPSS_CTR
 	{
 		*data = RPSS_CTR++;
 		pdc -> dc_log("GIO_ERROR_STATUS read: %08x", *data);
@@ -135,55 +135,63 @@ void mc::write_32b(uint64_t offset, uint32_t data)
 	{
 		pdc -> dc_log("CPUCTRL0/1 write: %08x", data);
 	}
-	else if (offset == 0x28 || offset == 0x2c)	// RPSS_DIVIDER 
+	else if (offset == 0x2c)	// RPSS_DIVIDER 
 	{
 		pdc -> dc_log("RPSS_DIVIDER write: %08x", data);
 	}
-	else if (offset == 0x30 || offset == 0x34)	// EEROM
+	else if (offset == 0x34)	// EEROM
 	{
 		pdc -> dc_log("EEROM write @ %016llx: %016llx %c%c%c%c", offset, data, data & 8?'1':'0', data&4?'1':'0', data&2?'1':'0', data&1?'1':'0');
 	}
-	else if (offset == 0x80 || offset == 0x84)	// GIO64_ARB
+	else if (offset == 0x84)	// GIO64_ARB
 	{
 		pdc -> dc_log("GIO64_ARB write: %08x", data);
 	}
-	else if (offset == 0xc0 || offset == 0xc4)	// MEMCFG0
+	else if (offset == 0xc4)	// MEMCFG0
 	{
 		pdc -> dc_log("MEMCFG0 write: %08x", data);
 		// should be r/o
 	}
-	else if (offset == 0xc8 || offset == 0xcc)	// MEMCFG1
+	else if (offset == 0xcc)	// MEMCFG1
 	{
 		pdc -> dc_log("MEMCFG1 write: %08x", data);
 		// should be r/o
 	}
-	else if (offset == 0xd0 || offset == 0xd4)	// CPU_MEMACC
+	else if (offset == 0xd4)	// CPU_MEMACC
 	{
 		pdc -> dc_log("CPU_MEMACC write: %08x", data);
 	}
-	else if (offset == 0xd8 || offset == 0xdc)	// GIO_MEMACC
+	else if (offset == 0xdc)	// GIO_MEMACC
 	{
 		pdc -> dc_log("GIO_MEMACC write: %08x", data);
 	}
-	else if (offset == 0xe8 || offset == 0xec)	// CPU_ERROR_STAT 
+	else if (offset == 0xec)	// CPU_ERROR_STAT 
 	{
 		pdc -> dc_log("CPU_ERROR_STAT write: %08x", data);
 		data = 0;
 	}
-	else if (offset == 0xf8 || offset == 0xfc)	// GIO error status
+	else if (offset == 0xfc)	// GIO error status
 	{
 		pdc -> dc_log("GIO_ERROR_STATUS write: %08x", data);
 		data = 0;
 	}
-	else if (offset == 0x100 || offset == 0x104)	// SYS_SEMAPHORE
+	else if (offset == 0x104)	// SYS_SEMAPHORE
 	{
 		pthread_mutex_lock(&semaphore_lock);
 		sys_semaphore = 0;
 		pthread_mutex_unlock(&semaphore_lock);
 	}
-	else if (offset == 0x1000 || offset == 0x1004)	// RPSS_CTR
+	else if (offset == 0x1004)	// RPSS_CTR
 	{
 		pdc -> dc_log("GIO_ERROR_STATUS write: %08x", data);
+	}
+	else if (offset >= 0x100000 && offset <= 0x1ffff)	// USER_SEMAPHORES
+	{
+		int nr = offset >> 13;
+
+		pthread_mutex_lock(&semaphore_lock);
+		user_semaphores[nr] = 0;
+		pthread_mutex_unlock(&semaphore_lock);
 	}
 	else
 	{
