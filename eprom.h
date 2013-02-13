@@ -1,3 +1,5 @@
+#include <string>
+
 #include "memory.h"
 
 class eprom : public memory
