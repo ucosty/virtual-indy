@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
 			printf("%d\r", cnt);
 	}
 #else
-	if (single_step)
+	if (single_step || debug)
 	{
 		for(;!terminate;)
 		{
@@ -135,10 +135,7 @@ int main(int argc, char *argv[])
 	else
 	{
 		for(;!terminate;)
-		{
-			dc -> tick(p);
 			p -> tick();
-		}
 	}
 #endif
 
