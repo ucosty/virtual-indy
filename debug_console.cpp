@@ -168,10 +168,48 @@ void debug_console::tick(processor *p)
 		refresh_limit++;
 
 		if (now_ts - start_ts >= 1.0 / double(SCREEN_REFRESHES_PER_SECOND))
+		{
+			dc_log("Refresh screen every %d instructions", refresh_limit);
 			refresh_limit_valid = true;
+		}
 	}
 
-	if (++refresh_counter >= refresh_limit || single_step)
+	uint64_t PC = p -> is_delay_slot() ? p -> get_delay_slot_PC() : p -> get_PC();
+
+	uint32_t instruction = -1;
+	bool r_ok = true;
+	try
+	{
+		p -> get_mem_32b(PC, &instruction);
+	}
+	catch(processor_exception & pe)
+	{
+		dc_log("EXCEPTION %d at/for %016llx (3)", pe.get_type_str(), pe.get_address());
+
+		r_ok = false;
+	}
+
+	std::string logline = p -> da_logline(instruction);
+	dolog(logline.c_str());
+
+	std::string decoded = p -> decode_to_text(instruction);
+
+#ifdef _DEBUG
+	unsigned int space = decoded.find(' ');
+	if (space == std::string::npos)
+		space = decoded.length();
+
+	std::string instruction_name = decoded.substr(0, space);
+
+	std::map<std::string, long int>::iterator found = instruction_counts.find(instruction_name);
+
+	if (found != instruction_counts.end())
+		found -> second++;
+	else
+		instruction_counts.insert(std::pair<std::string, long int>(instruction_name, 1));
+#endif
+
+	if (++refresh_counter >= refresh_limit || single_step || refresh_limit_valid == false)
 	{
 		double now_ts = get_ts();
 
@@ -195,24 +233,11 @@ void debug_console::tick(processor *p)
 			mvwprintw(win_regs, y, x, "%s %016llx", processor::reg_to_name(registers), p -> get_register_64b_unsigned(registers));
 		}
 
-		uint64_t PC = p -> is_delay_slot() ? p -> get_delay_slot_PC() : p -> get_PC();
 		mvwprintw(win_regs, 0, 48, "PC: %016llx %c", PC, p -> is_delay_slot() ? 'D' : '.');
 		mvwprintw(win_regs, 1, 48, "LO: %08x", p -> get_LO());
 		mvwprintw(win_regs, 2, 48, "HI: %08x", p -> get_HI());
 		mvwprintw(win_regs, 3, 48, "SR: %08x", p -> get_SR());
 
-		uint32_t instruction = -1;
-		bool r_ok = true;
-		try
-		{
-			p -> get_mem_32b(PC, &instruction);
-		}
-		catch(processor_exception & pe)
-		{
-			dc_log("EXCEPTION %d at/for %016llx (3)", pe.get_type_str(), pe.get_address());
-
-			r_ok = false;
-		}
 		mvwprintw(win_regs, 4, 48, "mem: %d/%08x", r_ok, instruction);
 
 		int opcode = (instruction >> 26) & MASK_6B;
@@ -232,24 +257,8 @@ void debug_console::tick(processor *p)
 		mvwprintw(win_regs, 11, 48, "im: %04x", immediate);
 		mvwprintw(win_regs, 12, 48, "of: %d", b18_signed_offset);
 
-		std::string decoded = p -> decode_to_text(instruction);
 		mvwprintw(win_regs, 13, 48, "  :                       ");
 		mvwprintw(win_regs, 13, 48, "  : %s", decoded.c_str());
-
-#ifdef _DEBUG
-		unsigned int space = decoded.find(' ');
-		if (space == std::string::npos)
-			space = decoded.length();
-
-		std::string instruction_name = decoded.substr(0, space);
-
-		std::map<std::string, long int>::iterator found = instruction_counts.find(instruction_name);
-
-		if (found != instruction_counts.end())
-			found -> second++;
-		else
-			instruction_counts.insert(std::pair<std::string, long int>(instruction_name, 1));
-#endif
 
 		double t_diff = now_ts - start_ts;
 		if (t_diff)
@@ -275,9 +284,6 @@ void debug_console::tick(processor *p)
 		else
 			mvwprintw(win_regs, 15, 48, "cnt: %lld", n_ticks);
 
-		std::string logline = p -> da_logline(instruction);
-		dolog(logline.c_str());
-
 		if (had_logging)
 		{
 			wnoutrefresh(win_logs);
@@ -287,7 +293,8 @@ void debug_console::tick(processor *p)
 		wnoutrefresh(win_regs);
 		doupdate();
 
-		refresh_counter = 0;
+		if (refresh_limit_valid)
+			refresh_counter = 0;
 	}
 }
 

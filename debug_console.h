@@ -16,7 +16,7 @@ private:
 	WINDOW *win_regs, *win_logs;
 	int max_x, max_y;
 	bool nc;
-	int refresh_counter, refresh_limit;
+	unsigned int refresh_counter, refresh_limit;
 	bool refresh_limit_valid;
 	bool had_logging;
 	std::map<std::string, long int> instruction_counts;
