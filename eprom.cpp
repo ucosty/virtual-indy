@@ -33,7 +33,7 @@ eprom::eprom(std::string file)
 
 eprom::eprom(std::string file, uint64_t size)
 {
-	fd = open(file.c_str(), O_RDWR);
+	fd = open(file.c_str(), O_RDWR | O_CREAT, 0644);
 	if (fd == -1)
 		error_exit("cannot open file %s", file.c_str());
 
