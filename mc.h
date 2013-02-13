@@ -6,6 +6,8 @@ class mc : public memory
 private:
 	uint32_t refresh_counter;
 	debug_console *pdc;
+	uint32_t regs[128];
+	uint32_t RPSS_CTR;
 
 public:
 	mc(debug_console *pdc_in);

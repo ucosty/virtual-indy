@@ -14,9 +14,21 @@ mc::~mc()
 
 void mc::read_32b(uint64_t offset, uint32_t *data)
 {
-	if (offset == 0x30 || offset == 0x34)	// EEROM
+	uint32_t index = offset / 4;
+	if (index < 128)
+		*data = regs[index];
+
+	if (offset <= 0x0f)	// CPUCTRL 0 & 1
 	{
-		pdc -> dc_log("EEROM read");
+		pdc -> dc_log("CPUCTRL0/1 read (%08x)", *data);
+	}
+	else if (offset == 0x28 || offset == 0x2c)	// RPSS_DIVIDER 
+	{
+		pdc -> dc_log("RPSS_DIVIDER read (%08x)", *data);
+	}
+	else if (offset == 0x30 || offset == 0x34)	// EEROM
+	{
+		pdc -> dc_log("EEROM read (%08x)", *data);
 
 		// bit 1: endiannes
 		// bit 2: register size (32/64)
@@ -25,6 +37,7 @@ void mc::read_32b(uint64_t offset, uint32_t *data)
 	else if (offset == 0x48 || offset == 0x4c)	// REF_CTR - refresh counter
 	{
 		*data = refresh_counter--;
+		pdc -> dc_log("REF_CTR read (%08x)", *data);
 	}
 	else if (offset == 0xc0 || offset == 0xc4)	// MEMCFG0
 	{
@@ -44,6 +57,7 @@ void mc::read_32b(uint64_t offset, uint32_t *data)
 		// 1111111101000000
 		// 11111111001000001111111101000000
 		*data = 0xFF20FF40;
+		pdc -> dc_log("MEMCFG0 read (%08x)", *data);
 	}
 	else if (offset == 0xc8 || offset == 0xcc)	// MEMCFG1
 	{
@@ -63,6 +77,28 @@ void mc::read_32b(uint64_t offset, uint32_t *data)
 		// 1111111110000000
 		// 11111111010000001111111110000000
 		*data = 0xFF40FF80;
+		pdc -> dc_log("MEMCFG1 read (%08x)", *data);
+	}
+	else if (offset == 0xd0 || offset == 0xd4)	// CPU_MEMACC
+	{
+		pdc -> dc_log("CPU_MEMACC read (%08x)", *data);
+	}
+	else if (offset == 0xd8 || offset == 0xdc)	// GIO_MEMACC
+	{
+		pdc -> dc_log("GIO_MEMACC read (%08x)", *data);
+	}
+	else if (offset == 0xe8 || offset == 0xec)	// CPU_ERROR_STAT 
+	{
+		pdc -> dc_log("CPU_ERROR_STAT read (%08x)", *data);
+	}
+	else if (offset == 0xf8 || offset == 0xfc)	// GIO error status
+	{
+		pdc -> dc_log("GIO_ERROR_STATUS read (%08x)", *data);
+	}
+	else if (offset == 0x1000 || offset == 0x1004)	// RPSS_CTR
+	{
+		*data = RPSS_CTR++;
+		pdc -> dc_log("GIO_ERROR_STATUS read: %08x", *data);
 	}
 	else
 	{
@@ -72,12 +108,60 @@ void mc::read_32b(uint64_t offset, uint32_t *data)
 
 void mc::write_32b(uint64_t offset, uint32_t data)
 {
-	if (offset == 0x30 || offset == 0x34)	// EEROM
+	if (offset <= 0x0f)	// CPUCTRL 0 & 1
+	{
+		pdc -> dc_log("CPUCTRL0/1 write: %08x", data);
+	}
+	else if (offset == 0x28 || offset == 0x2c)	// RPSS_DIVIDER 
+	{
+		pdc -> dc_log("RPSS_DIVIDER write: %08x", data);
+	}
+	else if (offset == 0x30 || offset == 0x34)	// EEROM
 	{
 		pdc -> dc_log("EEROM write @ %016llx: %016llx %c%c%c%c", offset, data, data & 8?'1':'0', data&4?'1':'0', data&2?'1':'0', data&1?'1':'0');
+	}
+	else if (offset == 0x80 || offset == 0x84)	// GIO64_ARB
+	{
+		pdc -> dc_log("GIO64_ARB write: %08x", data);
+	}
+	else if (offset == 0xc0 || offset == 0xc4)	// MEMCFG0
+	{
+		pdc -> dc_log("MEMCFG0 write: %08x", data);
+		// should be r/o
+	}
+	else if (offset == 0xc8 || offset == 0xcc)	// MEMCFG1
+	{
+		pdc -> dc_log("MEMCFG1 write: %08x", data);
+		// should be r/o
+	}
+	else if (offset == 0xd0 || offset == 0xd4)	// CPU_MEMACC
+	{
+		pdc -> dc_log("CPU_MEMACC write: %08x", data);
+	}
+	else if (offset == 0xd8 || offset == 0xdc)	// GIO_MEMACC
+	{
+		pdc -> dc_log("GIO_MEMACC write: %08x", data);
+	}
+	else if (offset == 0xe8 || offset == 0xec)	// CPU_ERROR_STAT 
+	{
+		pdc -> dc_log("CPU_ERROR_STAT write: %08x", data);
+		data = 0;
+	}
+	else if (offset == 0xf8 || offset == 0xfc)	// GIO error status
+	{
+		pdc -> dc_log("GIO_ERROR_STATUS write: %08x", data);
+		data = 0;
+	}
+	else if (offset == 0x1000 || offset == 0x1004)	// RPSS_CTR
+	{
+		pdc -> dc_log("GIO_ERROR_STATUS write: %08x", data);
 	}
 	else
 	{
 		pdc -> dc_log("MC write @ %016llx: %016llx %c%c%c%c", offset, data, data & 8?'1':'0', data&4?'1':'0', data&2?'1':'0', data&1?'1':'0');
 	}
+
+	uint32_t index = offset / 4;
+	if (index < 128)
+		regs[index] = data;
 }
