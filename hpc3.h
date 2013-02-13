@@ -30,9 +30,15 @@ public:
 	hpc3(debug_console *pdc_in, std::string sram_file);
 	~hpc3();
 
-	uint64_t get_size() const { return 0x80000; }
-	uint64_t get_mask() const { return 0x7ffff; }
+	uint64_t get_size() const { return 0x100000; }
+	uint64_t get_mask() const { return 0xfffff; }
 
+	void read_64b(uint64_t offset, uint64_t *data);
 	void read_32b(uint64_t offset, uint32_t *data);
+	void read_16b(uint64_t offset, uint16_t *data);
+	void read_8b(uint64_t offset, uint8_t *data);
+	void write_64b(uint64_t offset, uint64_t data);
 	void write_32b(uint64_t offset, uint32_t data);
+	void write_16b(uint64_t offset, uint16_t data);
+	void write_8b(uint64_t offset, uint8_t data);
 };
