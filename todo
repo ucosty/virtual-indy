@@ -2,4 +2,10 @@
 
 - testcases: branches; test delayed with something that sets vars
 
-- prom: niet beschrijfbaar!
+- 0x30/34 mc:
+UNDEF 0 0 Reserved.
+CS 0 1 EEROM chip select. Active high.
+SCK 0 2 Serial EEROM clock.
+SO 0 3 Data to serial EEROM.
+SI 4 Data from serial EEROM.
+UNDEF 0 31:5 Reserved.
