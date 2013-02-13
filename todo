@@ -9,3 +9,29 @@ SCK 0 2 Serial EEROM clock.
 SO 0 3 Data to serial EEROM.
 SI 4 Data from serial EEROM.
 UNDEF 0 31:5 Reserved.
+
+ADDI    11
+ADDIU   27 *
+AND     67 *
+ANDI    46 *
+BEQ     55
+BNE     55 *
+J       1
+JAL     4
+JR      2
+LB      1
+LUI     4 *
+LW      46 *
+MFC0    1
+MTC0    6
+NOP     150 *
+OR      8 *
+ORI     73 *
+SLL     56 *
+SLLV    1
+SLT     626
+SUBU    626
+SW      125 *
+SB      18
+SRL     1
+XORI    1
