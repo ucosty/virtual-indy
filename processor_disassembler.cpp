@@ -32,16 +32,16 @@ std::string processor::da_logline(uint32_t instruction)
 
 		line += format("\tfu %02x", function);
 		line += format("\tsa %08x", sa);
-		line += format("\trd %s|%08x", reg_to_name(rd), registers[rd]);
-		line += format("\trt %s|%08x", reg_to_name(rt), registers[rt]);
-		line += format("\trs %s|%08x", reg_to_name(rs), registers[rs]);
+		line += format("\trd %s|%016llx", reg_to_name(rd), registers[rd]);
+		line += format("\trt %s|%016llx", reg_to_name(rt), registers[rt]);
+		line += format("\trs %s|%016llx", reg_to_name(rs), registers[rs]);
 
 	}
 	else if (opcode == 2 || opcode == 3)	// J-type
 	{
 		uint64_t new_PC = ((instruction & MASK_26B) << 2) | (cur_PC & 0xFC000000);
 
-		line += format("\tnPC %08x", new_PC);
+		line += format("\tnPC %016llx", new_PC);
 	}
 	else if (opcode != 16 && opcode != 17 && opcode != 18 && opcode != 19) // I-type
 	{
@@ -53,8 +53,8 @@ std::string processor::da_logline(uint32_t instruction)
 
 		line += format("\tim: %04x", immediate);
 		line += format("\tims: %d", immediate_s);
-		line += format("\trt %s|%08x", reg_to_name(rt), registers[rt]);
-		line += format("\trs %s|%08x", reg_to_name(rs), registers[rs]);
+		line += format("\trt %s|%016llx", reg_to_name(rt), registers[rt]);
+		line += format("\trs %s|%016llx", reg_to_name(rs), registers[rs]);
 	}
 	else if (opcode == 16)	// COP0
 	{
