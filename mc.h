@@ -4,6 +4,7 @@
 class mc : public memory
 {
 private:
+	uint32_t refresh_counter;
 	debug_console *pdc;
 
 public:
