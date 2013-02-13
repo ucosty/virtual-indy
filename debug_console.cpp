@@ -207,9 +207,11 @@ void debug_console::tick(processor *p)
 		{
 			p -> get_mem_32b(PC, &instruction);
 		}
-		catch(processor_exceptions_t pe)
+		catch(processor_exception *pe)
 		{
-			// FIXME show exception type
+			log("EXCEPTION %d at/for %016llx", pe -> get_type_str(), pe -> get_address());
+			delete pe;
+
 			r_ok = false;
 		}
 		mvwprintw(win_regs, 4, 48, "mem: %d/%08x", r_ok, instruction);

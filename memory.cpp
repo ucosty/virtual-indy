@@ -1,6 +1,7 @@
 #include <endian.h>
 #include <string.h>
 
+#include "error.h"
 #include "memory.h"
 
 memory::memory()
@@ -10,7 +11,7 @@ memory::memory()
 memory::memory(uint64_t size, bool init) : len(size)
 {
 	if (size < 0)
-		throw "memory::memory invalid size"; // format() met size er in FIXME
+		error_exit("memory::memory invalid size %016llx", size);
 
 	pm = new unsigned char[size];
 
@@ -21,7 +22,7 @@ memory::memory(uint64_t size, bool init) : len(size)
 memory::memory(unsigned char *p, uint64_t size) : pm(p), len(size)
 {
 	if (size < 0)
-		throw "memory::memory invalid size"; // format() met size er in FIXME
+		error_exit("memory::memory invalid size %016llx", size);
 }
 
 memory::~memory()

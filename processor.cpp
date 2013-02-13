@@ -47,14 +47,14 @@ void processor::tick()
 			have_delay_slot = false;
 
 			if (unlikely(delay_slot_PC & 0x03))
-				throw PE_ADDRESS_ERROR;
+				throw new processor_exception(PE_ADDRESS_ERROR, delay_slot_PC);
 
 			pmb -> read_32b(delay_slot_PC, &instruction);
 		}
 		else
 		{
 			if (unlikely(PC & 0x03))
-				throw PE_ADDRESS_ERROR;
+				throw new processor_exception(PE_ADDRESS_ERROR, PC);
 
 			pmb -> read_32b(PC, &instruction);
 
@@ -67,10 +67,12 @@ void processor::tick()
 		// well maybe not in the cpu but logically they are
 		(((processor*)this)->*processor::i_type_methods[opcode])(instruction);
 	}
-	catch(processor_exceptions_t pe)
+	catch(processor_exception *pe)
 	{
 		// FIXME handle PE_*
-		pdc -> log("EXCEPTION %d", pe);
+		pdc -> log("EXCEPTION %d at/for %016llx", pe -> get_type(), pe -> get_address());
+
+		delete pe;
 	}
 }
 

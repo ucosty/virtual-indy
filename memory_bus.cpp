@@ -43,7 +43,7 @@ const memory_segment_t * memory_bus::find_segment(uint64_t offset) const
 			return psegment;
 	}
 
-	throw PE_TLB_MISS;
+	throw new processor_exception(PE_TLB_MISS, offset);
 
 	return NULL; // should not be reached
 }
