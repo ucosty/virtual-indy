@@ -619,6 +619,78 @@ void test_ORI()
 	free_system(mb, m1, m2, p);
 }
 
+void test_ANDI()
+{
+	memory_bus *mb = NULL;
+	memory *m1 = NULL, *m2 = NULL;
+	processor *p = NULL;
+	create_system(&mb, &m1, &m2, &p);
+
+	p -> reset();
+	p -> set_PC(0);
+
+	uint64_t old_val = 0x1234beefdead5678;
+	uint8_t rt = 1;
+	p -> set_register_64b(rt, old_val);
+
+	uint16_t immediate = 0x1234;
+
+	uint64_t and_value = 0x43210123abcddead;
+	uint8_t rs = 9;
+	p -> set_register_64b(rs, and_value);
+
+	int expected = and_value & immediate;
+
+	uint8_t function = 0x0c;
+	uint32_t instruction = make_cmd_I_TYPE(rs, rt, function, immediate);
+
+	m1 -> write_32b(0, instruction);
+
+	tick(p);
+
+	int result = p -> get_register_32b_signed(rt);
+	if (result != expected)
+		error_exit("ANDI: result is %08x, expected %08x", result, expected);
+
+	free_system(mb, m1, m2, p);
+}
+
+void test_XORI()
+{
+	memory_bus *mb = NULL;
+	memory *m1 = NULL, *m2 = NULL;
+	processor *p = NULL;
+	create_system(&mb, &m1, &m2, &p);
+
+	p -> reset();
+	p -> set_PC(0);
+
+	uint64_t old_val = 0x1234beefdead5678;
+	uint8_t rt = 1;
+	p -> set_register_64b(rt, old_val);
+
+	uint16_t immediate = 0x1234;
+
+	uint64_t xor_value = 0x43210123abcddead;
+	uint8_t rs = 9;
+	p -> set_register_64b(rs, xor_value);
+
+	int expected = xor_value ^ immediate;
+
+	uint8_t function = 0x0e;
+	uint32_t instruction = make_cmd_I_TYPE(rs, rt, function, immediate);
+
+	m1 -> write_32b(0, instruction);
+
+	tick(p);
+
+	int result = p -> get_register_32b_signed(rt);
+	if (result != expected)
+		error_exit("ANDI: result is %08x, expected %08x", result, expected);
+
+	free_system(mb, m1, m2, p);
+}
+
 void test_ADDIU()
 {
 	memory_bus *mb = NULL;
@@ -629,17 +701,18 @@ void test_ADDIU()
 	p -> reset();
 	p -> set_PC(0);
 
-	int old_val = 0x1234beef;
+	uint64_t rt_val = 0x1234beefccccdddd;
 	uint8_t rt = 1;
-	p -> set_register_32b(rt, old_val);
+	p -> set_register_64b(rt, rt_val);
 
 	int immediate = 0x1234;
 
-	int addiu_value = 0x4321;
+	uint64_t rs_val = 0x4321abcdaaaabbbb;
 	uint8_t rs = 9;
-	p -> set_register_32b(rs, addiu_value);
+	p -> set_register_64b(rs, rs_val);
 
-	int expected = (p -> get_register_32b_signed(rs) + int16_t(immediate)) & MASK_32B;
+	int32_t expected_s32 = rs_val + int16_t(immediate);
+	uint64_t expected = expected_s32; // sign extended
 
 	uint8_t function = 0x09;
 	uint32_t instruction = make_cmd_I_TYPE(rs, rt, function, immediate);
@@ -648,7 +721,7 @@ void test_ADDIU()
 
 	tick(p);
 
-	int32_t result = p -> get_register_32b_signed(rt);
+	uint64_t result = p -> get_register_64b_signed(rt);
 	if (result != expected)
 		error_exit("ADDIU: result is %08x, expected %08x", result, expected);
 
@@ -667,19 +740,19 @@ void test_AND()
 
 	int sa = 31;
 
-	int rt_val = 0x1234beef;
+	uint64_t rt_val = 0x1234beef5678dead;
 	uint8_t rt = 1;
-	p -> set_register_32b(rt, rt_val);
+	p -> set_register_64b(rt, rt_val);
 
-	int rs_val = 0xdeaf5678;
+	uint64_t rs_val = 0xdeaf56781234beef;
 	uint8_t rs = 9;
-	p -> set_register_32b(rs, rs_val);
+	p -> set_register_64b(rs, rs_val);
 
-	int rd_val = 0xaaaabbbb;
-	uint8_t rd = 9;
-	p -> set_register_32b(rd, rd_val);
+	uint64_t rd_val = 0xaaaabbbbccccdddd;
+	uint8_t rd = 10;
+	p -> set_register_64b(rd, rd_val);
 
-	int expected = p -> get_register_32b_signed(rs) & p -> get_register_32b_signed(rt);
+	uint64_t expected = rs_val & rt_val;
 
 	uint8_t function = 0x24, extra = rs;
 	uint32_t instruction = make_cmd_SPECIAL(rt, rd, sa, function, extra);
@@ -688,9 +761,49 @@ void test_AND()
 
 	tick(p);
 
-	int result = p -> get_register_32b_signed(rd);
+	uint64_t result = p -> get_register_64b_signed(rd);
 	if (result != expected)
-		error_exit("AND: result is %08x, expected %08x", result, expected);
+		error_exit("AND: result is %016llx, expected %016llx", result, expected);
+
+	free_system(mb, m1, m2, p);
+}
+
+void test_OR()
+{
+	memory_bus *mb = NULL;
+	memory *m1 = NULL, *m2 = NULL;
+	processor *p = NULL;
+	create_system(&mb, &m1, &m2, &p);
+
+	p -> reset();
+	p -> set_PC(0);
+
+	int sa = 31;
+
+	uint64_t rt_val = 0x1234beef5678dead;
+	uint8_t rt = 1;
+	p -> set_register_64b(rt, rt_val);
+
+	uint64_t rs_val = 0xdeaf5678beef1234;
+	uint8_t rs = 10;
+	p -> set_register_64b(rs, rs_val);
+
+	uint64_t rd_val = 0xaaaabbbbccccdddd;
+	uint8_t rd = 9;
+	p -> set_register_64b(rd, rd_val);
+
+	uint64_t expected = rs_val | rt_val;
+
+	uint8_t function = 0x25, extra = rs;
+	uint32_t instruction = make_cmd_SPECIAL(rt, rd, sa, function, extra);
+
+	m1 -> write_32b(0, instruction);
+
+	tick(p);
+
+	uint64_t result = p -> get_register_64b_unsigned(rd);
+	if (result != expected)
+		error_exit("OR: result is %016llx, expected %016llx", result, expected);
 
 	free_system(mb, m1, m2, p);
 }
@@ -831,14 +944,17 @@ int main(int argc, char *argv[])
 
 	test_ADDIU();
 	test_AND();
+	test_ANDI();
 	test_BNE();
 	test_LUI();
 	test_LW();
 	test_NOP();
+	test_OR();
 	test_ORI();
 	test_SLL();
 	test_SRL();
 	test_SW();
+	test_XORI();
 
 	printf("all fine\n");
 
