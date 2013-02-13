@@ -106,7 +106,7 @@ int main(int argc, char *argv[])
 	mb -> register_memory(0xffffffff1fa00000, pmc -> get_mask(), pmc);
 	mb -> register_memory(0xffffffffbfa00000, pmc -> get_mask(), pmc);
 
-	memory *hpc = new hpc3(dc);
+	memory *hpc = new hpc3(dc, "sram.dat");
 	mb -> register_memory(0xffffffff1fb00000, hpc -> get_mask(), hpc);
 	mb -> register_memory(0xffffffffbfb00000, hpc -> get_mask(), hpc);
 

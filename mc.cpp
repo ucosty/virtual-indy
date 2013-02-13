@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <string.h>
 
 #include "mc.h"
@@ -39,6 +40,9 @@ void mc::read_32b(uint64_t offset, uint32_t *data)
 		// bit 1: endiannes
 		// bit 2: register size (32/64)
 		// *data = 0x0f;
+
+		(*data) ^= rand();
+		(*data) &= 0x1e;
 	}
 	else if (offset == 0x4c)	// REF_CTR - refresh counter
 	{
