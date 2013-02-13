@@ -1,3 +1,5 @@
+#include <string.h>
+
 #include "mc.h"
 
 mc::mc(debug_console *pdc_in) : pdc(pdc_in)
@@ -6,6 +8,10 @@ mc::mc(debug_console *pdc_in) : pdc(pdc_in)
 	len = 0;
 
 	refresh_counter = 0;
+
+	sys_semaphore = 0;
+	memset(user_semaphores, 0x00, sizeof user_semaphores);
+	pthread_mutex_init(&semaphore_lock, NULL);
 }
 
 mc::~mc()
@@ -95,10 +101,27 @@ void mc::read_32b(uint64_t offset, uint32_t *data)
 	{
 		pdc -> dc_log("GIO_ERROR_STATUS read (%08x)", *data);
 	}
+		// 0x10000 - 0x1f000
+	else if (offset == 0x100 || offset == 0x104)	// SYS_SEMAPHORE
+	{
+		pthread_mutex_lock(&semaphore_lock);
+		*data = sys_semaphore;
+		sys_semaphore = 1;
+		pthread_mutex_unlock(&semaphore_lock);
+	}
 	else if (offset == 0x1000 || offset == 0x1004)	// RPSS_CTR
 	{
 		*data = RPSS_CTR++;
 		pdc -> dc_log("GIO_ERROR_STATUS read: %08x", *data);
+	}
+	else if (offset >= 0x100000 && offset <= 0x1ffff)	// USER_SEMAPHORES
+	{
+		int nr = offset >> 13;
+
+		pthread_mutex_lock(&semaphore_lock);
+		*data = user_semaphores[nr];
+		user_semaphores[nr] = 1;
+		pthread_mutex_unlock(&semaphore_lock);
 	}
 	else
 	{
@@ -151,6 +174,12 @@ void mc::write_32b(uint64_t offset, uint32_t data)
 	{
 		pdc -> dc_log("GIO_ERROR_STATUS write: %08x", data);
 		data = 0;
+	}
+	else if (offset == 0x100 || offset == 0x104)	// SYS_SEMAPHORE
+	{
+		pthread_mutex_lock(&semaphore_lock);
+		sys_semaphore = 0;
+		pthread_mutex_unlock(&semaphore_lock);
 	}
 	else if (offset == 0x1000 || offset == 0x1004)	// RPSS_CTR
 	{

@@ -1,3 +1,5 @@
+#include <pthread.h>
+
 #include "debug_console.h"
 #include "memory.h"
 
@@ -8,6 +10,10 @@ private:
 	debug_console *pdc;
 	uint32_t regs[128];
 	uint32_t RPSS_CTR;
+
+	pthread_mutex_t semaphore_lock;
+	uint8_t user_semaphores[16];
+	uint8_t sys_semaphore;
 
 public:
 	mc(debug_console *pdc_in);
