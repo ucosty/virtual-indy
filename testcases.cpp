@@ -446,33 +446,32 @@ void test_SLL()
 	p -> reset();
 	p -> set_PC(0);
 
+	uint64_t rd_val = 1313121210101414;
 	uint8_t rd = 1;
-	p -> set_register_32b(rd, 13);
+	p -> set_register_64b(rd, rd_val);
 
-	int input_val = 0xf000;
+	uint64_t rt_val = 0xf000e000d000c000;
 	uint8_t rt = 2;
-	p -> set_register_32b(rt, input_val);
+	p -> set_register_64b(rt, rt_val);
 
 	uint8_t sa = 3;
 
 	uint8_t function = 0, extra = 0;
 
 	uint32_t instr = make_cmd_SPECIAL(rt, rd, sa, function, extra);
-
-	// printf("instruction: %08x\n", instr);
 	m1 -> write_32b(0, instr);
 
 	tick(p);
 
-	int input_val_check = p -> get_register_32b_signed(rt);
-	if (input_val_check != input_val)
-		error_exit("SLL: rt changed from %d to %d", input_val, input_val_check);
+	uint64_t input_val_check = p -> get_register_64b_unsigned(rt);
+	if (input_val_check != rt_val)
+		error_exit("SLL: rt changed from %016llx to %016llx", rt_val, input_val_check);
 
-	int32_t temp_32b = p -> get_register_32b_signed(rd);
+	uint64_t temp_64b = p -> get_register_64b_signed(rd);
 
-	int expected = input_val << sa;
-	if (temp_32b != expected)
-		error_exit("SLL: rd (%d) != %d", temp_32b, expected);
+	uint64_t expected = sign_extend_32b(rt_val << sa);
+	if (temp_64b != expected)
+		error_exit("SLL: rd (%016llx) != %016llx", temp_64b, expected);
 
 	free_system(mb, m1, m2, p);
 }
