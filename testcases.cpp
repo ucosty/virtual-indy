@@ -727,6 +727,46 @@ void test_ADDIU()
 	free_system(mb, m1, m2, p);
 }
 
+void test_ADDI()
+{
+	memory_bus *mb = NULL;
+	memory *m1 = NULL, *m2 = NULL;
+	processor *p = NULL;
+	create_system(&mb, &m1, &m2, &p);
+
+	p -> reset();
+	p -> set_PC(0);
+
+	uint64_t rt_val = 0x1234beefccccdddd;
+	uint8_t rt = 1;
+	p -> set_register_64b(rt, rt_val);
+
+	int immediate = 0x1234;
+
+	uint64_t rs_val = 0x4321abcdaaaabbbb;
+	uint8_t rs = 9;
+	p -> set_register_64b(rs, rs_val);
+
+FIXME
+test overflow exception stuff
+
+	int32_t expected_s32 = rs_val + int16_t(immediate);
+	uint64_t expected = expected_s32; // sign extended
+
+	uint8_t function = 0x09;
+	uint32_t instruction = make_cmd_I_TYPE(rs, rt, function, immediate);
+
+	m1 -> write_32b(0, instruction);
+
+	tick(p);
+
+	uint64_t result = p -> get_register_64b_signed(rt);
+	if (result != expected)
+		error_exit("ADDI: result is %08x, expected %08x", result, expected);
+
+	free_system(mb, m1, m2, p);
+}
+
 void test_AND()
 {
 	memory_bus *mb = NULL;
@@ -941,6 +981,7 @@ int main(int argc, char *argv[])
 	test_memory_bus();
 	test_processor();
 
+	test_ADDI();
 	test_ADDIU();
 	test_AND();
 	test_ANDI();
