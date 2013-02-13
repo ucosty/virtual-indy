@@ -101,19 +101,19 @@ void processor::i_type_10(uint32_t instruction)
 void processor::i_type_11(uint32_t instruction)
 {
 	// COP1(instruction);
-	pdc -> log("i_type_11 not known");
+	pdc -> dc_log("i_type_11 not known");
 }
 
 void processor::i_type_12(uint32_t instruction)
 {
 	// COP2(instruction);
-	pdc -> log("i_type_12 not known");
+	pdc -> dc_log("i_type_12 not known");
 }
 
 void processor::i_type_13(uint32_t instruction)
 {
 	// COP3(instruction);
-	pdc -> log("i_type_13 not known");
+	pdc -> dc_log("i_type_13 not known");
 }
 
 void processor::i_type_01(uint32_t instruction)	// BGEZAL
@@ -171,7 +171,7 @@ void processor::i_type_06(uint32_t instruction)
 
 	int temp_32b = -1, address = -1;
 
-	pdc -> log("i_type_06 not known");
+	pdc -> dc_log("i_type_06 not known");
 }
 
 void processor::i_type_07(uint32_t instruction)
@@ -189,7 +189,7 @@ void processor::i_type_07(uint32_t instruction)
 
 	int temp_32b = -1, address = -1;
 
-	pdc -> log("i_type_07 not known");
+	pdc -> dc_log("i_type_07 not known");
 }
 
 void processor::i_type_08(uint32_t instruction)	// ADDI
@@ -202,7 +202,7 @@ void processor::i_type_08(uint32_t instruction)	// ADDI
 	int32_t val2 = immediate_s;
 
 	if (unlikely(test_tc_overflow_32b(val1, val2)))
-		throw new processor_exception(PE_ARITHMETIC_OVERFLOW, PC - 4);
+		throw processor_exception(PE_ARITHMETIC_OVERFLOW, PC - 4);
 	else
 		set_register_32b_se(rt, val1 + val2);
 }
@@ -290,7 +290,7 @@ void processor::i_type_14(uint32_t instruction)
 
 	int temp_32b = -1, address = -1;
 
-	pdc -> log("i_type_14 not known");
+	pdc -> dc_log("i_type_14 not known");
 }
 
 void processor::i_type_16(uint32_t instruction)
@@ -308,7 +308,7 @@ void processor::i_type_16(uint32_t instruction)
 
 	int temp_32b = -1, address = -1;
 
-	pdc -> log("i_type_16 not known");
+	pdc -> dc_log("i_type_16 not known");
 }
 
 void processor::i_type_17(uint32_t instruction)
@@ -326,7 +326,7 @@ void processor::i_type_17(uint32_t instruction)
 
 	int temp_32b = -1, address = -1;
 
-	pdc -> log("i_type_17 not known");
+	pdc -> dc_log("i_type_17 not known");
 }
 
 void processor::i_type_18(uint32_t instruction)
@@ -344,7 +344,7 @@ void processor::i_type_18(uint32_t instruction)
 
 	int temp_32b = -1, address = -1;
 
-	pdc -> log("i_type_18 not known");
+	pdc -> dc_log("i_type_18 not known");
 }
 
 void processor::i_type_19(uint32_t instruction)
@@ -362,7 +362,7 @@ void processor::i_type_19(uint32_t instruction)
 
 	int temp_32b = -1, address = -1;
 
-	pdc -> log("i_type_19 not known");
+	pdc -> dc_log("i_type_19 not known");
 }
 
 void processor::i_type_1a(uint32_t instruction)
@@ -380,7 +380,7 @@ void processor::i_type_1a(uint32_t instruction)
 
 	int temp_32b = -1, address = -1;
 
-	pdc -> log("i_type_1a not known");
+	pdc -> dc_log("i_type_1a not known");
 }
 
 void processor::i_type_1b(uint32_t instruction)
@@ -398,7 +398,7 @@ void processor::i_type_1b(uint32_t instruction)
 
 	int temp_32b = -1, address = -1;
 
-	pdc -> log("i_type_1b not known");
+	pdc -> dc_log("i_type_1b not known");
 }
 
 void processor::i_type_1c(uint32_t instruction)	// SPECIAL2
@@ -421,7 +421,7 @@ void processor::i_type_1d(uint32_t instruction)
 
 	int temp_32b = -1, address = -1;
 
-	pdc -> log("i_type_1d not known");
+	pdc -> dc_log("i_type_1d not known");
 }
 
 void processor::i_type_1e(uint32_t instruction)
@@ -439,7 +439,7 @@ void processor::i_type_1e(uint32_t instruction)
 
 	int temp_32b = -1, address = -1;
 
-	pdc -> log("i_type_1e not known");
+	pdc -> dc_log("i_type_1e not known");
 }
 
 void processor::i_type_1f(uint32_t instruction)	// SPECIAL3
@@ -478,11 +478,11 @@ void processor::i_type_21(uint32_t instruction)	// LH / LHU
 	uint64_t address = get_register_64b_unsigned(base) + offset_s;
 	if (unlikely(address & 1))
 	{
-		pdc -> log("i-type read 16b from %08llx: unaligned", address);
+		pdc -> dc_log("i-type read 16b from %08llx: unaligned", address);
 
 		cycles += 5; // FIXME
 
-		throw new processor_exception(PE_ADDRESS_ERROR, address);
+		throw processor_exception(PE_ADDRESS_ERROR, address);
 	}
 	else
 	{
@@ -518,7 +518,7 @@ void processor::i_type_22(uint32_t instruction)
 
 	int temp_32b = -1, address = -1;
 
-	pdc -> log("i_type_22 not known");
+	pdc -> dc_log("i_type_22 not known");
 }
 
 void processor::i_type_23(uint32_t instruction)	// LW / LL
@@ -530,11 +530,11 @@ void processor::i_type_23(uint32_t instruction)	// LW / LL
 	uint64_t address = get_register_64b_unsigned(base) + offset_s;
 	if (unlikely(address & 3))
 	{
-		pdc -> log("i-type read 32b from %08llx: unaligned", address);
+		pdc -> dc_log("i-type read 32b from %08llx: unaligned", address);
 
 		cycles += 5; // FIXME
 
-		throw new processor_exception(PE_ADDRESS_ERROR, address);
+		throw processor_exception(PE_ADDRESS_ERROR, address);
 	}
 	else
 	{
@@ -565,7 +565,7 @@ void processor::i_type_26(uint32_t instruction)
 
 	int temp_32b = -1, address = -1;
 
-	pdc -> log("i_type_26 not known");
+	pdc -> dc_log("i_type_26 not known");
 }
 
 void processor::i_type_27(uint32_t instruction)
@@ -583,7 +583,7 @@ void processor::i_type_27(uint32_t instruction)
 
 	int temp_32b = -1, address = -1;
 
-	pdc -> log("i_type_27 not known");
+	pdc -> dc_log("i_type_27 not known");
 }
 
 void processor::i_type_28(uint32_t instruction)	// SB
@@ -614,11 +614,11 @@ void processor::i_type_29(uint32_t instruction)	// SH
 
 	if (unlikely(address & 1))
 	{
-		pdc -> log("i-type write 16b %04x to %08x: unaligned", registers[rt] & 0xffff, address);
+		pdc -> dc_log("i-type write 16b %04x to %08x: unaligned", registers[rt] & 0xffff, address);
 
 		cycles += 4; // FIXME
 
-		throw new processor_exception(PE_ADDRESS_ERROR, address);
+		throw processor_exception(PE_ADDRESS_ERROR, address);
 	}
 	else
 	{
@@ -644,7 +644,7 @@ void processor::i_type_2a(uint32_t instruction)
 
 	int temp_32b = -1, address = -1;
 
-	pdc -> log("i_type_2a not known");
+	pdc -> dc_log("i_type_2a not known");
 }
 
 void processor::i_type_2b(uint32_t instruction)	// SW
@@ -659,11 +659,11 @@ void processor::i_type_2b(uint32_t instruction)	// SW
 
 	if (unlikely(address & 3))
 	{
-		pdc -> log("i-type write 32b %08x to %08x: unaligned", registers[rt], address);
+		pdc -> dc_log("i-type write 32b %08x to %08x: unaligned", registers[rt], address);
 
 		cycles += 4; // FIXME
 
-		throw new processor_exception(PE_ADDRESS_ERROR, address);
+		throw processor_exception(PE_ADDRESS_ERROR, address);
 	}
 	else
 	{
@@ -688,7 +688,7 @@ void processor::i_type_2c(uint32_t instruction)
 
 	int temp_32b = -1, address = -1;
 
-	pdc -> log("i_type_2c not known");
+	pdc -> dc_log("i_type_2c not known");
 }
 
 void processor::i_type_2d(uint32_t instruction)
@@ -706,7 +706,7 @@ void processor::i_type_2d(uint32_t instruction)
 
 	int temp_32b = -1, address = -1;
 
-	pdc -> log("i_type_2d not known");
+	pdc -> dc_log("i_type_2d not known");
 }
 
 void processor::i_type_2e(uint32_t instruction)
@@ -724,7 +724,7 @@ void processor::i_type_2e(uint32_t instruction)
 
 	int temp_32b = -1, address = -1;
 
-	pdc -> log("i_type_2e not known");
+	pdc -> dc_log("i_type_2e not known");
 }
 
 void processor::i_type_2f(uint32_t instruction)
@@ -742,7 +742,7 @@ void processor::i_type_2f(uint32_t instruction)
 
 	int temp_32b = -1, address = -1;
 
-	pdc -> log("i_type_2f not known");
+	pdc -> dc_log("i_type_2f not known");
 }
 
 void processor::i_type_31(uint32_t instruction)
@@ -760,7 +760,7 @@ void processor::i_type_31(uint32_t instruction)
 
 	int temp_32b = -1, address = -1;
 
-	pdc -> log("i_type_31 not known");
+	pdc -> dc_log("i_type_31 not known");
 }
 
 void processor::i_type_32(uint32_t instruction)
@@ -778,7 +778,7 @@ void processor::i_type_32(uint32_t instruction)
 
 	int temp_32b = -1, address = -1;
 
-	pdc -> log("i_type_32 not known");
+	pdc -> dc_log("i_type_32 not known");
 }
 
 void processor::i_type_33(uint32_t instruction)
@@ -796,7 +796,7 @@ void processor::i_type_33(uint32_t instruction)
 
 	int temp_32b = -1, address = -1;
 
-	pdc -> log("i_type_33 not known");
+	pdc -> dc_log("i_type_33 not known");
 }
 
 void processor::i_type_34(uint32_t instruction)
@@ -814,7 +814,7 @@ void processor::i_type_34(uint32_t instruction)
 
 	int temp_32b = -1, address = -1;
 
-	pdc -> log("i_type_34 not known");
+	pdc -> dc_log("i_type_34 not known");
 }
 
 void processor::i_type_35(uint32_t instruction)
@@ -832,7 +832,7 @@ void processor::i_type_35(uint32_t instruction)
 
 	int temp_32b = -1, address = -1;
 
-	pdc -> log("i_type_35 not known");
+	pdc -> dc_log("i_type_35 not known");
 }
 
 void processor::i_type_36(uint32_t instruction)
@@ -850,7 +850,7 @@ void processor::i_type_36(uint32_t instruction)
 
 	int temp_32b = -1, address = -1;
 
-	pdc -> log("i_type_36 not known");
+	pdc -> dc_log("i_type_36 not known");
 }
 
 void processor::i_type_37(uint32_t instruction)
@@ -868,7 +868,7 @@ void processor::i_type_37(uint32_t instruction)
 
 	int temp_32b = -1, address = -1;
 
-	pdc -> log("i_type_37 not known");
+	pdc -> dc_log("i_type_37 not known");
 }
 
 void processor::i_type_38(uint32_t instruction)
@@ -886,7 +886,7 @@ void processor::i_type_38(uint32_t instruction)
 
 	int temp_32b = -1, address = -1;
 
-	pdc -> log("i_type_38 not known");
+	pdc -> dc_log("i_type_38 not known");
 }
 
 void processor::i_type_39(uint32_t instruction)
@@ -904,7 +904,7 @@ void processor::i_type_39(uint32_t instruction)
 
 	int temp_32b = -1, address = -1;
 
-	pdc -> log("i_type_39 not known");
+	pdc -> dc_log("i_type_39 not known");
 }
 
 void processor::i_type_3a(uint32_t instruction)
@@ -922,7 +922,7 @@ void processor::i_type_3a(uint32_t instruction)
 
 	int temp_32b = -1, address = -1;
 
-	pdc -> log("i_type_3a not known");
+	pdc -> dc_log("i_type_3a not known");
 }
 
 void processor::i_type_3b(uint32_t instruction)
@@ -940,7 +940,7 @@ void processor::i_type_3b(uint32_t instruction)
 
 	int temp_32b = -1, address = -1;
 
-	pdc -> log("i_type_3b not known");
+	pdc -> dc_log("i_type_3b not known");
 }
 
 void processor::i_type_3c(uint32_t instruction)
@@ -958,7 +958,7 @@ void processor::i_type_3c(uint32_t instruction)
 
 	int temp_32b = -1, address = -1;
 
-	pdc -> log("i_type_3c not known");
+	pdc -> dc_log("i_type_3c not known");
 }
 
 void processor::i_type_3d(uint32_t instruction)
@@ -974,7 +974,7 @@ void processor::i_type_3d(uint32_t instruction)
 
 	int temp_32b = -1, address = -1;
 
-	pdc -> log("i_type_3d not known");
+	pdc -> dc_log("i_type_3d not known");
 }
 
 void processor::i_type_3e(uint32_t instruction)
@@ -990,7 +990,7 @@ void processor::i_type_3e(uint32_t instruction)
 
 	int temp_32b = -1, address = -1;
 
-	pdc -> log("i_type_3e not known");
+	pdc -> dc_log("i_type_3e not known");
 }
 
 void processor::i_type_3f(uint32_t instruction)
@@ -1006,6 +1006,6 @@ void processor::i_type_3f(uint32_t instruction)
 
 	int temp_32b = -1, address = -1;
 
-	pdc -> log("i_type_3f not known");
+	pdc -> dc_log("i_type_3f not known");
 }
 

@@ -106,14 +106,14 @@ void debug_console::init()
 debug_console::~debug_console()
 {
 #ifdef _DEBUG
-	log("");
-	log("instruction usage counts");
-	log("------------------------");
+	dolog("");
+	dolog("instruction usage counts");
+	dolog("------------------------");
 	std::map<std::string, long int>::iterator it = instruction_counts.begin();
 
 	while(it != instruction_counts.end())
 	{
-		log("%s\t%ld", it -> first.c_str(), it -> second);
+		dolog("%s\t%ld", it -> first.c_str(), it -> second);
 
 		it++;
 	}
@@ -207,10 +207,9 @@ void debug_console::tick(processor *p)
 		{
 			p -> get_mem_32b(PC, &instruction);
 		}
-		catch(processor_exception *pe)
+		catch(processor_exception & pe)
 		{
-			log("EXCEPTION %d at/for %016llx", pe -> get_type_str(), pe -> get_address());
-			delete pe;
+			dc_log("EXCEPTION %d at/for %016llx (3)", pe.get_type_str(), pe.get_address());
 
 			r_ok = false;
 		}
@@ -290,7 +289,7 @@ void debug_console::tick(processor *p)
 	}
 }
 
-void debug_console::log(const char *fmt, ...)
+void debug_console::dc_log(const char *fmt, ...)
 {
 	if (logfile || win_logs)
 	{

@@ -13,7 +13,7 @@ public:
 
 	void tick(processor *p);
 
-	void log(const char *fmt, ...);
+	void dc_log(const char *fmt, ...);
 };
 
 #endif

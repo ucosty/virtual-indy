@@ -4,7 +4,7 @@
 #include "error.h"
 #include "memory.h"
 
-memory::memory()
+memory::memory() : pm(NULL), len(0)
 {
 }
 
@@ -38,7 +38,7 @@ void memory::read_64b(uint64_t offset, uint64_t *data) const
 	*data = be64toh(dummy);
 }
 
-void memory::read_32b(uint64_t offset, uint32_t *data) const
+void memory::read_32b(uint64_t offset, uint32_t *data)
 {
 	unsigned char *dummy_p = &pm[offset];
 	uint32_t dummy = *(uint32_t *)dummy_p;

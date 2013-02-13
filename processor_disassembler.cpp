@@ -8,16 +8,17 @@ std::string processor::da_logline(uint32_t instruction)
 {
 	uint32_t temp_32b = -1;
 	uint64_t cur_PC = is_delay_slot() ? get_delay_slot_PC() : get_PC();
+
 	std::string exception;
 	bool rc = true;
+
 	try
 	{
 		pmb -> read_32b(cur_PC, &temp_32b);
 	}
-	catch(processor_exception *pe)
+	catch(processor_exception & pe)
 	{
-		exception = format("EXCEPTION %d at/for %016llx", pe -> get_type_str(), pe -> get_address());
-		delete pe;
+		exception = format("EXCEPTION %d at/for %016llx (2)", pe.get_type_str(), pe.get_address());
 
 		rc = false;
 	}

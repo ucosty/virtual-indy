@@ -213,7 +213,7 @@ public:
 	{
 		ASSERT(nr >= 0 && nr <= 31);
 
-if (nr == 31) pdc -> log("GET 31 signed");
+if (nr == 31) pdc -> dc_log("GET 31 signed");
 
 		return int32_t(registers[nr]);
 	}
@@ -222,7 +222,7 @@ if (nr == 31) pdc -> log("GET 31 signed");
 	{
 		ASSERT(nr >= 0 && nr <= 31);
 
-if (nr == 31) pdc -> log("GET 31 unsigned");
+if (nr == 31) pdc -> dc_log("GET 31 unsigned");
 
 		return uint32_t(registers[nr]);
 	}
@@ -248,7 +248,7 @@ if (nr == 31) pdc -> log("GET 31 unsigned");
 		if (likely(nr))
 			registers[nr] = (registers[nr] & ~MASK_32B) | value;
 		else
-			pdc -> log("(32b) trying to alter register 0! (%d)", nr);
+			pdc -> dc_log("(32b) trying to alter register 0! (%d)", nr);
 	}
 
 	inline void set_register_32b_se(uint8_t nr, int32_t value)
@@ -258,7 +258,7 @@ if (nr == 31) pdc -> log("GET 31 unsigned");
 		if (likely(nr))
 			registers[nr] = value;
 		else
-			pdc -> log("(32bse) trying to alter register 0! (%d)", nr);
+			pdc -> dc_log("(32bse) trying to alter register 0! (%d)", nr);
 	}
 
 	inline void set_register_64b(uint8_t nr, uint64_t value)
@@ -268,7 +268,7 @@ if (nr == 31) pdc -> log("GET 31 unsigned");
 		if (likely(nr))
 			registers[nr] = value;
 		else
-			pdc -> log("(64b) trying to alter register 0! (%d)", nr);
+			pdc -> dc_log("(64b) trying to alter register 0! (%d)", nr);
 	}
 };
 

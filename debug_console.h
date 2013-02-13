@@ -36,7 +36,7 @@ public:
 
 	virtual void tick(processor *p);
 
-	virtual void log(const char *fmt, ...);
+	virtual void dc_log(const char *fmt, ...);
 };
 
 #endif

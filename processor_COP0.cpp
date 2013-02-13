@@ -16,7 +16,7 @@ void processor::COP0(uint32_t instruction)
 				break;
 
 			default:
-				pdc -> log("cop0: don't know how to handle function %02x (1)", function);
+				pdc -> dc_log("cop0: don't know how to handle function %02x (1)", function);
 		}
 	}
 	else
@@ -51,7 +51,7 @@ void processor::COP0(uint32_t instruction)
 				break;
 
 			default:
-				pdc -> log("cop0: don't know how to handle function %02x (0)", function);
+				pdc -> dc_log("cop0: don't know how to handle function %02x (0)", function);
 		}
 	}
 }

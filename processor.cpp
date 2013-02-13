@@ -47,14 +47,14 @@ void processor::tick()
 			have_delay_slot = false;
 
 			if (unlikely(delay_slot_PC & 0x03))
-				throw new processor_exception(PE_ADDRESS_ERROR, delay_slot_PC);
+				throw processor_exception(PE_ADDRESS_ERROR, delay_slot_PC);
 
 			pmb -> read_32b(delay_slot_PC, &instruction);
 		}
 		else
 		{
 			if (unlikely(PC & 0x03))
-				throw new processor_exception(PE_ADDRESS_ERROR, PC);
+				throw processor_exception(PE_ADDRESS_ERROR, PC);
 
 			pmb -> read_32b(PC, &instruction);
 
@@ -67,19 +67,17 @@ void processor::tick()
 		// well maybe not in the cpu but logically they are
 		(((processor*)this)->*processor::i_type_methods[opcode])(instruction);
 	}
-	catch(processor_exception *pe)
+	catch(processor_exception & pe)
 	{
 		// FIXME handle PE_*
-		pdc -> log("EXCEPTION %d at/for %016llx", pe -> get_type(), pe -> get_address());
-
-		delete pe;
+		pdc -> dc_log("EXCEPTION %d at/for %016llx, PC: %016llx (1)", pe.get_type(), pe.get_address(), PC);
 	}
 }
 
 void processor::set_delay_slot(uint64_t offset)
 {
 	if (have_delay_slot)
-		pdc -> log("trying to set delay slot (%016llx) while already set (%016llx)", offset, delay_slot_PC);
+		pdc -> dc_log("trying to set delay slot (%016llx) while already set (%016llx)", offset, delay_slot_PC);
 
 	have_delay_slot = true;
 
@@ -89,7 +87,7 @@ void processor::set_delay_slot(uint64_t offset)
 uint64_t processor::get_delay_slot_PC()
 {
 	if (!have_delay_slot)
-		pdc -> log("trying to retrieve delay slot address (%016llx) while it is not valid (set)", delay_slot_PC);
+		pdc -> dc_log("trying to retrieve delay slot address (%016llx) while it is not valid (set)", delay_slot_PC);
 
 	return delay_slot_PC;
 }

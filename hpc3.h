@@ -6,6 +6,6 @@ public:
 	hpc3();
 	~hpc3();
 
-	uint64_t get_size() { return 0x80000; }
-	uint64_t get_mask() { return 0x7ffff; }
+	uint64_t get_size() const { return 0x80000; }
+	uint64_t get_mask() const { return 0x7ffff; }
 };

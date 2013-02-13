@@ -24,7 +24,7 @@ void debug_console_simple::tick(processor *p)
 	n_ticks++;
 }
 
-void debug_console_simple::log(const char *fmt, ...)
+void debug_console_simple::dc_log(const char *fmt, ...)
 {
 #ifdef _DEBUG
 	char buffer[4096];

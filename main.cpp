@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
 	memory *m = new memory(64 * 1024 * 1024, true);
 	mb -> register_memory(0, m -> get_mask(), m);
 
-	memory *pmc = new mc();
+	memory *pmc = new mc(dc);
 	mb -> register_memory(0xffffffff1fa00000, pmc -> get_mask(), pmc);
 	mb -> register_memory(0xffffffffbfa00000, pmc -> get_mask(), pmc);
 

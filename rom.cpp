@@ -15,20 +15,20 @@ rom::~rom()
 
 void rom::write_64b(uint64_t offset, uint64_t data)
 {
-	throw new processor_exception(PE_ADDRESS_ERROR, offset);	// FIXME
+	throw processor_exception(PE_ADDRESS_ERROR, offset);	// FIXME
 }
 
 void rom::write_32b(uint64_t offset, uint32_t data)
 {
-	throw new processor_exception(PE_ADDRESS_ERROR, offset);	// FIXME
+	throw processor_exception(PE_ADDRESS_ERROR, offset);	// FIXME
 }
 
 void rom::write_16b(uint64_t offset, uint16_t data)
 {
-	throw new processor_exception(PE_ADDRESS_ERROR, offset);	// FIXME
+	throw processor_exception(PE_ADDRESS_ERROR, offset);	// FIXME
 }
 
 void rom::write_8b(uint64_t offset, uint8_t data)
 {
-	throw new processor_exception(PE_ADDRESS_ERROR, offset);	// FIXME
+	throw processor_exception(PE_ADDRESS_ERROR, offset);	// FIXME
 }
