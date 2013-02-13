@@ -14,9 +14,10 @@ protected:
 public:
 	memory(uint64_t size, bool init);
 	memory(unsigned char *p, uint64_t len);
-	~memory();
+	virtual ~memory();
 
 	uint64_t get_size() { return len; }
+	virtual uint64_t get_mask() { return len - 1; }
 
 	void read_64b(uint64_t offset, uint64_t *data) const;
 	void read_32b(uint64_t offset, uint32_t *data) const;
