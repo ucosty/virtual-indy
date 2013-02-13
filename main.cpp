@@ -10,6 +10,7 @@
 #include "debug_console_simple.h"
 #include "rom.h"
 #include "hpc3.h"
+#include "mc.h"
 #include "log.h"
 
 bool single_step = false;
@@ -94,9 +95,9 @@ int main(int argc, char *argv[])
 	memory *m = new memory(64 * 1024 * 1024, true);
 	mb -> register_memory(0, m -> get_mask(), m);
 
-	memory *h = new hpc3();
-	mb -> register_memory(0xffffffffbfa00000, h -> get_mask(), h);
-	mb -> register_memory(0xffffffff1fa00000, h -> get_mask(), h);
+	memory *pmc = new mc();
+	mb -> register_memory(0xffffffff1fa00000, pmc -> get_mask(), pmc);
+	mb -> register_memory(0xffffffffbfa00000, pmc -> get_mask(), pmc);
 
 	rom *m_prom = new rom("ip24prom.070-9101-007.bin");
 	mb -> register_memory(0xffffffffbfc00000, m_prom -> get_size() - 1, m_prom); // IP20, 32bit
@@ -145,7 +146,7 @@ int main(int argc, char *argv[])
 
 	delete p;
 	delete mb;
-	delete h;
+	delete pmc;
 	delete m;
 	delete m_prom;
 
