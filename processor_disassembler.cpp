@@ -44,7 +44,7 @@ std::string processor::da_logline(uint32_t instruction)
 	}
 	else if (opcode == 2 || opcode == 3)	// J-type
 	{
-		uint64_t new_PC = ((instruction & MASK_26B) << 2) | (cur_PC & 0xFC000000);
+		uint64_t new_PC = ((instruction & MASK_26B) << 2) | (PC & 0xfffffffff0000000);
 
 		line += format("\tnPC %016llx", new_PC);
 	}

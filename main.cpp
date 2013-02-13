@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
 
 	dc -> init();
 
-	memory_bus *mb = new memory_bus();
+	memory_bus *mb = new memory_bus(dc);
 
 	memory *m = new memory(64 * 1024 * 1024, true);
 	mb -> register_memory(0, m -> get_mask(), m);

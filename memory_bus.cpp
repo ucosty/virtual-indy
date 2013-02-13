@@ -7,7 +7,7 @@
 #include "processor_utils.h"
 #include "exceptions.h"
 
-memory_bus::memory_bus() : list(NULL), n_elements(0)
+memory_bus::memory_bus(debug_console *pdc_in) : list(NULL), n_elements(0), pdc(pdc_in)
 {
 }
 
@@ -27,6 +27,8 @@ void memory_bus::register_memory(uint64_t offset, uint64_t mask, memory *target)
 	list[n_elements - 1].offset = offset;
 	list[n_elements - 1].mask   = mask;
 	list[n_elements - 1].target = target;
+
+	pdc -> dc_log("BUS: register %016llx / %016llx", offset, mask);
 }
 
 // r/w might overlap segments? FIXME

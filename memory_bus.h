@@ -3,6 +3,7 @@
 
 #include <vector>
 
+#include "debug_console.h"
 #include "memory.h"
 
 typedef struct
@@ -18,10 +19,12 @@ private:
 	memory_segment_t *list;
 	int n_elements;
 
+	debug_console *pdc;
+
 	const memory_segment_t * find_segment(uint64_t offset) const;
 
 public:
-	memory_bus();
+	memory_bus(debug_console *pdc_in);
 	~memory_bus();
 
 	void register_memory(uint64_t offset, uint64_t mask, memory *target);
