@@ -236,6 +236,7 @@ void debug_console::tick(processor *p)
 		mvwprintw(win_regs, 13, 48, "  :                       ");
 		mvwprintw(win_regs, 13, 48, "  : %s", decoded.c_str());
 
+#ifdef _DEBUG
 		unsigned int space = decoded.find(' ');
 		if (space == std::string::npos)
 			space = decoded.length();
@@ -248,6 +249,7 @@ void debug_console::tick(processor *p)
 			found -> second++;
 		else
 			instruction_counts.insert(std::pair<std::string, long int>(instruction_name, 1));
+#endif
 
 		double t_diff = now_ts - start_ts;
 		if (t_diff)
