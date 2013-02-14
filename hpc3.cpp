@@ -30,82 +30,132 @@ hpc3::~hpc3()
 	delete pep;
 }
 
+void hpc3::read_64b(uint64_t offset, uint64_t *data)
+{
+	uint8_t section = ((offset >> 16) & 0x0f) - 0x08;
+
+	(((hpc3*)this)->*hpc3::sections_read[section])(S_DWORD, offset, data);
+}
+
+void hpc3::write_64b(uint64_t offset, uint64_t data)
+{
+	uint8_t section = ((offset >> 16) & 0x0f) - 0x08;
+
+	(((hpc3*)this)->*hpc3::sections_write[section])(S_DWORD, offset, data);
+}
+
 void hpc3::read_32b(uint64_t offset, uint32_t *data)
 {
 	uint8_t section = ((offset >> 16) & 0x0f) - 0x08;
 
-	(((hpc3*)this)->*hpc3::sections_read[section])(offset, data);
+	uint64_t temp = -1;
+	(((hpc3*)this)->*hpc3::sections_read[section])(S_WORD, offset, &temp);
+	*data = temp;
 }
 
 void hpc3::write_32b(uint64_t offset, uint32_t data)
 {
 	uint8_t section = ((offset >> 16) & 0x0f) - 0x08;
 
-	(((hpc3*)this)->*hpc3::sections_write[section])(offset, data);
+	(((hpc3*)this)->*hpc3::sections_write[section])(S_WORD, offset, data);
 }
 
-void hpc3::section_8_read_pbus_dma(uint64_t offset, uint32_t *data)
+void hpc3::read_16b(uint64_t offset, uint16_t *data)
 {
-	*data = rand();
+	uint8_t section = ((offset >> 16) & 0x0f) - 0x08;
+
+	uint64_t temp = -1;
+	(((hpc3*)this)->*hpc3::sections_read[section])(S_SHORT, offset, &temp);
+	*data = temp;
 }
 
-void hpc3::section_9_read_hd_enet_channel(uint64_t offset, uint32_t *data)
+void hpc3::write_16b(uint64_t offset, uint16_t data)
 {
-	*data = rand();
+	uint8_t section = ((offset >> 16) & 0x0f) - 0x08;
+
+	(((hpc3*)this)->*hpc3::sections_write[section])(S_SHORT, offset, data);
 }
 
-void hpc3::section_a_read_fifo(uint64_t offset, uint32_t *data)
+void hpc3::read_8b(uint64_t offset, uint8_t *data)
 {
-	*data = rand();
+	uint8_t section = ((offset >> 16) & 0x0f) - 0x08;
+
+	uint64_t temp = -1;
+	(((hpc3*)this)->*hpc3::sections_read[section])(S_BYTE, offset, &temp);
+	*data = temp;
 }
 
-void hpc3::section_b_read_general(uint64_t offset, uint32_t *data)
+void hpc3::write_8b(uint64_t offset, uint8_t data)
 {
-	*data = rand();
+	uint8_t section = ((offset >> 16) & 0x0f) - 0x08;
+
+	(((hpc3*)this)->*hpc3::sections_write[section])(S_BYTE, offset, data);
 }
 
-void hpc3::section_c_read_hd_dev_regs(uint64_t offset, uint32_t *data)
+void hpc3::section_8_read_pbus_dma(ws_t ws, uint64_t offset, uint64_t *data)
 {
-	*data = rand();
+	*data = rand() | (uint64_t(rand()) << 32);
 }
 
-void hpc3::section_d_read_enet_dev_regs(uint64_t offset, uint32_t *data)
+void hpc3::section_9_read_hd_enet_channel(ws_t ws, uint64_t offset, uint64_t *data)
 {
-	*data = rand();
+	*data = rand() | (uint64_t(rand()) << 32);
 }
 
-void hpc3::section_e_read_sram(uint64_t offset_in, uint32_t *data)
+void hpc3::section_a_read_fifo(ws_t ws, uint64_t offset, uint64_t *data)
+{
+	*data = rand() | (uint64_t(rand()) << 32);
+}
+
+void hpc3::section_b_read_general(ws_t ws, uint64_t offset, uint64_t *data)
+{
+	*data = rand() | (uint64_t(rand()) << 32);
+}
+
+void hpc3::section_c_read_hd_dev_regs(ws_t ws, uint64_t offset, uint64_t *data)
+{
+	*data = rand() | (uint64_t(rand()) << 32);
+}
+
+void hpc3::section_d_read_enet_dev_regs(ws_t ws, uint64_t offset, uint64_t *data)
+{
+	*data = rand() | (uint64_t(rand()) << 32);
+}
+
+void hpc3::section_e_read_sram(ws_t ws, uint64_t offset_in, uint64_t *data)
 {
 	uint64_t offset = (offset_in & 0xfffff) - 0xe0000;
 
-	pep -> read_32b(offset, data);
+	uint32_t temp = -1;
+	pep -> read_32b(offset, &temp);
+	*data = temp;
 }
 
-void hpc3::section_8_write_pbus_dma(uint64_t offset, uint32_t data)
+void hpc3::section_8_write_pbus_dma(ws_t ws, uint64_t offset, uint64_t data)
 {
 }
 
-void hpc3::section_9_write_hd_enet_channel(uint64_t offset, uint32_t data)
+void hpc3::section_9_write_hd_enet_channel(ws_t ws, uint64_t offset, uint64_t data)
 {
 }
 
-void hpc3::section_a_write_fifo(uint64_t offset, uint32_t data)
+void hpc3::section_a_write_fifo(ws_t ws, uint64_t offset, uint64_t data)
 {
 }
 
-void hpc3::section_b_write_general(uint64_t offset, uint32_t data)
+void hpc3::section_b_write_general(ws_t ws, uint64_t offset, uint64_t data)
 {
 }
 
-void hpc3::section_c_write_hd_dev_regs(uint64_t offset, uint32_t data)
+void hpc3::section_c_write_hd_dev_regs(ws_t ws, uint64_t offset, uint64_t data)
 {
 }
 
-void hpc3::section_d_write_enet_dev_regs(uint64_t offset, uint32_t data)
+void hpc3::section_d_write_enet_dev_regs(ws_t ws, uint64_t offset, uint64_t data)
 {
 }
 
-void hpc3::section_e_write_sram(uint64_t offset_in, uint32_t data)
+void hpc3::section_e_write_sram(ws_t ws, uint64_t offset_in, uint64_t data)
 {
 	uint64_t offset = (offset_in & 0xfffff) - 0xe0000;
 
