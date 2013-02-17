@@ -92,10 +92,10 @@ int main(int argc, char *argv[])
 
 	memory_bus *mb = new memory_bus(dc);
 
-	memory *mem1 = new memory(256 * 1024 * 1024, false);
+	memory *mem1 = new memory(256 * 1024 * 1024, true);
 	mb -> register_memory(0x08000000, mem1 -> get_mask(), mem1);
 	mb -> register_memory(0, 512 * 1024 - 1, mem1); // needed for exception vectors
-	memory *mem2 = new memory(256 * 1024 * 1024, false);
+	memory *mem2 = new memory(256 * 1024 * 1024, true);
 	mb -> register_memory(0x20000000, mem2 -> get_mask(), mem2);
 
 	rom *m_prom = new rom("ip24prom.070-9101-007.bin");
