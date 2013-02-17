@@ -91,6 +91,10 @@ void debug_console::init()
 
 	recreate_terminal();
 
+	dc_log("Calibrating...");
+	wnoutrefresh(win_logs);
+	doupdate();
+
 	nc = true;
 }
 
