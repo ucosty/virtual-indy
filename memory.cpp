@@ -30,7 +30,7 @@ memory::~memory()
 	delete [] pm;
 }
 
-void memory::read_64b(uint64_t offset, uint64_t *data) const
+void memory::read_64b(uint64_t offset, uint64_t *data)
 {
 	unsigned char *dummy_p = &pm[offset];
 	uint64_t dummy = *(uint64_t *)dummy_p;
@@ -46,7 +46,7 @@ void memory::read_32b(uint64_t offset, uint32_t *data)
 	*data = be32toh(dummy);
 }
 
-void memory::read_16b(uint64_t offset, uint16_t *data) const
+void memory::read_16b(uint64_t offset, uint16_t *data)
 {
 	unsigned char *dummy_p = &pm[offset];
 	uint16_t dummy = *(uint16_t *)dummy_p;
@@ -54,7 +54,7 @@ void memory::read_16b(uint64_t offset, uint16_t *data) const
 	*data = be16toh(dummy);
 }
 
-void memory::read_8b(uint64_t offset, uint8_t *data) const
+void memory::read_8b(uint64_t offset, uint8_t *data)
 {
 	*data = pm[offset];
 }

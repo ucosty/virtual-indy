@@ -19,14 +19,14 @@ public:
 	virtual uint64_t get_size() const { return len; }
 	virtual uint64_t get_mask() const { return len - 1; }
 
-	void read_64b(uint64_t offset, uint64_t *data) const;
+	virtual void read_64b(uint64_t offset, uint64_t *data);
 	virtual void read_32b(uint64_t offset, uint32_t *data);
-	void read_16b(uint64_t offset, uint16_t *data) const;
-	void read_8b(uint64_t offset, uint8_t *data) const;
-	void write_64b(uint64_t offset, uint64_t data);
+	virtual void read_16b(uint64_t offset, uint16_t *data);
+	virtual void read_8b(uint64_t offset, uint8_t *data);
+	virtual void write_64b(uint64_t offset, uint64_t data);
 	virtual void write_32b(uint64_t offset, uint32_t data);
-	void write_16b(uint64_t offset, uint16_t data);
-	void write_8b(uint64_t offset, uint8_t data);
+	virtual void write_16b(uint64_t offset, uint16_t data);
+	virtual void write_8b(uint64_t offset, uint8_t data);
 };
 
 #endif
