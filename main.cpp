@@ -155,6 +155,7 @@ int main(int argc, char *argv[])
 	delete mem1;
 	delete mem2;
 	delete m_prom;
+	delete hpc;
 
 	dolog("--- END ---");
 
