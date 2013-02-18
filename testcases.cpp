@@ -6,6 +6,9 @@
 #include "processor_utils.h"
 #include "exceptions.h"
 
+#define TEST_VAL_1 0x12345678abcdefff
+#define TEST_VAL_2 0x87654321beefdead
+
 bool single_step = false; // not applicable
 debug_console *dc = new debug_console_testcases();
 
@@ -373,12 +376,14 @@ void test_LW()
 		p -> set_PC(0);
 
 		uint8_t base = 1;
-		int base_val = 9;
-		p -> set_register_32b(base, base_val);
+		uint64_t base_val = 0x1234;
+		p -> set_register_64b(base, base_val);
 
 		uint8_t rt = 2;
+		uint64_t rt_val = TEST_VAL_2;
+		p -> set_register_64b(rt, rt_val);
 
-		int offset = 0xff;
+		int16_t offset = 0xf8;
 
 		uint8_t function = 0x23;	// LW
 
@@ -386,17 +391,17 @@ void test_LW()
 		m1 -> write_32b(0, instr);
 		// printf("instruction: %08x\n", instr);
 
-		int addr_val = 0xdeafbeef;
-		int addr = base_val + untwos_complement(offset, 16);
+		uint32_t addr_val = 0xdeafbeef;
+		uint64_t addr = base_val + offset;
 		m1 -> write_32b(addr, addr_val);
 
 		tick(p);
 
-		int temp_32b = p -> get_register_32b_signed(rt);
+		uint32_t temp_32b = p -> get_register_32b_unsigned(rt);
 
-		int expected = addr_val;
+		uint32_t expected = addr_val;
 		if (temp_32b != expected)
-			error_exit("LW: rt (%d) != %d", temp_32b, expected);
+			error_exit("LW: rt (%08x) != %08x", temp_32b, expected);
 	}
 
 	// signed offset
@@ -405,12 +410,14 @@ void test_LW()
 		p -> set_PC(0);
 
 		uint8_t base = 1;
-		int base_val = 0xf0000;
+		uint64_t base_val = 0xf0000;
 		p -> set_register_32b(base, base_val);
 
 		uint8_t rt = 2;
+		uint64_t rt_val = TEST_VAL_1;
+		p -> set_register_64b(rt, rt_val);
 
-		int offset = 0x9014;
+		uint16_t offset = 0x9014;
 
 		uint8_t function = 0x23;	// LW
 
@@ -525,19 +532,30 @@ void test_LUI()
 	p -> reset();
 	p -> set_PC(0);
 
+	uint8_t rs = 1;
+	uint64_t rs_val = TEST_VAL_1;
+	p -> set_register_64b(rs, rs_val);
+
 	uint8_t rt = 4;
+	uint64_t rt_val = TEST_VAL_2;
+	p -> set_register_64b(rt, rt_val);
+
 	uint8_t function = 0x0f;
 	int immediate = 0xabcd;
-	int expected = immediate << 16;
-	uint32_t instr = make_cmd_I_TYPE(0, rt, function, immediate);
+	uint64_t expected = sign_extend_32b(immediate << 16);
+	uint32_t instr = make_cmd_I_TYPE(rs, rt, function, immediate);
 
 	m1 -> write_32b(0, instr);
 
 	tick(p);
 
-	int rc = p -> get_register_32b_signed(rt);
+	uint64_t rc = p -> get_register_64b_unsigned(rt);
 	if (rc != expected)
 		error_exit("LUI failed: expected %x got %x", expected, rc);
+
+	rc = p -> get_register_64b_unsigned(rs);
+	if (rc != rs_val)
+		error_exit("LUI failed: register %d changed from %016llx to %016llx", rs, rs_val, rc);
 
 	free_system(mb, m1, m2, p);
 }
