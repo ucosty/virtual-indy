@@ -34,6 +34,8 @@ void hpc3::read_64b(uint64_t offset, uint64_t *data)
 {
 	uint8_t section = ((offset >> 16) & 0x0f) - 0x08;
 
+	pdc -> dc_log("HPC3 read64 %08llx %d", offset, section);
+
 	(((hpc3*)this)->*hpc3::sections_read[section])(S_DWORD, offset, data);
 }
 
@@ -41,12 +43,16 @@ void hpc3::write_64b(uint64_t offset, uint64_t data)
 {
 	uint8_t section = ((offset >> 16) & 0x0f) - 0x08;
 
+	pdc -> dc_log("HPC3 write64 %08llx %d", offset, section);
+
 	(((hpc3*)this)->*hpc3::sections_write[section])(S_DWORD, offset, data);
 }
 
 void hpc3::read_32b(uint64_t offset, uint32_t *data)
 {
 	uint8_t section = ((offset >> 16) & 0x0f) - 0x08;
+
+	pdc -> dc_log("HPC3 read32 %08llx %d", offset, section);
 
 	uint64_t temp = -1;
 	(((hpc3*)this)->*hpc3::sections_read[section])(S_WORD, offset, &temp);
@@ -57,12 +63,16 @@ void hpc3::write_32b(uint64_t offset, uint32_t data)
 {
 	uint8_t section = ((offset >> 16) & 0x0f) - 0x08;
 
+	pdc -> dc_log("HPC3 write32 %08llx %d", offset, section);
+
 	(((hpc3*)this)->*hpc3::sections_write[section])(S_WORD, offset, data);
 }
 
 void hpc3::read_16b(uint64_t offset, uint16_t *data)
 {
 	uint8_t section = ((offset >> 16) & 0x0f) - 0x08;
+
+	pdc -> dc_log("HPC3 read16 %08llx %d", offset, section);
 
 	uint64_t temp = -1;
 	(((hpc3*)this)->*hpc3::sections_read[section])(S_SHORT, offset, &temp);
@@ -73,12 +83,16 @@ void hpc3::write_16b(uint64_t offset, uint16_t data)
 {
 	uint8_t section = ((offset >> 16) & 0x0f) - 0x08;
 
+	pdc -> dc_log("HPC3 write16 %08llx %d", offset, section);
+
 	(((hpc3*)this)->*hpc3::sections_write[section])(S_SHORT, offset, data);
 }
 
 void hpc3::read_8b(uint64_t offset, uint8_t *data)
 {
 	uint8_t section = ((offset >> 16) & 0x0f) - 0x08;
+
+	pdc -> dc_log("HPC3 read8 %08llx %d", offset, section);
 
 	uint64_t temp = -1;
 	(((hpc3*)this)->*hpc3::sections_read[section])(S_BYTE, offset, &temp);
@@ -88,6 +102,8 @@ void hpc3::read_8b(uint64_t offset, uint8_t *data)
 void hpc3::write_8b(uint64_t offset, uint8_t data)
 {
 	uint8_t section = ((offset >> 16) & 0x0f) - 0x08;
+
+	pdc -> dc_log("HPC3 write8 %08llx %d", offset, section);
 
 	(((hpc3*)this)->*hpc3::sections_write[section])(S_BYTE, offset, data);
 }
