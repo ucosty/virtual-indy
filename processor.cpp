@@ -26,7 +26,7 @@ void processor::reset()
 {
 	memset(registers, 0x00, sizeof registers);
 
-	status_register = HI = LO = PC = 0;
+	status_register = HI = LO = PC = EPC = 0;
 
 	memset(C0_registers, 0x00, sizeof C0_registers);
 
@@ -40,25 +40,38 @@ void processor::tick()
 {
 	try
 	{
+		uint64_t work_address = PC;
 		uint32_t instruction = -1;
 
-		if (unlikely(have_delay_slot))
+		try
 		{
-			have_delay_slot = false;
+			if (unlikely(have_delay_slot))
+			{
+				have_delay_slot = false;
 
-			if (unlikely(delay_slot_PC & 0x03))
-				throw processor_exception(PE_ADDRESS_ERROR, delay_slot_PC);
+				work_address = delay_slot_PC;
 
-			pmb -> read_32b(delay_slot_PC, &instruction);
+				if (unlikely(delay_slot_PC & 0x03))
+					throw processor_exception(PE_ADDRESS_ERROR, delay_slot_PC);
+
+				pmb -> read_32b(delay_slot_PC, &instruction);
+			}
+			else
+			{
+				if (unlikely(PC & 0x03))
+					throw processor_exception(PE_ADDRESS_ERROR, PC);
+
+				pmb -> read_32b(PC, &instruction);
+
+				PC += 4;
+			}
 		}
-		else
+		catch(processor_exception & pe)
 		{
-			if (unlikely(PC & 0x03))
-				throw processor_exception(PE_ADDRESS_ERROR, PC);
+			if (pe.get_cause_ExcCode() == PEE_MEM)
+				return processor_exception(work_address, status_register, , PE_IBUS);
 
-			pmb -> read_32b(PC, &instruction);
-
-			PC += 4;
+			throw pe;
 		}
 
 		uint8_t opcode = (instruction >> 26) & MASK_6B;
@@ -71,6 +84,20 @@ void processor::tick()
 	{
 		// FIXME handle PE_*
 		pdc -> dc_log("EXCEPTION %d at/for %016llx, PC: %016llx (1)", pe.get_type(), pe.get_address(), PC);
+
+		if (pe.get_cause_ExcCode() == PEE_MEM)
+			pe = processor_exception(work_address, status_register, , PE_DBUS);
+
+		if (IS_BIT_OFF0_SET(8 + pe.get_ip(), status_register) && (status_register & 1) == 1)
+		{
+			status_register |= (status_register & 15) << 2;
+			// FIXME: at return, shift >> 2, do not change old state
+			// ALSO INCREASE PC WITH 4
+
+
+			EPC = pe.get_EPC();
+			PC = 0x80000080;
+		}
 	}
 }
 
@@ -97,7 +124,7 @@ void processor::get_mem_32b(int offset, uint32_t *value) const
 	pmb -> read_32b(offset, value);
 }
 
-uint32_t processor::get_C0_register(uint8_t nr, uint8_t sel)
+uint64_t processor::get_C0_register(uint8_t nr, uint8_t sel)
 {
 	ASSERT(nr >=0 && nr <= 31);
 
@@ -107,7 +134,7 @@ uint32_t processor::get_C0_register(uint8_t nr, uint8_t sel)
 	return C0_registers[nr];
 }
 
-void processor::set_C0_register(uint8_t nr, uint8_t sel, uint32_t value)
+void processor::set_C0_register(uint8_t nr, uint8_t sel, uint64_t value)
 {
 	ASSERT(nr >=0 && nr <= 31);
 

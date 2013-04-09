@@ -1,5 +1,7 @@
 - testcases: untwos_complement_16b
 
+- LWC0/SWC0?
+
 - testcases: branches; test delayed with something that sets vars
 
 - 0x30/34 mc:

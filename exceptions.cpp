@@ -1,40 +1,56 @@
+#include "debug.h"
+#include "processor_utils.h"
 #include "exceptions.h"
 
-processor_exception::processor_exception(processor_exceptions_type_t type_in, uint64_t address_in)
+processor_exception::processor_exception(uint64_t BadVAddr_in, uint32_t status_in, uint8_t ip, uint8_t ExcCode, uint64_t EPC_in)
 {
-	type = type_in;
-	address = address_in;
+	ASSERT(ExcCode >=0 && ExcCode <= 31);
+	cause = (ip << 8) | (ExcCode << 2);
+
+	BadVAddr = BadVAddr_in;
+	status = status_in;
+	cause = cause_in;
+	EPC = EPC_in;
 }
 
 processor_exception::processor_exception(const processor_exception & org)
 {
-	type = org.get_type();
-	address = org.get_address();
+	BadVAddr = org.get_BadVAddr();
+	status = org.get_status();
+	cause = org.get_cause();
+	EPC = org.get_EPC();
+
+	ASSERT((cause & MASK_32B) == cause);
+	ASSERT((cause & 128) == 0);
+	ASSERT((cause & 3) == 0);
 }
 
-uint64_t processor_exception::get_address() const
+uint64_t processor_exception::get_BadVAddr() const
 {
-	return address;
+	return BadVAddr;
 }
 
-processor_exceptions_type_t processor_exception::get_type() const
+uint32_t processor_exception::get_status() const
 {
-	return type;
+	return status;
 }
 
-const char *processor_exception::get_type_str() const
+uint32_t processor_exception::get_cause() const
 {
-	switch(type)
-	{
-		case PE_TLB_MISS:
-			return "TLB miss";
+	return cause;
+}
 
-		case PE_ADDRESS_ERROR:
-			return "address alignment error";
+processor_exceptions_type_t processor_exception::get_cause_ExcCode() const
+{
+	return (cause >> 2) & MASK_5B;
+}
 
-		case PE_ARITHMETIC_OVERFLOW:
-			return "arithmetic overflow";
-	}
+uint8_t processor_exception::get_ip() const
+{
+	return (cause >> 8) & MASK_8B;
+}
 
-	return "??? (!)";
+uint64_t processor_exception::get_EPC() const
+{
+	return EPC;
 }

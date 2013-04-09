@@ -31,7 +31,7 @@ private:
 	// 29		$sp		stack pointer Points to last location on the stack.
 	// 30		$s8/$fp		saved value / frame pointer Preserved across procedure calls
 	// 31		$ra		return address
-	uint64_t registers[32], PC, HI, LO;
+	uint64_t registers[32], PC, HI, LO, EPC;
 	uint32_t status_register;
 	uint32_t C0_registers[32];
 
@@ -194,13 +194,13 @@ public:
 
 	void get_mem_32b(int offset, uint32_t *value) const;
 
-	uint32_t get_C0_register(uint8_t nr, uint8_t sel);
+	uint64_t get_C0_register(uint8_t nr, uint8_t sel);
 
 	void set_PC(uint64_t value) { PC = value; }
 	void set_HI(uint64_t value) { HI = value; }
 	void set_LO(uint64_t value) { LO = value; }
 
-	void set_C0_register(uint8_t nr, uint8_t sel, uint32_t value);
+	void set_C0_register(uint8_t nr, uint8_t sel, uint64_t value);
 
 	void reset();
 	void tick();
