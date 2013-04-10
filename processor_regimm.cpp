@@ -12,9 +12,19 @@ void processor::regimm(uint32_t instruction)
 
 	switch(function)
 	{
+		case 0x00:		// BLTZ
+		case 0x02:		// BLTZL
+			if (int32_t(get_register_32b_signed(rs)) <= 0)
+			{
+				set_register_64b(31, PC + 8);
+
+				PC += b18_signed_offset;
+			}
+			break;
+
 		case 0x01:		// BGEZ
 		case 0x03:		// BGEZL
-			if (int32_t(get_register_32b_unsigned(rs)) >= 0)
+			if (int32_t(get_register_32b_signed(rs)) >= 0)
 				PC += b18_signed_offset;
 			break;
 
@@ -25,7 +35,7 @@ void processor::regimm(uint32_t instruction)
 
 			if (int32_t(get_register_32b_unsigned(rs)) >= 0)
 			{
-				set_register_64b(31, PC + 4);
+				set_register_64b(31, PC + 8);
 
 				PC += b18_signed_offset;
 			}

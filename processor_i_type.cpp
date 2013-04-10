@@ -24,10 +24,10 @@ void processor::init_i_type()
 	i_type_methods[17] = &processor::i_type_11;
 	i_type_methods[18] = &processor::i_type_12;
 	i_type_methods[19] = &processor::i_type_13;
-	i_type_methods[20] = &processor::i_type_14;
+	i_type_methods[20] = &processor::i_type_04;	// !
 	i_type_methods[21] = &processor::i_type_05;	// !
-	i_type_methods[22] = &processor::i_type_16;
-	i_type_methods[23] = &processor::i_type_17;
+	i_type_methods[22] = &processor::i_type_06;	// !
+	i_type_methods[23] = &processor::i_type_07;	// !
 	i_type_methods[24] = &processor::i_type_18;
 	i_type_methods[25] = &processor::i_type_19;
 	i_type_methods[26] = &processor::i_type_1a;
@@ -121,7 +121,7 @@ void processor::i_type_01(uint32_t instruction)	// BGEZAL
 	regimm(instruction);
 }
 
-void processor::i_type_04(uint32_t instruction)	// BEQ
+void processor::i_type_04(uint32_t instruction)	// BEQ/BEQL
 {
 	uint8_t rs = (instruction >> 21) & MASK_5B;
 	uint8_t rt = (instruction >> 16) & MASK_5B;
@@ -133,7 +133,7 @@ void processor::i_type_04(uint32_t instruction)	// BEQ
 	{
 		set_delay_slot(PC);
 
-		PC += 4 + b18_signed_offset;
+		PC += b18_signed_offset;
 	}
 }
 
@@ -149,47 +149,41 @@ void processor::i_type_05(uint32_t instruction)	// BNE/BNEL
 	{
 		set_delay_slot(PC);
 
-		PC += 4 + b18_signed_offset;
+		PC += b18_signed_offset;
 	}
 
 	if ((instruction & MASK_6B) == 0x15) // BNEL
 		PC += 4; // skip delay slot
 }
 
-void processor::i_type_06(uint32_t instruction)
+void processor::i_type_06(uint32_t instruction)	// BLEZ/BLEZL
 {
-	int immediate = instruction & MASK_16B;
-	int immediate_s = int16_t(immediate);
+        uint8_t rs = (instruction >> 21) & MASK_5B;
+        int b18_signed_offset = int16_t(instruction) << 2;
 
-	uint8_t rs = (instruction >> 21) & MASK_5B;
-	uint8_t base = rs;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
+        cycles += 3;
 
-	int offset = immediate;
-	int offset_s = immediate_s;
-	int b18_signed_offset = int16_t(offset) << 2;
+        if (get_register_64b_signed(rs) <= 0)
+        {
+                set_delay_slot(PC);
 
-	int temp_32b = -1, address = -1;
-
-	pdc -> dc_log("i_type_06 not known");
+                PC += b18_signed_offset;
+        }
 }
 
-void processor::i_type_07(uint32_t instruction)
+void processor::i_type_07(uint32_t instruction)	// BGTZ
 {
-	int immediate = instruction & MASK_16B;
-	int immediate_s = int16_t(immediate);
+        uint8_t rs = (instruction >> 21) & MASK_5B;
+        int b18_signed_offset = int16_t(instruction) << 2;
 
-	uint8_t rs = (instruction >> 21) & MASK_5B;
-	uint8_t base = rs;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
+        cycles += 3;
 
-	int offset = immediate;
-	int offset_s = immediate_s;
-	int b18_signed_offset = int16_t(offset) << 2;
+        if (get_register_64b_signed(rs) >= 0)
+        {
+                set_delay_slot(PC);
 
-	int temp_32b = -1, address = -1;
-
-	pdc -> dc_log("i_type_07 not known");
+                PC += b18_signed_offset;
+        }
 }
 
 void processor::i_type_08(uint32_t instruction)	// ADDI
@@ -273,60 +267,6 @@ void processor::i_type_0f(uint32_t instruction)	// LUI
 	uint8_t rt = (instruction >> 16) & MASK_5B;
 
 	set_register_32b_se(rt, immediate << 16);
-}
-
-void processor::i_type_14(uint32_t instruction)
-{
-	int immediate = instruction & MASK_16B;
-	int immediate_s = int16_t(immediate);
-
-	uint8_t rs = (instruction >> 21) & MASK_5B;
-	uint8_t base = rs;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
-
-	int offset = immediate;
-	int offset_s = immediate_s;
-	int b18_signed_offset = int16_t(offset) << 2;
-
-	int temp_32b = -1, address = -1;
-
-	pdc -> dc_log("i_type_14 not known");
-}
-
-void processor::i_type_16(uint32_t instruction)
-{
-	int immediate = instruction & MASK_16B;
-	int immediate_s = int16_t(immediate);
-
-	uint8_t rs = (instruction >> 21) & MASK_5B;
-	uint8_t base = rs;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
-
-	int offset = immediate;
-	int offset_s = immediate_s;
-	int b18_signed_offset = int16_t(offset) << 2;
-
-	int temp_32b = -1, address = -1;
-
-	pdc -> dc_log("i_type_16 not known");
-}
-
-void processor::i_type_17(uint32_t instruction)
-{
-	int immediate = instruction & MASK_16B;
-	int immediate_s = int16_t(immediate);
-
-	uint8_t rs = (instruction >> 21) & MASK_5B;
-	uint8_t base = rs;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
-
-	int offset = immediate;
-	int offset_s = immediate_s;
-	int b18_signed_offset = int16_t(offset) << 2;
-
-	int temp_32b = -1, address = -1;
-
-	pdc -> dc_log("i_type_17 not known");
 }
 
 void processor::i_type_18(uint32_t instruction)
@@ -505,20 +445,17 @@ void processor::i_type_21(uint32_t instruction)	// LH / LHU
 
 void processor::i_type_22(uint32_t instruction)
 {
-	int immediate = instruction & MASK_16B;
-	int immediate_s = int16_t(immediate);
+        uint8_t rs = (instruction >> 21) & MASK_5B;
+        int b18_signed_offset = int16_t(instruction) << 2;
 
-	uint8_t rs = (instruction >> 21) & MASK_5B;
-	uint8_t base = rs;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
+        cycles += 3;
 
-	int offset = immediate;
-	int offset_s = immediate_s;
-	int b18_signed_offset = int16_t(offset) << 2;
+        if (get_register_64b_signed(rs) <= 0)
+        {
+                set_delay_slot(PC);
 
-	int temp_32b = -1, address = -1;
-
-	pdc -> dc_log("i_type_22 not known");
+                PC += b18_signed_offset;
+        }
 }
 
 void processor::i_type_23(uint32_t instruction)	// LW / LL
