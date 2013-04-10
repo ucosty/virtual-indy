@@ -92,12 +92,12 @@ void processor::tick()
 
 		if (IS_BIT_OFF0_SET(8 + pe.get_ip(), status_register) && (status_register & 1) == 1)
 		{
-			status_register |= (status_register & 15) << 2;
-			// FIXME: at return, shift >> 2, do not change old state
-			// ALSO INCREASE PC WITH 4
-
+			status_register = (status_register & 0xFFFFFFC0) | ((status_register & 15) << 2);
 			EPC = pe.get_EPC();
 			PC = 0x80000080;
+
+			// FIXME: at return, shift >> 2, do not change old state
+			// ALSO INCREASE PC WITH 4
 		}
 	}
 }
