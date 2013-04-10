@@ -10,11 +10,12 @@ void processor::regimm(uint32_t instruction)
 
 	int b18_signed_offset = int16_t(immediate) << 2;
 
+// FIXME 32b registers?!
 	switch(function)
 	{
 		case 0x00:		// BLTZ
 		case 0x02:		// BLTZL
-			if (int32_t(get_register_32b_signed(rs)) <= 0)
+			if (int32_t(get_register_32b_signed(rs)) < 0)
 			{
 				set_register_64b(31, PC + 8);
 
@@ -34,6 +35,16 @@ void processor::regimm(uint32_t instruction)
 				pdc -> dc_log("i-type / REGIMM / BGEZ using rs 31");
 
 			if (int32_t(get_register_32b_unsigned(rs)) >= 0)
+			{
+				set_register_64b(31, PC + 8);
+
+				PC += b18_signed_offset;
+			}
+			break;
+
+		case 0x10:		// BLTZAL
+		case 0x12:		// BLTZALL
+			if (int32_t(get_register_32b_signed(rs)) < 0)
 			{
 				set_register_64b(31, PC + 8);
 
