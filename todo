@@ -22,6 +22,7 @@ J       1
 JAL     4
 JR      2
 LB      1
+LBU
 LUI     4 *
 LW      46 *
 MFC0    1
@@ -32,6 +33,7 @@ ORI     73 *
 SLL     56 *
 SLLV    1
 SLT     626
+SRL
 SUBU    626
 SW      125 *
 SB      18
