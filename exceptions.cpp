@@ -4,7 +4,7 @@
 
 processor_exception::processor_exception(uint64_t BadVAddr_in, uint32_t status_in, uint8_t ip, uint8_t ExcCode, uint64_t EPC_in)
 {
-	ASSERT(ExcCode >=0 && ExcCode <= 31);
+	ASSERT((ExcCode >=0 && ExcCode <= 31) || ExcCode == 255);
 	cause = (ip << 8) | (ExcCode << 2);
 
 	BadVAddr = BadVAddr_in;
