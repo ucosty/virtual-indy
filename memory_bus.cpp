@@ -45,7 +45,7 @@ const memory_segment_t * memory_bus::find_segment(uint64_t offset) const
 			return psegment;
 	}
 
-	throw processor_exception(PEE_MEM, offset);
+	throw processor_exception(offset, -1, -1, PEE_MEM, -1);
 
 	return NULL; // should not be reached
 }

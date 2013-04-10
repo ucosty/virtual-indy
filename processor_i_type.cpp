@@ -202,7 +202,7 @@ void processor::i_type_08(uint32_t instruction)	// ADDI
 	int32_t val2 = immediate_s;
 
 	if (unlikely(test_tc_overflow_32b(val1, val2)))
-		throw processor_exception(PE_ARITHMETIC_OVERFLOW, PC - 4);
+		throw processor_exception(PC, status_register, 0, PE_OVF, PC);
 	else
 		set_register_32b_se(rt, val1 + val2);
 }
@@ -482,7 +482,7 @@ void processor::i_type_21(uint32_t instruction)	// LH / LHU
 
 		cycles += 5; // FIXME
 
-		throw processor_exception(PE_ADDRESS_ERROR, address);
+		throw processor_exception(address, status_register, 0, PE_ADDRL, PC);
 	}
 	else
 	{
@@ -534,7 +534,7 @@ void processor::i_type_23(uint32_t instruction)	// LW / LL
 
 		cycles += 5; // FIXME
 
-		throw processor_exception(PE_ADDRESS_ERROR, address);
+		throw processor_exception(address, status_register, 0, PE_ADDRL, PC);
 	}
 	else
 	{
@@ -618,7 +618,7 @@ void processor::i_type_29(uint32_t instruction)	// SH
 
 		cycles += 4; // FIXME
 
-		throw processor_exception(PE_ADDRESS_ERROR, address);
+		throw processor_exception(address, status_register, 0, PE_ADDRS, PC);
 	}
 	else
 	{
@@ -663,7 +663,7 @@ void processor::i_type_2b(uint32_t instruction)	// SW
 
 		cycles += 4; // FIXME
 
-		throw processor_exception(PE_ADDRESS_ERROR, address);
+		throw processor_exception(address, status_register, 0, PE_ADDRS, PC);
 	}
 	else
 	{

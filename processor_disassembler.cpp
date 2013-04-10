@@ -18,7 +18,7 @@ std::string processor::da_logline(uint32_t instruction)
 	}
 	catch(processor_exception & pe)
 	{
-		exception = format("EXCEPTION %d at/for %016llx (2)", pe.get_type_str(), pe.get_address());
+		exception = format("EXCEPTION %d at/for %016llx, PC: %016llx (1), sr: %08x", pe.get_cause(), pe.get_BadVAddr(), pe.get_EPC(), pe.get_status());
 
 		rc = false;
 	}

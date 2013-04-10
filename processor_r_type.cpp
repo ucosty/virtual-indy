@@ -1,4 +1,5 @@
 #include "processor.h"
+#include "exceptions.h"
 #include "processor_utils.h"
 
 void processor::init_r_type()

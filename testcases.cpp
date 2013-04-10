@@ -32,7 +32,7 @@ void exec(memory_bus *mb, std::vector<int> instructions, processor *p)
 		}
 		catch(processor_exception & pe)
 		{
-			error_exit("failed to write to offset %d in memory! exception: %s", pe.get_address(), pe.get_type_str());
+			error_exit("failed to write to memory EXCEPTION %d at/for %016llx, PC: %016llx (1), sr: %08x", pe.get_cause(), pe.get_BadVAddr(), pe.get_EPC(), pe.get_status());
 		}
 	}
 
@@ -262,7 +262,7 @@ void test_memory_bus()
 	}
 	catch(processor_exception pe)
 	{
-		error_exit("failed to access memory %016llx via bus: %s", pe.get_address(), pe.get_type_str());
+		error_exit("failed to access memory EXCEPTION %d at/for %016llx, PC: %016llx (1), sr: %08x", pe.get_cause(), pe.get_BadVAddr(), pe.get_EPC(), pe.get_status());
 	}
 
 	free_system(mb, m1, m2, p);

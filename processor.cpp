@@ -52,14 +52,14 @@ void processor::tick()
 				work_address = delay_slot_PC;
 
 				if (unlikely(delay_slot_PC & 0x03))
-					throw processor_exception(PE_ADDRESS_ERROR, delay_slot_PC);
+					throw processor_exception(delay_slot_PC, status_register, 0, PE_ADDRL, delay_slot_PC);
 
 				pmb -> read_32b(delay_slot_PC, &instruction);
 			}
 			else
 			{
 				if (unlikely(PC & 0x03))
-					throw processor_exception(PE_ADDRESS_ERROR, PC);
+					throw processor_exception(PC, status_register, 0, PE_ADDRL, PC);
 
 				pmb -> read_32b(PC, &instruction);
 
@@ -69,7 +69,7 @@ void processor::tick()
 		catch(processor_exception & pe)
 		{
 			if (pe.get_cause_ExcCode() == PEE_MEM)
-				return processor_exception(work_address, status_register, 0, PE_IBUS);
+				throw processor_exception(work_address, status_register, 0, PE_IBUS, PC);
 
 			throw pe;
 		}
@@ -83,10 +83,12 @@ void processor::tick()
 	catch(processor_exception & pe)
 	{
 		// FIXME handle PE_*
-		pdc -> dc_log("EXCEPTION %d at/for %016llx, PC: %016llx (1)", pe.get_type(), pe.get_address(), PC);
+		pdc -> dc_log("EXCEPTION %d at/for %016llx, PC: %016llx (1), sr: %08x", pe.get_cause(), pe.get_BadVAddr(), pe.get_EPC(), pe.get_status());
 
 		if (pe.get_cause_ExcCode() == PEE_MEM)
-			pe = processor_exception(work_address, status_register, 0, PE_DBUS);
+			pe = processor_exception(pe.get_BadVAddr(), status_register, 0, PE_DBUS, PC);
+		else if (pe.get_cause_ExcCode() == PEE_RMEMS)
+			pe = processor_exception(pe.get_BadVAddr(), status_register, 0, PE_ADDRS, PC);
 
 		if (IS_BIT_OFF0_SET(8 + pe.get_ip(), status_register) && (status_register & 1) == 1)
 		{

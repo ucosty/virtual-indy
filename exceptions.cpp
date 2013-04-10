@@ -9,7 +9,6 @@ processor_exception::processor_exception(uint64_t BadVAddr_in, uint32_t status_i
 
 	BadVAddr = BadVAddr_in;
 	status = status_in;
-	cause = cause_in;
 	EPC = EPC_in;
 }
 
@@ -42,7 +41,7 @@ uint32_t processor_exception::get_cause() const
 
 processor_exceptions_type_t processor_exception::get_cause_ExcCode() const
 {
-	return (cause >> 2) & MASK_5B;
+	return (processor_exceptions_type_t)((cause >> 2) & MASK_5B);
 }
 
 uint8_t processor_exception::get_ip() const

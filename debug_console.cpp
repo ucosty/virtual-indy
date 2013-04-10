@@ -183,7 +183,7 @@ void debug_console::tick(processor *p)
 	}
 	catch(processor_exception & pe)
 	{
-		dc_log("EXCEPTION %d at/for %016llx (3)", pe.get_type_str(), pe.get_address());
+		dc_log("EXCEPTION %d at/for %016llx, PC: %016llx (3), sr: %08x", pe.get_cause(), pe.get_BadVAddr(), pe.get_EPC(), pe.get_status());
 
 		r_ok = false;
 	}

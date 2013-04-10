@@ -4,7 +4,7 @@
 // 11 copro missing
 // 13- floating point
 
-typedef enum { PEE_MEM = -1, PE_INT = 0, PE_ADDRL = 4, PE_ADDRS = 5, PE_IBUS = 6, PE_DBUS = 7, PE_SYSCALL = 8, PE_BKPT = 9, PE_RI = 10, PE_OVF = 12 } processor_exceptions_type_t;
+typedef enum { PEE_RMEMS = -2, PEE_MEM = -1, PE_INT = 0, PE_ADDRL = 4, PE_ADDRS = 5, PE_IBUS = 6, PE_DBUS = 7, PE_SYSCALL = 8, PE_BKPT = 9, PE_RI = 10, PE_OVF = 12 } processor_exceptions_type_t;
 
 class processor_exception
 {
