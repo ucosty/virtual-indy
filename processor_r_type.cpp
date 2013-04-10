@@ -196,19 +196,16 @@ void processor::r_type_0b(uint32_t instruction)	// MOVN
 		set_register_32b(rd, get_register_32b_unsigned(rs));
 }
 
-void processor::r_type_0c(uint32_t instruction)
+void processor::r_type_0c(uint32_t instruction)	// SYSCALL
 {
-	uint8_t sa = (instruction >> 6) & MASK_5B;
-	uint8_t rd = (instruction >> 11) & MASK_5B;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
-	uint8_t rs = (instruction >> 21) & MASK_5B;
-
-	pdc -> dc_log("r_type_0c not known");
+	pdc -> dc_log("SYSCALL");
+	throw processor_exception(PC, status_register, 0, PE_SYSCALL, 0);
 }
 
 void processor::r_type_0d(uint32_t instruction)	// BREAK for debugging FIXME
 {
 	pdc -> dc_log("BREAK");
+	throw processor_exception(PC, status_register, 0, PE_BKPT, 0);
 }
 
 void processor::r_type_0e(uint32_t instruction)

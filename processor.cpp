@@ -69,7 +69,7 @@ void processor::tick()
 		catch(processor_exception & pe)
 		{
 			if (pe.get_cause_ExcCode() == PEE_MEM)
-				return processor_exception(work_address, status_register, , PE_IBUS);
+				return processor_exception(work_address, status_register, 0, PE_IBUS);
 
 			throw pe;
 		}
@@ -86,14 +86,13 @@ void processor::tick()
 		pdc -> dc_log("EXCEPTION %d at/for %016llx, PC: %016llx (1)", pe.get_type(), pe.get_address(), PC);
 
 		if (pe.get_cause_ExcCode() == PEE_MEM)
-			pe = processor_exception(work_address, status_register, , PE_DBUS);
+			pe = processor_exception(work_address, status_register, 0, PE_DBUS);
 
 		if (IS_BIT_OFF0_SET(8 + pe.get_ip(), status_register) && (status_register & 1) == 1)
 		{
 			status_register |= (status_register & 15) << 2;
 			// FIXME: at return, shift >> 2, do not change old state
 			// ALSO INCREASE PC WITH 4
-
 
 			EPC = pe.get_EPC();
 			PC = 0x80000080;
