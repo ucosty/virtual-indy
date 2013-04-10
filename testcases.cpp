@@ -946,7 +946,42 @@ void test_BNE()
 	free_system(mb, m1, m2, p);
 }
 
-/*
+void test_test_tc_overflow_32b()
+{
+	if (test_tc_overflow_32b(1, 1))
+		error_exit("test_tc_overflow_32b: indicates overflow for 1, 1");
+
+	if (test_tc_overflow_32b(-1, -1))
+		error_exit("test_tc_overflow_32b: indicates overflow for -1, -1");
+
+	if (test_tc_overflow_32b(1, -1))
+		error_exit("test_tc_overflow_32b: indicates overflow for 1, -1");
+
+	if (test_tc_overflow_32b(-1, 1))
+		error_exit("test_tc_overflow_32b: indicates overflow for -1, 1");
+
+	if (test_tc_overflow_32b(1, -3))
+		error_exit("test_tc_overflow_32b: indicates overflow for 1, -3");
+
+	if (test_tc_overflow_32b(-1, 3))
+		error_exit("test_tc_overflow_32b: indicates overflow for -1, 3");
+
+	if (!test_tc_overflow_32b(-32767, -32767))
+		error_exit("test_tc_overflow_32b: does not indicate overflow for -32767, -32767");
+
+	if (!test_tc_overflow_32b(-32768, 1))
+		error_exit("test_tc_overflow_32b: does not indicate overflow for -32768, 1");
+
+	if (test_tc_overflow_32b(-32768, 32769))
+		error_exit("test_tc_overflow_32b: indicates overflow for -32768, 32769");
+
+	if (test_tc_overflow_32b(0, 32767))
+		error_exit("test_tc_overflow_32b: indicates overflow for 0, 32767");
+
+	if (!test_tc_overflow_32b(32767, 1))
+		error_exit("test_tc_overflow_32b: does not indicate overflow for 32767, 1");
+}
+
 void test_ADDI()
 {
 	memory_bus *mb = NULL;
@@ -955,38 +990,51 @@ void test_ADDI()
 	create_system(&mb, &m1, &m2, &p);
 
 	p -> reset();
+	// test 1
 	p -> set_PC(0);
 
-	uint64_t rt_val = 0x1234beefccccdddd;
+	uint64_t rt_val = 0x1234beefffffdddd;
 	uint8_t rt = 1;
 	p -> set_register_64b(rt, rt_val);
 
-	int immediate = 0x1234;
+	uint16_t immediate = 0x1234;
 
 	uint64_t rs_val = 0x4321abcdaaaabbbb;
 	uint8_t rs = 9;
 	p -> set_register_64b(rs, rs_val);
 
-FIXME
-test overflow exception stuff
-
 	int32_t expected_s32 = rs_val + int16_t(immediate);
 	uint64_t expected = expected_s32; // sign extended
 
-	uint8_t function = 0x09;
+	uint8_t function = 0x08;
 	uint32_t instruction = make_cmd_I_TYPE(rs, rt, function, immediate);
 
 	m1 -> write_32b(0, instruction);
 
 	tick(p);
 
+	// test 2
+	p -> set_PC(0);
+	p -> set_status_register(1); // enable exceptions
 	uint64_t result = p -> get_register_64b_signed(rt);
 	if (result != expected)
-		error_exit("ADDI: result is %08x, expected %08x", result, expected);
+		error_exit("ADDI: result is %016llx, expected %016llx", result, expected);
+
+	p -> set_register_64b(rt, rt_val);
+	expected = rt_val;
+	immediate = 0x8000;
+
+	tick(p);
+
+	if (p -> get_PC() != 0x80000080)
+		error_exit("ADDI: expected exception, expectec PC: 0x80000080, PC is: %016llx", p -> get_PC());
+
+	result = p -> get_register_64b_signed(rt);
+	if (result != expected)
+		error_exit("ADDI: result is %016llx, expected %016llx", result, expected);
 
 	free_system(mb, m1, m2, p);
 }
-*/
 
 int main(int argc, char *argv[])
 {
@@ -996,12 +1044,13 @@ int main(int argc, char *argv[])
 	test_count_leading();
 	test_rotate_right();
 	test_make_instruction();
+	test_test_tc_overflow_32b();
 
 	test_memory();
 	test_memory_bus();
 	test_processor();
 
-	// test_ADDI();
+	test_ADDI();
 	test_ADDIU();
 	test_AND();
 	test_ANDI();
@@ -1015,6 +1064,8 @@ int main(int argc, char *argv[])
 	test_SRL();
 	test_SW();
 	test_XORI();
+
+	// FIXME test exceptions
 
 	printf("all fine\n");
 

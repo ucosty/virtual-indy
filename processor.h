@@ -198,6 +198,8 @@ public:
 
 	uint64_t get_C0_register(uint8_t nr, uint8_t sel);
 
+	void set_status_register(uint32_t value) { status_register = value; }
+
 	void set_PC(uint64_t value) { PC = value; }
 	void set_HI(uint64_t value) { HI = value; }
 	void set_LO(uint64_t value) { LO = value; }

@@ -196,9 +196,14 @@ void processor::i_type_08(uint32_t instruction)	// ADDI
 	int32_t val2 = immediate_s;
 
 	if (unlikely(test_tc_overflow_32b(val1, val2)))
+	{
+		pdc -> dc_log("ADDI overflow");
 		throw processor_exception(PC, status_register, 0, PE_OVF, PC);
+	}
 	else
+	{
 		set_register_32b_se(rt, val1 + val2);
+	}
 }
 
 void processor::i_type_09(uint32_t instruction)	// ADDIU
