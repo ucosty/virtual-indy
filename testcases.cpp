@@ -177,48 +177,84 @@ void test_processor()
 	processor *p = NULL;
 	create_system(&mb, &m1, &m2, &p);
 
-	int cmp_val = 0xdeadbeef;
-
-	p -> reset();
-
-	uint64_t reset_vector = 0xffffffffbfc00000;
-
-	if (p -> get_PC() != reset_vector)
-		error_exit("failed: pc != %016llx after reset", reset_vector);
-
-	p -> set_PC(0);
-
-	tick(p);
-	if (p -> get_PC() != 4)
-		error_exit("failed: pc != 4 after 1 tick");
-
-	for(int reg=1; reg<32; reg++)
-		p -> set_register_32b(reg, cmp_val);
-
-	p -> reset();
-	p -> set_PC(0);
-
-	for(int reg=0; reg<32; reg++)
+	// 32bit
 	{
-		if (p -> get_register_32b_signed(reg))
-			error_exit("register %d has a value after a reset", reg);
+		int cmp_val = 0xdeadbeef;
+
+		p -> reset();
+
+		uint64_t reset_vector = 0xffffffffbfc00000;
+
+		if (p -> get_PC() != reset_vector)
+			error_exit("failed: pc != %016llx after reset", reset_vector);
+
+		p -> set_PC(0);
+
+		tick(p);
+		if (p -> get_PC() != 4)
+			error_exit("failed: pc != 4 after 1 tick");
+
+		for(int reg=1; reg<32; reg++)
+			p -> set_register_32b(reg, cmp_val);
+
+		p -> reset();
+		p -> set_PC(0);
+
+		for(int reg=0; reg<32; reg++)
+		{
+			if (p -> get_register_32b_signed(reg))
+				error_exit("register %d has a value after a reset", reg);
+		}
+
+		for(int reg=1; reg<32; reg++)
+			p -> set_register_32b(reg, cmp_val);
+
+		for(int reg=1; reg<32; reg++)
+		{
+			int32_t val = p -> get_register_32b_signed(reg);
+			if (val != cmp_val)
+				error_exit("register %d has invalid value %x", val);
+		}
+
+		dolog("ignore the \"register 0 changed\" message");
+		p -> set_register_32b(0, cmp_val);
+		if (p -> get_register_32b_signed(0))
+			error_exit("register 0 changed value!");
 	}
 
-	for(int reg=1; reg<32; reg++)
-		p -> set_register_32b(reg, cmp_val);
-
-	for(int reg=1; reg<32; reg++)
+	// 64bit
 	{
-		int32_t val = p -> get_register_32b_signed(reg);
-		if (val != cmp_val)
-			error_exit("register %d has invalid value %x", val);
+		uint64_t cmp_val = 0xdeadbeef12345678;
+
+		p -> reset();
+		p -> set_PC(0);
+
+		for(int reg=1; reg<32; reg++)
+			p -> set_register_64b(reg, cmp_val);
+
+		p -> reset();
+
+		for(int reg=0; reg<32; reg++)
+		{
+			if (p -> get_register_64b_unsigned(reg))
+				error_exit("register %d has a value after a reset", reg);
+		}
+
+		for(int reg=1; reg<32; reg++)
+			p -> set_register_64b(reg, cmp_val);
+
+		for(int reg=1; reg<32; reg++)
+		{
+			uint64_t val = p -> get_register_64b_unsigned(reg);
+			if (val != cmp_val)
+				error_exit("register %d has invalid value %x", val);
+		}
+
+		dolog("ignore the \"register 0 changed\" message");
+		p -> set_register_64b(0, cmp_val);
+		if (p -> get_register_64b_unsigned(0))
+			error_exit("register 0 changed value!");
 	}
-
-	// FIXME 64bit tests
-
-	p -> set_register_32b(1, cmp_val);
-	if (p -> get_register_32b_signed(1) != cmp_val)
-		error_exit("register 1 changed value!");
 
 	free_system(mb, m1, m2, p);
 }
