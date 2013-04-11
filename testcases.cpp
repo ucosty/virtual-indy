@@ -1,4 +1,6 @@
 #include <stdio.h>
+#define __STDC_LIMIT_MACROS // for INT32_MIN
+#include <stdint.h>
 
 #include "error.h"
 #include "debug_console_testcases.h"
@@ -322,7 +324,7 @@ void test_untows_complement()
 
 	value = 0x80000000, bits = 32;
 	rc = untwos_complement(value, bits);
-	if (rc != -2147483648)
+	if (rc != INT32_MIN)
 		error_exit("untwos_complement failed 32b (a) %d expected -2147483648", rc);
 
 	value = 0x40;
@@ -969,11 +971,11 @@ void test_test_tc_overflow_32b()
 	if (!test_tc_overflow_32b(-2147483647, -2147483647))
 		error_exit("test_tc_overflow_32b: does not indicate overflow for -2147483647, -2147483647");
 
-	if (!test_tc_overflow_32b(-2147483648, -1))
-		error_exit("test_tc_overflow_32b: does not indicate overflow for -2147483648, -1");
+	if (!test_tc_overflow_32b(INT32_MIN, -1))
+		error_exit("test_tc_overflow_32b: does not indicate overflow for %d, -1", INT32_MIN);
 
-	if (test_tc_overflow_32b(-2147483648, 2147483647))
-		error_exit("test_tc_overflow_32b: indicates overflow for -2147483648, 2147483647");
+	if (test_tc_overflow_32b(INT32_MIN, 2147483647))
+		error_exit("test_tc_overflow_32b: indicates overflow for %d, 2147483647", INT32_MIN);
 
 	if (test_tc_overflow_32b(0, 2147483647))
 		error_exit("test_tc_overflow_32b: indicates overflow for 0, 2147483647");
