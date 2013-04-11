@@ -3,6 +3,7 @@
 #include <stdint.h>
 
 #include "error.h"
+#include "log.h"
 #include "debug_console_testcases.h"
 #include "processor.h"
 #include "processor_utils.h"
@@ -77,6 +78,7 @@ void free_system(memory_bus *mb, memory *m1, memory *m2, processor *p)
 
 void test_make_instruction()
 {
+	dolog(" + test_make_instruction");
 	uint8_t rs = 13;
 	uint8_t rt = 4;
 	uint8_t function = 0x31;
@@ -113,6 +115,7 @@ void test_make_instruction()
 
 void test_count_leading()
 {
+	dolog(" + test_count_leading");
 	// one
 	int value = 15, expected = 0;
 	int rc = count_leading_ones(32, value);
@@ -148,6 +151,7 @@ void test_count_leading()
 
 void test_rotate_right()
 {
+	dolog(" + test_rotate_right");
 	int value = 2;
 	uint8_t n = 2; 
 	uint8_t width = 3;
@@ -167,6 +171,7 @@ void test_rotate_right()
 
 void test_processor()
 {
+	dolog(" + test_processor");
 	memory_bus *mb = NULL;
 	memory *m1 = NULL, *m2 = NULL;
 	processor *p = NULL;
@@ -209,15 +214,18 @@ void test_processor()
 			error_exit("register %d has invalid value %x", val);
 	}
 
-	p -> set_register_32b(0, cmp_val);
-	if (p -> get_register_32b_signed(0))
-		error_exit("register 0 changed value!");
+	// FIXME 64bit tests
+
+	p -> set_register_32b(1, cmp_val);
+	if (p -> get_register_32b_signed(1) != cmp_val)
+		error_exit("register 1 changed value!");
 
 	free_system(mb, m1, m2, p);
 }
 
 void test_memory()
 {
+	dolog(" + test_memory");
 	memory_bus *mb = NULL;
 	memory *m1 = NULL, *m2 = NULL;
 	processor *p = NULL;
@@ -239,6 +247,7 @@ void test_memory()
 
 void test_memory_bus()
 {
+	dolog(" + test_memory_bus");
 	memory_bus *mb = NULL;
 	memory *m1 = NULL, *m2 = NULL;
 	processor *p = NULL;
@@ -272,6 +281,7 @@ void test_memory_bus()
 
 void test_twos_complement()
 {
+	dolog(" + test_twos_complement");
 	uint8_t bits = 8;
 	int value = -1, expected = 255;
 	int rc = twos_complement(value, bits);
@@ -295,6 +305,7 @@ void test_twos_complement()
 
 void test_untows_complement()
 {
+	dolog(" + test_untwos_complement");
 	/* int untwos_complement(int value, int bits) */
 	int value = 0x80;
 	uint8_t bits = 8;
@@ -351,6 +362,7 @@ void test_untows_complement()
 
 void test_sign_extend()
 {
+	dolog(" + test_sign_extend");
 	uint64_t rc = sign_extend_8b(0x80), cmp = 0xffffffffffffff80ll;
 	if (rc != cmp)
 		error_exit("sign_extend_8b mismatch (%x / %x)", cmp, rc);
@@ -367,6 +379,7 @@ void test_sign_extend()
 
 void test_LW()
 {
+	dolog(" + test_LW");
 	memory_bus *mb = NULL;
 	memory *m1 = NULL, *m2 = NULL;
 	processor *p = NULL;
@@ -447,6 +460,7 @@ void test_LW()
 
 void test_SLL()
 {
+	dolog(" + test_SLL");
 	memory_bus *mb = NULL;
 	memory *m1 = NULL, *m2 = NULL;
 	processor *p = NULL;
@@ -487,6 +501,7 @@ void test_SLL()
 
 void test_SRL()
 {
+	dolog(" + test_SRL");
 	memory_bus *mb = NULL;
 	memory *m1 = NULL, *m2 = NULL;
 	processor *p = NULL;
@@ -526,6 +541,7 @@ void test_SRL()
 
 void test_LUI()
 {
+	dolog(" + test_LUI");
 	memory_bus *mb = NULL;
 	memory *m1 = NULL, *m2 = NULL;
 	processor *p = NULL;
@@ -564,6 +580,7 @@ void test_LUI()
 
 void test_SW()
 {
+	dolog(" + test_SW");
 	memory_bus *mb = NULL;
 	memory *m1 = NULL, *m2 = NULL;
 	processor *p = NULL;
@@ -604,6 +621,7 @@ void test_SW()
 
 void test_ORI()
 {
+	dolog(" + test_ORI");
 	memory_bus *mb = NULL;
 	memory *m1 = NULL, *m2 = NULL;
 	processor *p = NULL;
@@ -640,6 +658,7 @@ void test_ORI()
 
 void test_ANDI()
 {
+	dolog(" + test_ANDI");
 	memory_bus *mb = NULL;
 	memory *m1 = NULL, *m2 = NULL;
 	processor *p = NULL;
@@ -676,6 +695,7 @@ void test_ANDI()
 
 void test_XORI()
 {
+	dolog(" + test_XORI");
 	memory_bus *mb = NULL;
 	memory *m1 = NULL, *m2 = NULL;
 	processor *p = NULL;
@@ -712,6 +732,7 @@ void test_XORI()
 
 void test_ADDIU()
 {
+	dolog(" + test_ADDIU");
 	memory_bus *mb = NULL;
 	memory *m1 = NULL, *m2 = NULL;
 	processor *p = NULL;
@@ -749,6 +770,7 @@ void test_ADDIU()
 
 void test_AND()
 {
+	dolog(" + test_AND");
 	memory_bus *mb = NULL;
 	memory *m1 = NULL, *m2 = NULL;
 	processor *p = NULL;
@@ -789,6 +811,7 @@ void test_AND()
 
 void test_OR()
 {
+	dolog(" + test_OR");
 	memory_bus *mb = NULL;
 	memory *m1 = NULL, *m2 = NULL;
 	processor *p = NULL;
@@ -854,6 +877,7 @@ all_registers_t * copy_registers(processor *p)
 
 void test_NOP()
 {
+	dolog(" + test_NOP");
 	memory_bus *mb = NULL;
 	memory *m1 = NULL, *m2 = NULL;
 	processor *p = NULL;
@@ -902,6 +926,7 @@ void test_NOP()
 
 void test_BNE()
 {
+	dolog(" + test_BNE");
 	memory_bus *mb = NULL;
 	memory *m1 = NULL, *m2 = NULL;
 	processor *p = NULL;
@@ -950,6 +975,7 @@ void test_BNE()
 
 void test_test_tc_overflow_32b()
 {
+	dolog(" + test_tc_overflow_32b");
 	if (test_tc_overflow_32b(1, 1))
 		error_exit("test_tc_overflow_32b: indicates overflow for 1, 1");
 
@@ -986,6 +1012,7 @@ void test_test_tc_overflow_32b()
 
 void test_ADDI()
 {
+	dolog(" + test_ADDI");
 	memory_bus *mb = NULL;
 	memory *m1 = NULL, *m2 = NULL;
 	processor *p = NULL;
@@ -1043,6 +1070,7 @@ void test_ADDI()
 
 void test_SLT()
 {
+	dolog(" + test_SLT");
 	memory_bus *mb = NULL;
 	memory *m1 = NULL, *m2 = NULL;
 	processor *p = NULL;
@@ -1067,7 +1095,7 @@ void test_SLT()
 	uint8_t opcode = 0;
 	uint8_t function = 0x2a;
 	uint8_t sa = 0;
-	uint8_t rd = 0;
+	uint8_t rd = 3;
 	uint32_t instruction = make_cmd_R_TYPE(opcode, sa, rd, rt, rs, function);
 
 	m1 -> write_32b(0, instruction);
