@@ -214,6 +214,15 @@ public:
 	static inline int32_t get_SB18(uint32_t instruction) { return int16_t(instruction) << 2; }
 	static inline uint16_t get_immediate(uint32_t instruction) { return instruction; }
 	static inline uint8_t get_base(uint32_t instruction) { return (instruction >> 21) & MASK_5B; }
+	static inline uint8_t get_opcode(uint32_t instruction) { return (instruction >> 26) & MASK_6B; }
+
+	inline uint64_t get_base_register_with_offset(uint32_t instruction)
+	{
+		uint8_t base = get_base(instruction);
+		int offset_s = int16_t(instruction);
+
+		return get_register_64b_unsigned(base) + offset_s;
+	}
 
 	static const char * reg_to_name(uint8_t reg);
 	static std::string decode_to_text(uint32_t instr);

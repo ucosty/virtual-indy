@@ -394,17 +394,15 @@ void processor::i_type_1f(uint32_t instruction)	// SPECIAL3
 
 void processor::i_type_20(uint32_t instruction)	// LB / LBU
 {
-	uint8_t base = get_base(instruction);
 	uint8_t rt = get_RT(instruction);
 
-	int offset_s = int16_t(instruction);
+	uint64_t address = get_base_register_with_offset(instruction);
 
-	uint64_t address = get_register_64b_unsigned(base) + offset_s;
 	uint8_t temp_8b = -1;
 
 	pmb -> read_8b(address, &temp_8b);
 
-	uint8_t opcode = (instruction >> 26) & MASK_6B;
+	uint8_t opcode = get_opcode(instruction);
 
 	if (opcode == 0x24)
 		set_register_32b(rt, temp_8b);
@@ -416,11 +414,8 @@ void processor::i_type_20(uint32_t instruction)	// LB / LBU
 
 void processor::i_type_21(uint32_t instruction)	// LH / LHU
 {
-	uint8_t base = get_base(instruction);
+	uint64_t address = get_base_register_with_offset(instruction);
 
-	int offset_s = int16_t(instruction);
-
-	uint64_t address = get_register_64b_unsigned(base) + offset_s;
 	if (unlikely(address & 1))
 	{
 		pdc -> dc_log("i-type read 16b from %08llx: unaligned", address);
@@ -435,7 +430,7 @@ void processor::i_type_21(uint32_t instruction)	// LH / LHU
 
 		pmb -> read_16b(address, &temp_16b);
 
-		uint8_t opcode = (instruction >> 26) & MASK_6B;
+		uint8_t opcode = get_opcode(instruction);
 		uint8_t rt = get_RT(instruction);
 
 		if (opcode == 0x25)
@@ -465,11 +460,8 @@ void processor::i_type_22(uint32_t instruction)
 
 void processor::i_type_23(uint32_t instruction)	// LW / LL
 {
-	uint8_t base = get_base(instruction);
+	uint64_t address = get_base_register_with_offset(instruction);
 
-	int offset_s = int16_t(instruction);
-
-	uint64_t address = get_register_64b_unsigned(base) + offset_s;
 	if (unlikely(address & 3))
 	{
 		pdc -> dc_log("i-type read 32b from %08llx: unaligned", address);
@@ -530,13 +522,10 @@ void processor::i_type_27(uint32_t instruction)
 
 void processor::i_type_28(uint32_t instruction)	// SB
 {
-	uint8_t base = get_base(instruction);
-
-	int offset_s = int16_t(instruction);
-
-	uint64_t address = get_register_64b_unsigned(base) + offset_s;
+	uint64_t address = get_base_register_with_offset(instruction);
 
 	uint8_t rt = get_RT(instruction);
+
 	int temp_32b = get_register_32b_unsigned(rt);
 
 	cycles += 4;
@@ -546,13 +535,9 @@ void processor::i_type_28(uint32_t instruction)	// SB
 
 void processor::i_type_29(uint32_t instruction)	// SH
 {
-	uint8_t base = get_base(instruction);
-
-	int offset_s = int16_t(instruction);
+	uint64_t address = get_base_register_with_offset(instruction);
 
 	uint8_t rt = get_RT(instruction);
-
-	uint64_t address = get_register_64b_unsigned(base) + offset_s;
 
 	if (unlikely(address & 1))
 	{
@@ -591,13 +576,9 @@ void processor::i_type_2a(uint32_t instruction)
 
 void processor::i_type_2b(uint32_t instruction)	// SW
 {
-	uint8_t base = get_base(instruction);
-
-	int offset_s = int16_t(instruction);
+	uint64_t address = get_base_register_with_offset(instruction);
 
 	uint8_t rt = get_RT(instruction);
-
-	uint64_t address = get_register_64b_unsigned(base) + offset_s;
 
 	if (unlikely(address & 3))
 	{

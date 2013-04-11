@@ -25,7 +25,7 @@ std::string processor::da_logline(uint32_t instruction)
 
 	std::string line = format("PC: %016llx %c / %d|%08x", cur_PC, is_delay_slot() ? 'D' : '.', rc, temp_32b);
 
-	uint8_t opcode = (instruction >> 26) & MASK_6B;
+	uint8_t opcode = get_opcode(instruction);
 
 	if (opcode == 0)			// R-type
 	{
@@ -174,7 +174,7 @@ const char * processor::reg_to_name(uint8_t reg)
 
 std::string processor::decode_to_text(uint32_t instruction)
 {
-	uint8_t opcode = (instruction >> 26) & MASK_6B;
+	uint8_t opcode = get_opcode(instruction);
 
 	if (opcode == 0)			// R-type
 	{

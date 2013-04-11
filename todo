@@ -2,11 +2,6 @@
 
 - LWC0/SWC0?
 
-- vervangen door een inline method
-        uint8_t base = get_base(instruction);
-        int offset_s = int16_t(instruction);
-        uint64_t address = get_register_64b_unsigned(base) + offset_s;
-
 - testcases: branches; test delayed with something that sets vars
 
 - 0x30/34 mc:

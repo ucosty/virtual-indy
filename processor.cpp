@@ -74,7 +74,7 @@ void processor::tick()
 			throw pe;
 		}
 
-		uint8_t opcode = (instruction >> 26) & MASK_6B;
+		uint8_t opcode = get_opcode(instruction);
 
 		// the other methods are really i_types with the opcode set to a certain value
 		// well maybe not in the cpu but logically they are
