@@ -169,7 +169,7 @@ void processor::interrupt(int nr)
 void processor::start_RMW_sequence()
 {
 	if (RMW_sequence)
-		pdc -> dc_log("RE(!)-starting RMW sequence");
+		pdc -> dc_log("Re(!)-starting RMW sequence");
 
 	RMW_sequence = true;
 }
