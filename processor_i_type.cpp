@@ -121,6 +121,22 @@ void processor::i_type_01(uint32_t instruction)	// BGEZAL
 	regimm(instruction);
 }
 
+void processor::conditional_jump(bool do_jump, uint32_t instruction, bool skip_delay_slot)
+{
+	cycles += 3;
+
+	if (do_jump)
+	{
+		set_delay_slot(PC);
+
+		PC += get_SB18(instruction);
+	}
+
+	// if (skip_delay_slot)
+// FIXME PC +=4?
+// FIXME ^ but only when triggered?
+}
+
 void processor::i_type_04(uint32_t instruction)	// BEQ/BEQL
 {
 	uint8_t rs = get_RS(instruction);
@@ -129,6 +145,7 @@ void processor::i_type_04(uint32_t instruction)	// BEQ/BEQL
 
 	cycles += 3;
 
+	conditional_jump(get_register_64b_unsigned(rs) == get_register_64b_unsigned(rt), instruction);
 	if (get_register_64b_unsigned(rs) == get_register_64b_unsigned(rt))
 	{
 		set_delay_slot(PC);

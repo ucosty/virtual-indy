@@ -179,6 +179,8 @@ private:
 	void i_type_3f(uint32_t instruction);
 	void (processor::*i_type_methods[64])(uint32_t);
 
+	void conditional_jump(bool do_jump, uint32_t instruction, bool skip_delay_slot);
+
 public:
 	processor(debug_console *pdc_in, memory_bus *pmb_in);
 	~processor();
