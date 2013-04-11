@@ -5,8 +5,8 @@ void processor::special3(uint32_t instruction)
 {
 	uint8_t function = instruction & MASK_6B;
 	uint8_t sub_function = (instruction >> 6) & MASK_5B;
-	uint8_t rd = (instruction >> 11) & MASK_5B;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rd = get_RD(instruction);
+	uint8_t rt = get_RT(instruction);
 
 	switch(function)
 	{

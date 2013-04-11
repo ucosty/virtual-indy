@@ -30,10 +30,10 @@ std::string processor::da_logline(uint32_t instruction)
 	if (opcode == 0)			// R-type
 	{
 		uint8_t function = instruction & MASK_6B;
-		uint8_t sa = (instruction >> 6) & MASK_5B;
-		uint8_t rd = (instruction >> 11) & MASK_5B;
-		uint8_t rt = (instruction >> 16) & MASK_5B;
-		uint8_t rs = (instruction >> 21) & MASK_5B;
+		uint8_t sa = get_SA(instruction);
+		uint8_t rd = get_RD(instruction);
+		uint8_t rt = get_RT(instruction);
+		uint8_t rs = get_RS(instruction);
 
 		line += format("\tfu %02x", function);
 		line += format("\tsa %08x", sa);
@@ -50,11 +50,11 @@ std::string processor::da_logline(uint32_t instruction)
 	}
 	else if (opcode != 16 && opcode != 17 && opcode != 18 && opcode != 19) // I-type
 	{
-		int immediate = instruction & MASK_16B;
+		int immediate = get_immediate(instruction);
 		int immediate_s = int16_t(immediate);
 
-		uint8_t rs = (instruction >> 21) & MASK_5B;
-		uint8_t rt = (instruction >> 16) & MASK_5B;
+		uint8_t rs = get_RS(instruction);
+		uint8_t rt = get_RT(instruction);
 
 		line += format("\tim: %04x", immediate);
 		line += format("\tims: %d", immediate_s);
@@ -73,8 +73,8 @@ std::string processor::da_logline(uint32_t instruction)
 		{
 			uint8_t function = (instruction >> 21) & MASK_5B;
 			uint8_t sel = instruction & MASK_3B;
-			uint8_t rd = (instruction >> 11) & MASK_5B;
-			uint8_t rt = (instruction >> 16) & MASK_5B;
+			uint8_t rd = get_RD(instruction);
+			uint8_t rt = get_RT(instruction);
 
 			line += format("\t0 fu %02x", function);
 
@@ -179,10 +179,10 @@ std::string processor::decode_to_text(uint32_t instruction)
 	if (opcode == 0)			// R-type
 	{
 		uint8_t function = instruction & MASK_6B;
-		uint8_t sa = (instruction >> 6) & MASK_5B;
-		uint8_t rd = (instruction >> 11) & MASK_5B;
-		uint8_t rt = (instruction >> 16) & MASK_5B;
-		uint8_t rs = (instruction >> 21) & MASK_5B;
+		uint8_t sa = get_SA(instruction);
+		uint8_t rd = get_RD(instruction);
+		uint8_t rt = get_RT(instruction);
+		uint8_t rs = get_RS(instruction);
 
 		switch(function)
 		{
@@ -267,11 +267,11 @@ std::string processor::decode_to_text(uint32_t instruction)
 	}
 	else if (opcode != 16 && opcode != 17 && opcode != 18 && opcode != 19) // I-type
 	{
-		int immediate = instruction & MASK_16B;
+		int immediate = get_immediate(instruction);
 		int immediate_s = int16_t(immediate);
 
-		uint8_t rs = (instruction >> 21) & MASK_5B;
-		uint8_t rt = (instruction >> 16) & MASK_5B;
+		uint8_t rs = get_RS(instruction);
+		uint8_t rt = get_RT(instruction);
 
 		switch(opcode)
 		{
@@ -343,8 +343,8 @@ std::string processor::decode_to_text(uint32_t instruction)
 		{
 			uint8_t function = (instruction >> 21) & MASK_5B;
 			uint8_t sel = instruction & MASK_3B;
-			uint8_t rd = (instruction >> 11) & MASK_5B;
-			uint8_t rt = (instruction >> 16) & MASK_5B;
+			uint8_t rd = get_RD(instruction);
+			uint8_t rt = get_RT(instruction);
 
 			switch(function)
 			{

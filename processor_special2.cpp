@@ -4,8 +4,8 @@
 void processor::special2(uint32_t instruction)
 {
 	uint8_t clo = instruction & MASK_6B;
-	uint8_t rd = (instruction >> 11) & MASK_5B;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rd = get_RD(instruction);
+	uint8_t rt = get_RT(instruction);
 	uint8_t rs = (instruction >> 21) & MASK_5B;
 
 	int64_t temp_64b = -1;

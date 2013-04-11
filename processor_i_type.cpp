@@ -123,9 +123,9 @@ void processor::i_type_01(uint32_t instruction)	// BGEZAL
 
 void processor::i_type_04(uint32_t instruction)	// BEQ/BEQL
 {
-	uint8_t rs = (instruction >> 21) & MASK_5B;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
-	int b18_signed_offset = int16_t(instruction) << 2;
+	uint8_t rs = get_RS(instruction);
+	uint8_t rt = get_RT(instruction);
+	int b18_signed_offset = get_SB18(instruction);
 
 	cycles += 3;
 
@@ -139,9 +139,9 @@ void processor::i_type_04(uint32_t instruction)	// BEQ/BEQL
 
 void processor::i_type_05(uint32_t instruction)	// BNE/BNEL
 {
-	uint8_t rs = (instruction >> 21) & MASK_5B;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
-	int b18_signed_offset = int16_t(instruction) << 2;
+	uint8_t rs = get_RS(instruction);
+	uint8_t rt = get_RT(instruction);
+	int b18_signed_offset = get_SB18(instruction);
 
 	cycles += 3;
 
@@ -158,8 +158,8 @@ void processor::i_type_05(uint32_t instruction)	// BNE/BNEL
 
 void processor::i_type_06(uint32_t instruction)	// BLEZ/BLEZL
 {
-        uint8_t rs = (instruction >> 21) & MASK_5B;
-        int b18_signed_offset = int16_t(instruction) << 2;
+        uint8_t rs = get_RS(instruction);
+        int b18_signed_offset = get_SB18(instruction);
 
         cycles += 3;
 
@@ -173,8 +173,8 @@ void processor::i_type_06(uint32_t instruction)	// BLEZ/BLEZL
 
 void processor::i_type_07(uint32_t instruction)	// BGTZ
 {
-        uint8_t rs = (instruction >> 21) & MASK_5B;
-        int b18_signed_offset = int16_t(instruction) << 2;
+        uint8_t rs = get_RS(instruction);
+        int b18_signed_offset = get_SB18(instruction);
 
         cycles += 3;
 
@@ -189,8 +189,8 @@ void processor::i_type_07(uint32_t instruction)	// BGTZ
 void processor::i_type_08(uint32_t instruction)	// ADDI
 {
 	int16_t immediate_s = instruction;
-	uint8_t rs = (instruction >> 21) & MASK_5B;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = get_RS(instruction);
+	uint8_t rt = get_RT(instruction);
 
 	int32_t val1 = get_register_32b_signed(rs);
 	int32_t val2 = immediate_s;
@@ -209,8 +209,8 @@ void processor::i_type_08(uint32_t instruction)	// ADDI
 void processor::i_type_09(uint32_t instruction)	// ADDIU
 {
 	int immediate_s = int16_t(instruction);
-	uint8_t rs = (instruction >> 21) & MASK_5B;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = get_RS(instruction);
+	uint8_t rt = get_RT(instruction);
 
 	set_register_32b_se(rt, get_register_32b_signed(rs) + immediate_s);
 }
@@ -218,8 +218,8 @@ void processor::i_type_09(uint32_t instruction)	// ADDIU
 void processor::i_type_0a(uint32_t instruction)	// SLTI
 {
 	int immediate_s = int16_t(instruction);
-	uint8_t rs = (instruction >> 21) & MASK_5B;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = get_RS(instruction);
+	uint8_t rt = get_RT(instruction);
 
 	if (get_register_64b_signed(rs) < immediate_s)
 		set_register_64b(rt, 1);
@@ -230,8 +230,8 @@ void processor::i_type_0a(uint32_t instruction)	// SLTI
 void processor::i_type_0b(uint32_t instruction)	// SLTIU
 {
 	int immediate = int16_t(instruction);
-	uint8_t rs = (instruction >> 21) & MASK_5B;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = get_RS(instruction);
+	uint8_t rt = get_RT(instruction);
 
 	if (get_register_64b_unsigned(rs) < uint64_t(immediate))
 		set_register_64b(rt, 1);
@@ -242,8 +242,8 @@ void processor::i_type_0b(uint32_t instruction)	// SLTIU
 void processor::i_type_0c(uint32_t instruction)	// ANDI
 {
 	uint16_t immediate = instruction;
-	uint8_t rs = (instruction >> 21) & MASK_5B;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = get_RS(instruction);
+	uint8_t rt = get_RT(instruction);
 
 	set_register_64b(rt, get_register_64b_unsigned(rs) & immediate);
 }
@@ -251,8 +251,8 @@ void processor::i_type_0c(uint32_t instruction)	// ANDI
 void processor::i_type_0d(uint32_t instruction)	// ORI
 {
 	uint16_t immediate = instruction;
-	uint8_t rs = (instruction >> 21) & MASK_5B;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = get_RS(instruction);
+	uint8_t rt = get_RT(instruction);
 
 	set_register_64b(rt, get_register_64b_unsigned(rs) | immediate);
 }
@@ -260,8 +260,8 @@ void processor::i_type_0d(uint32_t instruction)	// ORI
 void processor::i_type_0e(uint32_t instruction)	// XORI
 {
 	uint16_t immediate = instruction;
-	uint8_t rs = (instruction >> 21) & MASK_5B;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rs = get_RS(instruction);
+	uint8_t rt = get_RT(instruction);
 
 	set_register_64b(rt, get_register_64b_unsigned(rs) ^ immediate);
 }
@@ -269,23 +269,23 @@ void processor::i_type_0e(uint32_t instruction)	// XORI
 void processor::i_type_0f(uint32_t instruction)	// LUI
 {
 	uint16_t immediate = instruction;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rt = get_RT(instruction);
 
 	set_register_32b_se(rt, immediate << 16);
 }
 
 void processor::i_type_18(uint32_t instruction)
 {
-	int immediate = instruction & MASK_16B;
+	int immediate = get_immediate(instruction);
 	int immediate_s = int16_t(immediate);
 
-	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t rs = get_RS(instruction);
 	uint8_t base = rs;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rt = get_RT(instruction);
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = int16_t(offset) << 2;
+	int b18_signed_offset = get_SB18(instruction);
 
 	int temp_32b = -1, address = -1;
 
@@ -294,16 +294,16 @@ void processor::i_type_18(uint32_t instruction)
 
 void processor::i_type_19(uint32_t instruction)
 {
-	int immediate = instruction & MASK_16B;
+	int immediate = get_immediate(instruction);
 	int immediate_s = int16_t(immediate);
 
-	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t rs = get_RS(instruction);
 	uint8_t base = rs;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rt = get_RT(instruction);
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = int16_t(offset) << 2;
+	int b18_signed_offset = get_SB18(instruction);
 
 	int temp_32b = -1, address = -1;
 
@@ -312,16 +312,16 @@ void processor::i_type_19(uint32_t instruction)
 
 void processor::i_type_1a(uint32_t instruction)
 {
-	int immediate = instruction & MASK_16B;
+	int immediate = get_immediate(instruction);
 	int immediate_s = int16_t(immediate);
 
-	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t rs = get_RS(instruction);
 	uint8_t base = rs;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rt = get_RT(instruction);
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = int16_t(offset) << 2;
+	int b18_signed_offset = get_SB18(instruction);
 
 	int temp_32b = -1, address = -1;
 
@@ -330,16 +330,16 @@ void processor::i_type_1a(uint32_t instruction)
 
 void processor::i_type_1b(uint32_t instruction)
 {
-	int immediate = instruction & MASK_16B;
+	int immediate = get_immediate(instruction);
 	int immediate_s = int16_t(immediate);
 
-	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t rs = get_RS(instruction);
 	uint8_t base = rs;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rt = get_RT(instruction);
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = int16_t(offset) << 2;
+	int b18_signed_offset = get_SB18(instruction);
 
 	int temp_32b = -1, address = -1;
 
@@ -353,16 +353,16 @@ void processor::i_type_1c(uint32_t instruction)	// SPECIAL2
 
 void processor::i_type_1d(uint32_t instruction)
 {
-	int immediate = instruction & MASK_16B;
+	int immediate = get_immediate(instruction);
 	int immediate_s = int16_t(immediate);
 
-	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t rs = get_RS(instruction);
 	uint8_t base = rs;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rt = get_RT(instruction);
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = int16_t(offset) << 2;
+	int b18_signed_offset = get_SB18(instruction);
 
 	int temp_32b = -1, address = -1;
 
@@ -371,16 +371,16 @@ void processor::i_type_1d(uint32_t instruction)
 
 void processor::i_type_1e(uint32_t instruction)
 {
-	int immediate = instruction & MASK_16B;
+	int immediate = get_immediate(instruction);
 	int immediate_s = int16_t(immediate);
 
-	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t rs = get_RS(instruction);
 	uint8_t base = rs;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rt = get_RT(instruction);
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = int16_t(offset) << 2;
+	int b18_signed_offset = get_SB18(instruction);
 
 	int temp_32b = -1, address = -1;
 
@@ -394,8 +394,8 @@ void processor::i_type_1f(uint32_t instruction)	// SPECIAL3
 
 void processor::i_type_20(uint32_t instruction)	// LB / LBU
 {
-	uint8_t base = (instruction >> 21) & MASK_5B;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t base = get_base(instruction);
+	uint8_t rt = get_RT(instruction);
 
 	int offset_s = int16_t(instruction);
 
@@ -416,7 +416,7 @@ void processor::i_type_20(uint32_t instruction)	// LB / LBU
 
 void processor::i_type_21(uint32_t instruction)	// LH / LHU
 {
-	uint8_t base = (instruction >> 21) & MASK_5B;
+	uint8_t base = get_base(instruction);
 
 	int offset_s = int16_t(instruction);
 
@@ -436,7 +436,7 @@ void processor::i_type_21(uint32_t instruction)	// LH / LHU
 		pmb -> read_16b(address, &temp_16b);
 
 		uint8_t opcode = (instruction >> 26) & MASK_6B;
-		uint8_t rt = (instruction >> 16) & MASK_5B;
+		uint8_t rt = get_RT(instruction);
 
 		if (opcode == 0x25)
 			set_register_32b(rt, temp_16b);
@@ -450,8 +450,8 @@ void processor::i_type_21(uint32_t instruction)	// LH / LHU
 
 void processor::i_type_22(uint32_t instruction)
 {
-        uint8_t rs = (instruction >> 21) & MASK_5B;
-        int b18_signed_offset = int16_t(instruction) << 2;
+        uint8_t rs = get_RS(instruction);
+        int b18_signed_offset = get_SB18(instruction);
 
         cycles += 3;
 
@@ -465,7 +465,7 @@ void processor::i_type_22(uint32_t instruction)
 
 void processor::i_type_23(uint32_t instruction)	// LW / LL
 {
-	uint8_t base = (instruction >> 21) & MASK_5B;
+	uint8_t base = get_base(instruction);
 
 	int offset_s = int16_t(instruction);
 
@@ -484,7 +484,7 @@ void processor::i_type_23(uint32_t instruction)	// LW / LL
 
 		pmb -> read_32b(address, &temp_32b);
 
-		uint8_t rt = (instruction >> 16) & MASK_5B;
+		uint8_t rt = get_RT(instruction);
 
 		set_register_32b_se(rt, temp_32b);
 
@@ -494,16 +494,16 @@ void processor::i_type_23(uint32_t instruction)	// LW / LL
 
 void processor::i_type_26(uint32_t instruction)
 {
-	int immediate = instruction & MASK_16B;
+	int immediate = get_immediate(instruction);
 	int immediate_s = int16_t(immediate);
 
-	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t rs = get_RS(instruction);
 	uint8_t base = rs;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rt = get_RT(instruction);
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = int16_t(offset) << 2;
+	int b18_signed_offset = get_SB18(instruction);
 
 	int temp_32b = -1, address = -1;
 
@@ -512,16 +512,16 @@ void processor::i_type_26(uint32_t instruction)
 
 void processor::i_type_27(uint32_t instruction)
 {
-	int immediate = instruction & MASK_16B;
+	int immediate = get_immediate(instruction);
 	int immediate_s = int16_t(immediate);
 
-	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t rs = get_RS(instruction);
 	uint8_t base = rs;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rt = get_RT(instruction);
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = int16_t(offset) << 2;
+	int b18_signed_offset = get_SB18(instruction);
 
 	int temp_32b = -1, address = -1;
 
@@ -530,13 +530,13 @@ void processor::i_type_27(uint32_t instruction)
 
 void processor::i_type_28(uint32_t instruction)	// SB
 {
-	uint8_t base = (instruction >> 21) & MASK_5B;
+	uint8_t base = get_base(instruction);
 
 	int offset_s = int16_t(instruction);
 
 	uint64_t address = get_register_64b_unsigned(base) + offset_s;
 
-	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rt = get_RT(instruction);
 	int temp_32b = get_register_32b_unsigned(rt);
 
 	cycles += 4;
@@ -546,11 +546,11 @@ void processor::i_type_28(uint32_t instruction)	// SB
 
 void processor::i_type_29(uint32_t instruction)	// SH
 {
-	uint8_t base = (instruction >> 21) & MASK_5B;
+	uint8_t base = get_base(instruction);
 
 	int offset_s = int16_t(instruction);
 
-	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rt = get_RT(instruction);
 
 	uint64_t address = get_register_64b_unsigned(base) + offset_s;
 
@@ -573,16 +573,16 @@ void processor::i_type_29(uint32_t instruction)	// SH
 
 void processor::i_type_2a(uint32_t instruction)
 {
-	int immediate = instruction & MASK_16B;
+	int immediate = get_immediate(instruction);
 	int immediate_s = int16_t(immediate);
 
-	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t rs = get_RS(instruction);
 	uint8_t base = rs;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rt = get_RT(instruction);
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = int16_t(offset) << 2;
+	int b18_signed_offset = get_SB18(instruction);
 
 	int temp_32b = -1, address = -1;
 
@@ -591,11 +591,11 @@ void processor::i_type_2a(uint32_t instruction)
 
 void processor::i_type_2b(uint32_t instruction)	// SW
 {
-	uint8_t base = (instruction >> 21) & MASK_5B;
+	uint8_t base = get_base(instruction);
 
 	int offset_s = int16_t(instruction);
 
-	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rt = get_RT(instruction);
 
 	uint64_t address = get_register_64b_unsigned(base) + offset_s;
 
@@ -617,16 +617,16 @@ void processor::i_type_2b(uint32_t instruction)	// SW
 
 void processor::i_type_2c(uint32_t instruction)
 {
-	int immediate = instruction & MASK_16B;
+	int immediate = get_immediate(instruction);
 	int immediate_s = int16_t(immediate);
 
-	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t rs = get_RS(instruction);
 	uint8_t base = rs;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rt = get_RT(instruction);
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = int16_t(offset) << 2;
+	int b18_signed_offset = get_SB18(instruction);
 
 	int temp_32b = -1, address = -1;
 
@@ -635,16 +635,16 @@ void processor::i_type_2c(uint32_t instruction)
 
 void processor::i_type_2d(uint32_t instruction)
 {
-	int immediate = instruction & MASK_16B;
+	int immediate = get_immediate(instruction);
 	int immediate_s = int16_t(immediate);
 
-	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t rs = get_RS(instruction);
 	uint8_t base = rs;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rt = get_RT(instruction);
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = int16_t(offset) << 2;
+	int b18_signed_offset = get_SB18(instruction);
 
 	int temp_32b = -1, address = -1;
 
@@ -653,16 +653,16 @@ void processor::i_type_2d(uint32_t instruction)
 
 void processor::i_type_2e(uint32_t instruction)
 {
-	int immediate = instruction & MASK_16B;
+	int immediate = get_immediate(instruction);
 	int immediate_s = int16_t(immediate);
 
-	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t rs = get_RS(instruction);
 	uint8_t base = rs;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rt = get_RT(instruction);
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = int16_t(offset) << 2;
+	int b18_signed_offset = get_SB18(instruction);
 
 	int temp_32b = -1, address = -1;
 
@@ -671,16 +671,16 @@ void processor::i_type_2e(uint32_t instruction)
 
 void processor::i_type_2f(uint32_t instruction)
 {
-	int immediate = instruction & MASK_16B;
+	int immediate = get_immediate(instruction);
 	int immediate_s = int16_t(immediate);
 
-	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t rs = get_RS(instruction);
 	uint8_t base = rs;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rt = get_RT(instruction);
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = int16_t(offset) << 2;
+	int b18_signed_offset = get_SB18(instruction);
 
 	int temp_32b = -1, address = -1;
 
@@ -689,16 +689,16 @@ void processor::i_type_2f(uint32_t instruction)
 
 void processor::i_type_31(uint32_t instruction)
 {
-	int immediate = instruction & MASK_16B;
+	int immediate = get_immediate(instruction);
 	int immediate_s = int16_t(immediate);
 
-	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t rs = get_RS(instruction);
 	uint8_t base = rs;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rt = get_RT(instruction);
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = int16_t(offset) << 2;
+	int b18_signed_offset = get_SB18(instruction);
 
 	int temp_32b = -1, address = -1;
 
@@ -707,16 +707,16 @@ void processor::i_type_31(uint32_t instruction)
 
 void processor::i_type_32(uint32_t instruction)
 {
-	int immediate = instruction & MASK_16B;
+	int immediate = get_immediate(instruction);
 	int immediate_s = int16_t(immediate);
 
-	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t rs = get_RS(instruction);
 	uint8_t base = rs;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rt = get_RT(instruction);
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = int16_t(offset) << 2;
+	int b18_signed_offset = get_SB18(instruction);
 
 	int temp_32b = -1, address = -1;
 
@@ -725,16 +725,16 @@ void processor::i_type_32(uint32_t instruction)
 
 void processor::i_type_33(uint32_t instruction)
 {
-	int immediate = instruction & MASK_16B;
+	int immediate = get_immediate(instruction);
 	int immediate_s = int16_t(immediate);
 
-	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t rs = get_RS(instruction);
 	uint8_t base = rs;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rt = get_RT(instruction);
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = int16_t(offset) << 2;
+	int b18_signed_offset = get_SB18(instruction);
 
 	int temp_32b = -1, address = -1;
 
@@ -743,16 +743,16 @@ void processor::i_type_33(uint32_t instruction)
 
 void processor::i_type_34(uint32_t instruction)
 {
-	int immediate = instruction & MASK_16B;
+	int immediate = get_immediate(instruction);
 	int immediate_s = int16_t(immediate);
 
-	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t rs = get_RS(instruction);
 	uint8_t base = rs;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rt = get_RT(instruction);
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = int16_t(offset) << 2;
+	int b18_signed_offset = get_SB18(instruction);
 
 	int temp_32b = -1, address = -1;
 
@@ -761,16 +761,16 @@ void processor::i_type_34(uint32_t instruction)
 
 void processor::i_type_35(uint32_t instruction)
 {
-	int immediate = instruction & MASK_16B;
+	int immediate = get_immediate(instruction);
 	int immediate_s = int16_t(immediate);
 
-	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t rs = get_RS(instruction);
 	uint8_t base = rs;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rt = get_RT(instruction);
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = int16_t(offset) << 2;
+	int b18_signed_offset = get_SB18(instruction);
 
 	int temp_32b = -1, address = -1;
 
@@ -779,16 +779,16 @@ void processor::i_type_35(uint32_t instruction)
 
 void processor::i_type_36(uint32_t instruction)
 {
-	int immediate = instruction & MASK_16B;
+	int immediate = get_immediate(instruction);
 	int immediate_s = int16_t(immediate);
 
-	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t rs = get_RS(instruction);
 	uint8_t base = rs;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rt = get_RT(instruction);
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = int16_t(offset) << 2;
+	int b18_signed_offset = get_SB18(instruction);
 
 	int temp_32b = -1, address = -1;
 
@@ -797,16 +797,16 @@ void processor::i_type_36(uint32_t instruction)
 
 void processor::i_type_37(uint32_t instruction)
 {
-	int immediate = instruction & MASK_16B;
+	int immediate = get_immediate(instruction);
 	int immediate_s = int16_t(immediate);
 
-	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t rs = get_RS(instruction);
 	uint8_t base = rs;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rt = get_RT(instruction);
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = int16_t(offset) << 2;
+	int b18_signed_offset = get_SB18(instruction);
 
 	int temp_32b = -1, address = -1;
 
@@ -815,16 +815,16 @@ void processor::i_type_37(uint32_t instruction)
 
 void processor::i_type_38(uint32_t instruction)
 {
-	int immediate = instruction & MASK_16B;
+	int immediate = get_immediate(instruction);
 	int immediate_s = int16_t(immediate);
 
-	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t rs = get_RS(instruction);
 	uint8_t base = rs;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rt = get_RT(instruction);
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = int16_t(offset) << 2;
+	int b18_signed_offset = get_SB18(instruction);
 
 	int temp_32b = -1, address = -1;
 
@@ -833,16 +833,16 @@ void processor::i_type_38(uint32_t instruction)
 
 void processor::i_type_39(uint32_t instruction)
 {
-	int immediate = instruction & MASK_16B;
+	int immediate = get_immediate(instruction);
 	int immediate_s = int16_t(immediate);
 
-	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t rs = get_RS(instruction);
 	uint8_t base = rs;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rt = get_RT(instruction);
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = int16_t(offset) << 2;
+	int b18_signed_offset = get_SB18(instruction);
 
 	int temp_32b = -1, address = -1;
 
@@ -851,16 +851,16 @@ void processor::i_type_39(uint32_t instruction)
 
 void processor::i_type_3a(uint32_t instruction)
 {
-	int immediate = instruction & MASK_16B;
+	int immediate = get_immediate(instruction);
 	int immediate_s = int16_t(immediate);
 
-	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t rs = get_RS(instruction);
 	uint8_t base = rs;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rt = get_RT(instruction);
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = int16_t(offset) << 2;
+	int b18_signed_offset = get_SB18(instruction);
 
 	int temp_32b = -1, address = -1;
 
@@ -869,16 +869,16 @@ void processor::i_type_3a(uint32_t instruction)
 
 void processor::i_type_3b(uint32_t instruction)
 {
-	int immediate = instruction & MASK_16B;
+	int immediate = get_immediate(instruction);
 	int immediate_s = int16_t(immediate);
 
-	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t rs = get_RS(instruction);
 	uint8_t base = rs;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rt = get_RT(instruction);
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = int16_t(offset) << 2;
+	int b18_signed_offset = get_SB18(instruction);
 
 	int temp_32b = -1, address = -1;
 
@@ -887,16 +887,16 @@ void processor::i_type_3b(uint32_t instruction)
 
 void processor::i_type_3c(uint32_t instruction)
 {
-	int immediate = instruction & MASK_16B;
+	int immediate = get_immediate(instruction);
 	int immediate_s = int16_t(immediate);
 
-	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t rs = get_RS(instruction);
 	uint8_t base = rs;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rt = get_RT(instruction);
 
 	int offset = immediate;
 	int offset_s = immediate_s;
-	int b18_signed_offset = immediate_s << 2;
+	int b18_signed_offset = get_SB18(instruction);
 
 	int temp_32b = -1, address = -1;
 
@@ -905,14 +905,14 @@ void processor::i_type_3c(uint32_t instruction)
 
 void processor::i_type_3d(uint32_t instruction)
 {
-	int immediate = instruction & MASK_16B;
+	int immediate = get_immediate(instruction);
 	int immediate_s = int16_t(immediate);
 
-	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t rs = get_RS(instruction);
 	uint8_t base = rs;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rt = get_RT(instruction);
 
-	int b18_signed_offset = immediate_s << 2;
+	int b18_signed_offset = get_SB18(instruction);
 
 	int temp_32b = -1, address = -1;
 
@@ -921,14 +921,14 @@ void processor::i_type_3d(uint32_t instruction)
 
 void processor::i_type_3e(uint32_t instruction)
 {
-	int immediate = instruction & MASK_16B;
+	int immediate = get_immediate(instruction);
 	int immediate_s = int16_t(immediate);
 
-	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t rs = get_RS(instruction);
 	uint8_t base = rs;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rt = get_RT(instruction);
 
-	int b18_signed_offset = immediate_s << 2;
+	int b18_signed_offset = get_SB18(instruction);
 
 	int temp_32b = -1, address = -1;
 
@@ -937,14 +937,14 @@ void processor::i_type_3e(uint32_t instruction)
 
 void processor::i_type_3f(uint32_t instruction)
 {
-	int immediate = instruction & MASK_16B;
+	int immediate = get_immediate(instruction);
 	int immediate_s = int16_t(immediate);
 
-	uint8_t rs = (instruction >> 21) & MASK_5B;
+	uint8_t rs = get_RS(instruction);
 	uint8_t base = rs;
-	uint8_t rt = (instruction >> 16) & MASK_5B;
+	uint8_t rt = get_RT(instruction);
 
-	int b18_signed_offset = immediate_s << 2;
+	int b18_signed_offset = get_SB18(instruction);
 
 	int temp_32b = -1, address = -1;
 

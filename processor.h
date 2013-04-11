@@ -179,35 +179,41 @@ private:
 	void i_type_3f(uint32_t instruction);
 	void (processor::*i_type_methods[64])(uint32_t);
 
-	void i_BLEZ_L(uint32_t instruction);
-
 public:
 	processor(debug_console *pdc_in, memory_bus *pmb_in);
 	~processor();
 
-	bool is_delay_slot() { return have_delay_slot; }
+	inline bool is_delay_slot() { return have_delay_slot; }
 	void set_delay_slot(uint64_t offset);
 	uint64_t get_delay_slot_PC();
 
-	uint64_t get_PC() const { return PC; }
-	uint64_t get_HI() const { return HI; }
-	uint64_t get_LO() const { return LO; }
-	uint64_t get_SR() const { return status_register; }
+	inline uint64_t get_PC() const { return PC; }
+	inline uint64_t get_HI() const { return HI; }
+	inline uint64_t get_LO() const { return LO; }
+	inline uint64_t get_SR() const { return status_register; }
 
 	void get_mem_32b(int offset, uint32_t *value) const;
 
 	uint64_t get_C0_register(uint8_t nr, uint8_t sel);
 
-	void set_status_register(uint32_t value) { status_register = value; }
+	inline void set_status_register(uint32_t value) { status_register = value; }
 
-	void set_PC(uint64_t value) { PC = value; }
-	void set_HI(uint64_t value) { HI = value; }
-	void set_LO(uint64_t value) { LO = value; }
+	inline void set_PC(uint64_t value) { PC = value; }
+	inline void set_HI(uint64_t value) { HI = value; }
+	inline void set_LO(uint64_t value) { LO = value; }
 
 	void set_C0_register(uint8_t nr, uint8_t sel, uint64_t value);
 
 	void reset();
 	void tick();
+
+	static inline uint8_t get_RS(uint32_t instruction) { return (instruction >> 21) & MASK_5B; }
+	static inline uint8_t get_RT(uint32_t instruction) { return (instruction >> 16) & MASK_5B; }
+	static inline uint8_t get_RD(uint32_t instruction) { return (instruction >> 11) & MASK_5B; }
+	static inline uint8_t get_SA(uint32_t instruction) { return (instruction >>  6) & MASK_5B; }
+	static inline int32_t get_SB18(uint32_t instruction) { return int16_t(instruction) << 2; }
+	static inline uint16_t get_immediate(uint32_t instruction) { return instruction; }
+	static inline uint8_t get_base(uint32_t instruction) { return (instruction >> 21) & MASK_5B; }
 
 	static const char * reg_to_name(uint8_t reg);
 	static std::string decode_to_text(uint32_t instr);

@@ -241,12 +241,12 @@ void debug_console::tick(processor *p)
 
 		int opcode = (instruction >> 26) & MASK_6B;
 		int function = instruction & MASK_6B;
-		int sa = (instruction >> 6) & MASK_5B;
-		int rd = (instruction >> 11) & MASK_5B;
-		int rt = (instruction >> 16) & MASK_5B;
-		int rs = (instruction >> 21) & MASK_5B;
-		int immediate = instruction & MASK_16B;
-		int b18_signed_offset = untwos_complement(immediate << 2, 18);
+		int sa = processor::get_SA(instruction);
+		int rd = processor::get_RD(instruction);
+		int rt = processor::get_RT(instruction);
+		int rs = processor::get_RS(instruction);
+		int immediate = processor::get_immediate(instruction);
+		int b18_signed_offset = processor::get_SB18(instruction);
 		mvwprintw(win_regs,  5, 44, "op: %02x  rs: %02x", opcode, rs);
 		mvwprintw(win_regs,  6, 44, "rt: %02x  rd: %02x", rt, rd);
 		mvwprintw(win_regs,  7, 44, "sa: %02x  fu: %02d", sa, function);
