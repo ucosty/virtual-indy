@@ -10,8 +10,8 @@ memory::memory() : pm(NULL), len(0)
 
 memory::memory(uint64_t size, bool init) : len(size)
 {
-	if (size < 0)
-		error_exit("memory::memory invalid size %016llx", size);
+	if (size == 0)
+		error_exit("memory::memory invalid size");
 
 	pm = new unsigned char[size];
 
@@ -21,8 +21,8 @@ memory::memory(uint64_t size, bool init) : len(size)
 
 memory::memory(unsigned char *p, uint64_t size) : pm(p), len(size)
 {
-	if (size < 0)
-		error_exit("memory::memory invalid size %016llx", size);
+	if (size == 0)
+		error_exit("memory::memory invalid size");
 }
 
 memory::~memory()
