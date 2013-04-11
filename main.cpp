@@ -113,6 +113,7 @@ int main(int argc, char *argv[])
 	processor *p = new processor(dc, mb);
 
 #ifdef _PROFILING
+	double start_ts = get_ts();
 	int cnt = 0;
 	for(;!terminate;)
 	{
@@ -128,6 +129,8 @@ int main(int argc, char *argv[])
 		if (cnt % 100 == 0)
 			printf("%d\r", cnt);
 	}
+	double dcnt = double(cnt) * 600.0;
+	printf("i/s: %f\n", dcnt / (get_ts() - start_ts));
 #else
 	if (single_step || debug)
 	{
