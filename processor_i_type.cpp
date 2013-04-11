@@ -305,7 +305,7 @@ void processor::i_type_21(uint32_t instruction)	// LH / LHU
 
 	if (unlikely(address & 1))
 	{
-		pdc -> dc_log("i-type read 16b from %08llx: unaligned", address);
+		pdc -> dc_log("i-type read 16b from %016llx: unaligned", address);
 
 		cycles += 5; // FIXME
 
@@ -339,7 +339,7 @@ void processor::i_type_23(uint32_t instruction)	// LW / LL
 
 	if (unlikely(address & 3))
 	{
-		pdc -> dc_log("i-type read 32b from %08llx: unaligned", address);
+		pdc -> dc_log("i-type read 32b from %016llx: unaligned", address);
 
 		cycles += 5; // FIXME
 
@@ -487,9 +487,34 @@ void processor::i_type_37(uint32_t instruction)
 	pdc -> dc_log("i_type_37 not implemented");
 }
 
-void processor::i_type_38(uint32_t instruction)
+void processor::i_type_38(uint32_t instruction)	// SC
 {
-	pdc -> dc_log("i_type_38 not implemented");
+	uint64_t address = get_base_register_with_offset(instruction);
+	uint8_t rt = get_RT(instruction);
+
+	if (!RMW_sequence)
+	{
+		set_register_64b(rt, 0);
+	}
+	else if (unlikely(address & 3))
+	{
+		pdc -> dc_log("i-type write 32b to %016llx: unaligned", address);
+
+		set_register_64b(rt, 0);
+		cycles += 5; // FIXME
+
+		throw processor_exception(address, status_register, 0, PE_ADDRS, PC);
+	}
+	else
+	{
+		uint32_t value = get_register_32b_unsigned(rt);
+
+		pmb -> write_32b(address, value);
+
+		// AFTER the memory write as a write may cause an
+		// exception
+		set_register_64b(rt, 1);
+	}
 }
 
 void processor::i_type_39(uint32_t instruction)
