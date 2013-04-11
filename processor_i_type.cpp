@@ -121,7 +121,7 @@ void processor::i_type_01(uint32_t instruction)	// BGEZAL
 	regimm(instruction);
 }
 
-void processor::conditional_jump(bool do_jump, uint32_t instruction, bool skip_delay_slot)
+void processor::conditional_jump(bool do_jump, uint32_t instruction, bool skip_delay_slot_if_not)
 {
 	cycles += 3;
 
@@ -131,76 +131,44 @@ void processor::conditional_jump(bool do_jump, uint32_t instruction, bool skip_d
 
 		PC += get_SB18(instruction);
 	}
-
-	// if (skip_delay_slot)
-// FIXME PC +=4?
-// FIXME ^ but only when triggered?
+	else if (skip_delay_slot_if_not)
+	{
+		PC += 4;
+	}
 }
 
 void processor::i_type_04(uint32_t instruction)	// BEQ/BEQL
 {
 	uint8_t rs = get_RS(instruction);
 	uint8_t rt = get_RT(instruction);
-	int b18_signed_offset = get_SB18(instruction);
+	bool likely_op = IS_BIT_OFF0_SET(4, instruction); // BEQL
 
-	cycles += 3;
-
-	conditional_jump(get_register_64b_unsigned(rs) == get_register_64b_unsigned(rt), instruction);
-	if (get_register_64b_unsigned(rs) == get_register_64b_unsigned(rt))
-	{
-		set_delay_slot(PC);
-
-		PC += b18_signed_offset;
-	}
+	conditional_jump(get_register_64b_unsigned(rs) == get_register_64b_unsigned(rt), instruction, likely_op);
 }
 
 void processor::i_type_05(uint32_t instruction)	// BNE/BNEL
 {
 	uint8_t rs = get_RS(instruction);
 	uint8_t rt = get_RT(instruction);
-	int b18_signed_offset = get_SB18(instruction);
+	bool likely_op = IS_BIT_OFF0_SET(4, instruction); // BNEL
 
-	cycles += 3;
-
-	if (get_register_64b_unsigned(rs) != get_register_64b_unsigned(rt))
-	{
-		set_delay_slot(PC);
-
-		PC += b18_signed_offset;
-	}
-
-	if ((instruction & MASK_6B) == 0x15) // BNEL
-		PC += 4; // skip delay slot
+	conditional_jump(get_register_64b_unsigned(rs) != get_register_64b_unsigned(rt), instruction, likely_op);
 }
 
 void processor::i_type_06(uint32_t instruction)	// BLEZ/BLEZL
 {
         uint8_t rs = get_RS(instruction);
-        int b18_signed_offset = get_SB18(instruction);
+	bool likely_op = IS_BIT_OFF0_SET(4, instruction); // BLEZL
 
-        cycles += 3;
-
-        if (get_register_64b_signed(rs) <= 0)
-        {
-                set_delay_slot(PC);
-
-                PC += b18_signed_offset;
-        }
+	conditional_jump(get_register_64b_signed(rs) <= 0, instruction, likely_op);
 }
 
 void processor::i_type_07(uint32_t instruction)	// BGTZ
 {
         uint8_t rs = get_RS(instruction);
-        int b18_signed_offset = get_SB18(instruction);
+	bool likely_op = IS_BIT_OFF0_SET(4, instruction); // BGTZL
 
-        cycles += 3;
-
-        if (get_register_64b_signed(rs) >= 0)
-        {
-                set_delay_slot(PC);
-
-                PC += b18_signed_offset;
-        }
+	conditional_jump(get_register_64b_signed(rs) >= 0, instruction, likely_op);
 }
 
 void processor::i_type_08(uint32_t instruction)	// ADDI
