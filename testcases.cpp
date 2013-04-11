@@ -1039,6 +1039,42 @@ void test_ADDI()
 	free_system(mb, m1, m2, p);
 }
 
+void test_SLT()
+{
+	memory_bus *mb = NULL;
+	memory *m1 = NULL, *m2 = NULL;
+	processor *p = NULL;
+	create_system(&mb, &m1, &m2, &p);
+
+	p -> reset();
+	// test 1
+	p -> set_PC(0);
+
+	uint64_t rt_val = 0x1234beefccccdddd;
+	uint8_t rt = 1;
+	p -> set_register_64b(rt, rt_val);
+
+	uint16_t immediate = 0x1234;
+
+	uint64_t rs_val = 0x4321abcd80000000;
+	uint8_t rs = 9;
+	p -> set_register_64b(rs, rs_val);
+
+	uint64_t expected = rs < rt ? 1 : 0;
+
+	uint8_t opcode = 0;
+	uint8_t function = 0x2a;
+	uint32_t instruction = make_cmd_R_TYPE(opcode, sa, rd, rt, rs, function);
+
+	m1 -> write_32b(0, instruction);
+
+	tick(p);
+
+	uint64_t result = p -> get_register_64b_signed(rd);
+	if (result != expected)
+		error_exit("SLT: result is %016llx, expected %016llx", result, expected);
+}
+
 int main(int argc, char *argv[])
 {
 	test_untows_complement();
@@ -1064,6 +1100,7 @@ int main(int argc, char *argv[])
 	test_OR();
 	test_ORI();
 	test_SLL();
+	test_SLT();
 	test_SRL();
 	test_SW();
 	test_XORI();
