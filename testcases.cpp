@@ -1064,6 +1064,8 @@ void test_SLT()
 
 	uint8_t opcode = 0;
 	uint8_t function = 0x2a;
+	uint8_t sa = 0;
+	uint8_t rd = 0;
 	uint32_t instruction = make_cmd_R_TYPE(opcode, sa, rd, rt, rs, function);
 
 	m1 -> write_32b(0, instruction);
