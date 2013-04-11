@@ -101,40 +101,24 @@ void processor::i_type_10(uint32_t instruction)
 void processor::i_type_11(uint32_t instruction)
 {
 	// COP1(instruction);
-	pdc -> dc_log("i_type_11 not known");
+	pdc -> dc_log("i_type_11 not implemented");
 }
 
 void processor::i_type_12(uint32_t instruction)
 {
 	// COP2(instruction);
-	pdc -> dc_log("i_type_12 not known");
+	pdc -> dc_log("i_type_12 not implemented");
 }
 
 void processor::i_type_13(uint32_t instruction)
 {
 	// COP3(instruction);
-	pdc -> dc_log("i_type_13 not known");
+	pdc -> dc_log("i_type_13 not implemented");
 }
 
 void processor::i_type_01(uint32_t instruction)	// BGEZAL
 {
 	regimm(instruction);
-}
-
-void processor::conditional_jump(bool do_jump, uint32_t instruction, bool skip_delay_slot_if_not)
-{
-	cycles += 3;
-
-	if (do_jump)
-	{
-		set_delay_slot(PC);
-
-		PC += get_SB18(instruction);
-	}
-	else if (skip_delay_slot_if_not)
-	{
-		PC += 4;
-	}
 }
 
 void processor::i_type_04(uint32_t instruction)	// BEQ/BEQL
@@ -261,74 +245,22 @@ void processor::i_type_0f(uint32_t instruction)	// LUI
 
 void processor::i_type_18(uint32_t instruction)
 {
-	int immediate = get_immediate(instruction);
-	int immediate_s = int16_t(immediate);
-
-	uint8_t rs = get_RS(instruction);
-	uint8_t base = rs;
-	uint8_t rt = get_RT(instruction);
-
-	int offset = immediate;
-	int offset_s = immediate_s;
-	int b18_signed_offset = get_SB18(instruction);
-
-	int temp_32b = -1, address = -1;
-
-	pdc -> dc_log("i_type_18 not known");
+	pdc -> dc_log("i_type_18 not implemented");
 }
 
 void processor::i_type_19(uint32_t instruction)
 {
-	int immediate = get_immediate(instruction);
-	int immediate_s = int16_t(immediate);
-
-	uint8_t rs = get_RS(instruction);
-	uint8_t base = rs;
-	uint8_t rt = get_RT(instruction);
-
-	int offset = immediate;
-	int offset_s = immediate_s;
-	int b18_signed_offset = get_SB18(instruction);
-
-	int temp_32b = -1, address = -1;
-
-	pdc -> dc_log("i_type_19 not known");
+	pdc -> dc_log("i_type_19 not implemented");
 }
 
 void processor::i_type_1a(uint32_t instruction)
 {
-	int immediate = get_immediate(instruction);
-	int immediate_s = int16_t(immediate);
-
-	uint8_t rs = get_RS(instruction);
-	uint8_t base = rs;
-	uint8_t rt = get_RT(instruction);
-
-	int offset = immediate;
-	int offset_s = immediate_s;
-	int b18_signed_offset = get_SB18(instruction);
-
-	int temp_32b = -1, address = -1;
-
-	pdc -> dc_log("i_type_1a not known");
+	pdc -> dc_log("i_type_1a not implemented");
 }
 
 void processor::i_type_1b(uint32_t instruction)
 {
-	int immediate = get_immediate(instruction);
-	int immediate_s = int16_t(immediate);
-
-	uint8_t rs = get_RS(instruction);
-	uint8_t base = rs;
-	uint8_t rt = get_RT(instruction);
-
-	int offset = immediate;
-	int offset_s = immediate_s;
-	int b18_signed_offset = get_SB18(instruction);
-
-	int temp_32b = -1, address = -1;
-
-	pdc -> dc_log("i_type_1b not known");
+	pdc -> dc_log("i_type_1b not implemented");
 }
 
 void processor::i_type_1c(uint32_t instruction)	// SPECIAL2
@@ -338,38 +270,12 @@ void processor::i_type_1c(uint32_t instruction)	// SPECIAL2
 
 void processor::i_type_1d(uint32_t instruction)
 {
-	int immediate = get_immediate(instruction);
-	int immediate_s = int16_t(immediate);
-
-	uint8_t rs = get_RS(instruction);
-	uint8_t base = rs;
-	uint8_t rt = get_RT(instruction);
-
-	int offset = immediate;
-	int offset_s = immediate_s;
-	int b18_signed_offset = get_SB18(instruction);
-
-	int temp_32b = -1, address = -1;
-
-	pdc -> dc_log("i_type_1d not known");
+	pdc -> dc_log("i_type_1d not implemented");
 }
 
 void processor::i_type_1e(uint32_t instruction)
 {
-	int immediate = get_immediate(instruction);
-	int immediate_s = int16_t(immediate);
-
-	uint8_t rs = get_RS(instruction);
-	uint8_t base = rs;
-	uint8_t rt = get_RT(instruction);
-
-	int offset = immediate;
-	int offset_s = immediate_s;
-	int b18_signed_offset = get_SB18(instruction);
-
-	int temp_32b = -1, address = -1;
-
-	pdc -> dc_log("i_type_1e not known");
+	pdc -> dc_log("i_type_1e not implemented");
 }
 
 void processor::i_type_1f(uint32_t instruction)	// SPECIAL3
@@ -379,20 +285,16 @@ void processor::i_type_1f(uint32_t instruction)	// SPECIAL3
 
 void processor::i_type_20(uint32_t instruction)	// LB / LBU
 {
-	uint8_t rt = get_RT(instruction);
-
 	uint64_t address = get_base_register_with_offset(instruction);
-
 	uint8_t temp_8b = -1;
-
 	pmb -> read_8b(address, &temp_8b);
 
-	uint8_t opcode = get_opcode(instruction);
+	uint8_t rt = get_RT(instruction);
 
-	if (opcode == 0x24)
+	if (get_opcode(instruction) == 0x24)	// LBU
 		set_register_32b(rt, temp_8b);
 	else
-		set_register_32b(rt, int(temp_8b));
+		set_register_32b(rt, int8_t(temp_8b));
 
 	cycles += 5;
 }
@@ -412,35 +314,23 @@ void processor::i_type_21(uint32_t instruction)	// LH / LHU
 	else
 	{
 		uint16_t temp_16b = -1;
-
 		pmb -> read_16b(address, &temp_16b);
 
-		uint8_t opcode = get_opcode(instruction);
 		uint8_t rt = get_RT(instruction);
 
-		if (opcode == 0x25)
+		if (get_opcode(instruction) == 0x25) // LHU
 			set_register_32b(rt, temp_16b);
 		else
-			set_register_32b(rt, int(temp_16b));
+			set_register_32b(rt, int16_t(temp_16b));
 
 		cycles += 5;
 		cycles += 5; // FIXME
 	}
 }
 
-void processor::i_type_22(uint32_t instruction)
+void processor::i_type_22(uint32_t instruction)	// LWL
 {
-        uint8_t rs = get_RS(instruction);
-        int b18_signed_offset = get_SB18(instruction);
-
-        cycles += 3;
-
-        if (get_register_64b_signed(rs) <= 0)
-        {
-                set_delay_slot(PC);
-
-                PC += b18_signed_offset;
-        }
+	pdc -> dc_log("i_type_22 not implemented");
 }
 
 void processor::i_type_23(uint32_t instruction)	// LW / LL
@@ -458,12 +348,12 @@ void processor::i_type_23(uint32_t instruction)	// LW / LL
 	else
 	{
 		uint32_t temp_32b = -1;
-
 		pmb -> read_32b(address, &temp_32b);
 
-		uint8_t rt = get_RT(instruction);
+		set_register_64b(get_RT(instruction), int32_t(temp_32b));
 
-		set_register_32b_se(rt, temp_32b);
+		if (get_opcode(instruction) == 0x30) // LL
+			start_RMW_sequence();
 
 		cycles += 5;
 	}
@@ -471,38 +361,12 @@ void processor::i_type_23(uint32_t instruction)	// LW / LL
 
 void processor::i_type_26(uint32_t instruction)
 {
-	int immediate = get_immediate(instruction);
-	int immediate_s = int16_t(immediate);
-
-	uint8_t rs = get_RS(instruction);
-	uint8_t base = rs;
-	uint8_t rt = get_RT(instruction);
-
-	int offset = immediate;
-	int offset_s = immediate_s;
-	int b18_signed_offset = get_SB18(instruction);
-
-	int temp_32b = -1, address = -1;
-
-	pdc -> dc_log("i_type_26 not known");
+	pdc -> dc_log("i_type_26 not implemented");
 }
 
 void processor::i_type_27(uint32_t instruction)
 {
-	int immediate = get_immediate(instruction);
-	int immediate_s = int16_t(immediate);
-
-	uint8_t rs = get_RS(instruction);
-	uint8_t base = rs;
-	uint8_t rt = get_RT(instruction);
-
-	int offset = immediate;
-	int offset_s = immediate_s;
-	int b18_signed_offset = get_SB18(instruction);
-
-	int temp_32b = -1, address = -1;
-
-	pdc -> dc_log("i_type_27 not known");
+	pdc -> dc_log("i_type_27 not implemented");
 }
 
 void processor::i_type_28(uint32_t instruction)	// SB
@@ -543,20 +407,7 @@ void processor::i_type_29(uint32_t instruction)	// SH
 
 void processor::i_type_2a(uint32_t instruction)
 {
-	int immediate = get_immediate(instruction);
-	int immediate_s = int16_t(immediate);
-
-	uint8_t rs = get_RS(instruction);
-	uint8_t base = rs;
-	uint8_t rt = get_RT(instruction);
-
-	int offset = immediate;
-	int offset_s = immediate_s;
-	int b18_signed_offset = get_SB18(instruction);
-
-	int temp_32b = -1, address = -1;
-
-	pdc -> dc_log("i_type_2a not known");
+	pdc -> dc_log("i_type_2a not implemented");
 }
 
 void processor::i_type_2b(uint32_t instruction)	// SW
@@ -583,337 +434,95 @@ void processor::i_type_2b(uint32_t instruction)	// SW
 
 void processor::i_type_2c(uint32_t instruction)
 {
-	int immediate = get_immediate(instruction);
-	int immediate_s = int16_t(immediate);
-
-	uint8_t rs = get_RS(instruction);
-	uint8_t base = rs;
-	uint8_t rt = get_RT(instruction);
-
-	int offset = immediate;
-	int offset_s = immediate_s;
-	int b18_signed_offset = get_SB18(instruction);
-
-	int temp_32b = -1, address = -1;
-
-	pdc -> dc_log("i_type_2c not known");
+	pdc -> dc_log("i_type_2c not implemented");
 }
 
 void processor::i_type_2d(uint32_t instruction)
 {
-	int immediate = get_immediate(instruction);
-	int immediate_s = int16_t(immediate);
-
-	uint8_t rs = get_RS(instruction);
-	uint8_t base = rs;
-	uint8_t rt = get_RT(instruction);
-
-	int offset = immediate;
-	int offset_s = immediate_s;
-	int b18_signed_offset = get_SB18(instruction);
-
-	int temp_32b = -1, address = -1;
-
-	pdc -> dc_log("i_type_2d not known");
+	pdc -> dc_log("i_type_2d not implemented");
 }
 
 void processor::i_type_2e(uint32_t instruction)
 {
-	int immediate = get_immediate(instruction);
-	int immediate_s = int16_t(immediate);
-
-	uint8_t rs = get_RS(instruction);
-	uint8_t base = rs;
-	uint8_t rt = get_RT(instruction);
-
-	int offset = immediate;
-	int offset_s = immediate_s;
-	int b18_signed_offset = get_SB18(instruction);
-
-	int temp_32b = -1, address = -1;
-
-	pdc -> dc_log("i_type_2e not known");
+	pdc -> dc_log("i_type_2e not implemented");
 }
 
 void processor::i_type_2f(uint32_t instruction)
 {
-	int immediate = get_immediate(instruction);
-	int immediate_s = int16_t(immediate);
-
-	uint8_t rs = get_RS(instruction);
-	uint8_t base = rs;
-	uint8_t rt = get_RT(instruction);
-
-	int offset = immediate;
-	int offset_s = immediate_s;
-	int b18_signed_offset = get_SB18(instruction);
-
-	int temp_32b = -1, address = -1;
-
-	pdc -> dc_log("i_type_2f not known");
+	pdc -> dc_log("i_type_2f not implemented");
 }
 
 void processor::i_type_31(uint32_t instruction)
 {
-	int immediate = get_immediate(instruction);
-	int immediate_s = int16_t(immediate);
-
-	uint8_t rs = get_RS(instruction);
-	uint8_t base = rs;
-	uint8_t rt = get_RT(instruction);
-
-	int offset = immediate;
-	int offset_s = immediate_s;
-	int b18_signed_offset = get_SB18(instruction);
-
-	int temp_32b = -1, address = -1;
-
-	pdc -> dc_log("i_type_31 not known");
+	pdc -> dc_log("i_type_31 not implemented");
 }
 
 void processor::i_type_32(uint32_t instruction)
 {
-	int immediate = get_immediate(instruction);
-	int immediate_s = int16_t(immediate);
-
-	uint8_t rs = get_RS(instruction);
-	uint8_t base = rs;
-	uint8_t rt = get_RT(instruction);
-
-	int offset = immediate;
-	int offset_s = immediate_s;
-	int b18_signed_offset = get_SB18(instruction);
-
-	int temp_32b = -1, address = -1;
-
-	pdc -> dc_log("i_type_32 not known");
+	pdc -> dc_log("i_type_32 not implemented");
 }
 
 void processor::i_type_33(uint32_t instruction)
 {
-	int immediate = get_immediate(instruction);
-	int immediate_s = int16_t(immediate);
-
-	uint8_t rs = get_RS(instruction);
-	uint8_t base = rs;
-	uint8_t rt = get_RT(instruction);
-
-	int offset = immediate;
-	int offset_s = immediate_s;
-	int b18_signed_offset = get_SB18(instruction);
-
-	int temp_32b = -1, address = -1;
-
-	pdc -> dc_log("i_type_33 not known");
+	pdc -> dc_log("i_type_33 not implemented");
 }
 
 void processor::i_type_34(uint32_t instruction)
 {
-	int immediate = get_immediate(instruction);
-	int immediate_s = int16_t(immediate);
-
-	uint8_t rs = get_RS(instruction);
-	uint8_t base = rs;
-	uint8_t rt = get_RT(instruction);
-
-	int offset = immediate;
-	int offset_s = immediate_s;
-	int b18_signed_offset = get_SB18(instruction);
-
-	int temp_32b = -1, address = -1;
-
-	pdc -> dc_log("i_type_34 not known");
+	pdc -> dc_log("i_type_34 not implemented");
 }
 
 void processor::i_type_35(uint32_t instruction)
 {
-	int immediate = get_immediate(instruction);
-	int immediate_s = int16_t(immediate);
-
-	uint8_t rs = get_RS(instruction);
-	uint8_t base = rs;
-	uint8_t rt = get_RT(instruction);
-
-	int offset = immediate;
-	int offset_s = immediate_s;
-	int b18_signed_offset = get_SB18(instruction);
-
-	int temp_32b = -1, address = -1;
-
-	pdc -> dc_log("i_type_35 not known");
+	pdc -> dc_log("i_type_35 not implemented");
 }
 
 void processor::i_type_36(uint32_t instruction)
 {
-	int immediate = get_immediate(instruction);
-	int immediate_s = int16_t(immediate);
-
-	uint8_t rs = get_RS(instruction);
-	uint8_t base = rs;
-	uint8_t rt = get_RT(instruction);
-
-	int offset = immediate;
-	int offset_s = immediate_s;
-	int b18_signed_offset = get_SB18(instruction);
-
-	int temp_32b = -1, address = -1;
-
-	pdc -> dc_log("i_type_36 not known");
+	pdc -> dc_log("i_type_36 not implemented");
 }
 
 void processor::i_type_37(uint32_t instruction)
 {
-	int immediate = get_immediate(instruction);
-	int immediate_s = int16_t(immediate);
-
-	uint8_t rs = get_RS(instruction);
-	uint8_t base = rs;
-	uint8_t rt = get_RT(instruction);
-
-	int offset = immediate;
-	int offset_s = immediate_s;
-	int b18_signed_offset = get_SB18(instruction);
-
-	int temp_32b = -1, address = -1;
-
-	pdc -> dc_log("i_type_37 not known");
+	pdc -> dc_log("i_type_37 not implemented");
 }
 
 void processor::i_type_38(uint32_t instruction)
 {
-	int immediate = get_immediate(instruction);
-	int immediate_s = int16_t(immediate);
-
-	uint8_t rs = get_RS(instruction);
-	uint8_t base = rs;
-	uint8_t rt = get_RT(instruction);
-
-	int offset = immediate;
-	int offset_s = immediate_s;
-	int b18_signed_offset = get_SB18(instruction);
-
-	int temp_32b = -1, address = -1;
-
-	pdc -> dc_log("i_type_38 not known");
+	pdc -> dc_log("i_type_38 not implemented");
 }
 
 void processor::i_type_39(uint32_t instruction)
 {
-	int immediate = get_immediate(instruction);
-	int immediate_s = int16_t(immediate);
-
-	uint8_t rs = get_RS(instruction);
-	uint8_t base = rs;
-	uint8_t rt = get_RT(instruction);
-
-	int offset = immediate;
-	int offset_s = immediate_s;
-	int b18_signed_offset = get_SB18(instruction);
-
-	int temp_32b = -1, address = -1;
-
-	pdc -> dc_log("i_type_39 not known");
+	pdc -> dc_log("i_type_39 not implemented");
 }
 
 void processor::i_type_3a(uint32_t instruction)
 {
-	int immediate = get_immediate(instruction);
-	int immediate_s = int16_t(immediate);
-
-	uint8_t rs = get_RS(instruction);
-	uint8_t base = rs;
-	uint8_t rt = get_RT(instruction);
-
-	int offset = immediate;
-	int offset_s = immediate_s;
-	int b18_signed_offset = get_SB18(instruction);
-
-	int temp_32b = -1, address = -1;
-
-	pdc -> dc_log("i_type_3a not known");
+	pdc -> dc_log("i_type_3a not implemented");
 }
 
 void processor::i_type_3b(uint32_t instruction)
 {
-	int immediate = get_immediate(instruction);
-	int immediate_s = int16_t(immediate);
-
-	uint8_t rs = get_RS(instruction);
-	uint8_t base = rs;
-	uint8_t rt = get_RT(instruction);
-
-	int offset = immediate;
-	int offset_s = immediate_s;
-	int b18_signed_offset = get_SB18(instruction);
-
-	int temp_32b = -1, address = -1;
-
-	pdc -> dc_log("i_type_3b not known");
+	pdc -> dc_log("i_type_3b not implemented");
 }
 
 void processor::i_type_3c(uint32_t instruction)
 {
-	int immediate = get_immediate(instruction);
-	int immediate_s = int16_t(immediate);
-
-	uint8_t rs = get_RS(instruction);
-	uint8_t base = rs;
-	uint8_t rt = get_RT(instruction);
-
-	int offset = immediate;
-	int offset_s = immediate_s;
-	int b18_signed_offset = get_SB18(instruction);
-
-	int temp_32b = -1, address = -1;
-
-	pdc -> dc_log("i_type_3c not known");
+	pdc -> dc_log("i_type_3c not implemented");
 }
 
 void processor::i_type_3d(uint32_t instruction)
 {
-	int immediate = get_immediate(instruction);
-	int immediate_s = int16_t(immediate);
-
-	uint8_t rs = get_RS(instruction);
-	uint8_t base = rs;
-	uint8_t rt = get_RT(instruction);
-
-	int b18_signed_offset = get_SB18(instruction);
-
-	int temp_32b = -1, address = -1;
-
-	pdc -> dc_log("i_type_3d not known");
+	pdc -> dc_log("i_type_3d not implemented");
 }
 
 void processor::i_type_3e(uint32_t instruction)
 {
-	int immediate = get_immediate(instruction);
-	int immediate_s = int16_t(immediate);
-
-	uint8_t rs = get_RS(instruction);
-	uint8_t base = rs;
-	uint8_t rt = get_RT(instruction);
-
-	int b18_signed_offset = get_SB18(instruction);
-
-	int temp_32b = -1, address = -1;
-
-	pdc -> dc_log("i_type_3e not known");
+	pdc -> dc_log("i_type_3e not implemented");
 }
 
 void processor::i_type_3f(uint32_t instruction)
 {
-	int immediate = get_immediate(instruction);
-	int immediate_s = int16_t(immediate);
-
-	uint8_t rs = get_RS(instruction);
-	uint8_t base = rs;
-	uint8_t rt = get_RT(instruction);
-
-	int b18_signed_offset = get_SB18(instruction);
-
-	int temp_32b = -1, address = -1;
-
-	pdc -> dc_log("i_type_3f not known");
+	pdc -> dc_log("i_type_3f not implemented");
 }
-

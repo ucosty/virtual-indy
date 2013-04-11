@@ -35,6 +35,8 @@ private:
 	uint32_t status_register;
 	uint32_t C0_registers[32];
 
+	bool RMW_sequence;
+
 	bool have_delay_slot;
 	uint64_t delay_slot_PC;
 
@@ -180,6 +182,8 @@ private:
 	void (processor::*i_type_methods[64])(uint32_t);
 
 	void conditional_jump(bool do_jump, uint32_t instruction, bool skip_delay_slot_if_not);
+
+	void start_RMW_sequence();
 
 public:
 	processor(debug_console *pdc_in, memory_bus *pmb_in);

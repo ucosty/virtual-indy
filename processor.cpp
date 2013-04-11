@@ -34,6 +34,8 @@ void processor::reset()
 
 	have_delay_slot = false;
 	delay_slot_PC = -1;
+
+	RMW_sequence = false;
 }
 
 void processor::tick()
@@ -161,5 +163,29 @@ void processor::interrupt(int nr)
 		status_register <<= 4;
 
 		// FIXME
+	}
+}
+
+void processor::start_RMW_sequence()
+{
+	if (RMW_sequence)
+		pdc -> dc_log("RE(!)-starting RMW sequence");
+
+	RMW_sequence = true;
+}
+
+void processor::conditional_jump(bool do_jump, uint32_t instruction, bool skip_delay_slot_if_not)
+{
+	cycles += 3;
+
+	if (do_jump)
+	{
+		set_delay_slot(PC);
+
+		PC += get_SB18(instruction);
+	}
+	else if (skip_delay_slot_if_not)
+	{
+		PC += 4;
 	}
 }
