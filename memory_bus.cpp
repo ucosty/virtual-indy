@@ -9,6 +9,9 @@
 
 memory_bus::memory_bus(debug_console *pdc_in) : list(NULL), n_elements(0), pdc(pdc_in)
 {
+	dummy_seg.offset = -1;
+	dummy_seg.mask = 0;
+	plast_seg = &dummy_seg;
 }
 
 memory_bus::~memory_bus()
@@ -32,17 +35,29 @@ void memory_bus::register_memory(uint64_t offset, uint64_t mask, memory *target)
 }
 
 // r/w might overlap segments? FIXME
-const memory_segment_t * memory_bus::find_segment(uint64_t offset) const
+const memory_segment_t * memory_bus::find_segment(uint64_t offset)
 {
-	for(int segment = 0; segment < n_elements; segment++)
+	// see if the last used segment is used again (for speed)
+	uint64_t c_seg_offset = plast_seg -> offset;
+	uint64_t c_seg_mask   = ~plast_seg -> mask;
+
+	if ((offset & c_seg_mask) == c_seg_offset)
+		return plast_seg;
+
+	// if not, (re-)scan segment table
+	for(int index = 0; index < n_elements; index++)
 	{
-		const memory_segment_t *psegment = &list[segment];
+		memory_segment_t *psegment = &list[index];
 
 		uint64_t seg_offset = psegment -> offset;
 		uint64_t seg_mask   = ~psegment -> mask;
 
 		if ((offset & seg_mask) == seg_offset)
+		{
+			plast_seg = psegment;
+
 			return psegment;
+		}
 	}
 
 	throw processor_exception(offset, -1, -1, PEE_MEM, -1);
@@ -50,7 +65,7 @@ const memory_segment_t * memory_bus::find_segment(uint64_t offset) const
 	return NULL; // should not be reached
 }
 
-void memory_bus::read_64b(uint64_t offset, uint64_t *data) const
+void memory_bus::read_64b(uint64_t offset, uint64_t *data)
 {
 	const memory_segment_t * segment = find_segment(offset);
 
@@ -64,7 +79,7 @@ void memory_bus::write_64b(uint64_t offset, uint64_t data)
 	segment -> target -> write_64b(offset - segment -> offset, data);
 }
 
-void memory_bus::read_32b(uint64_t offset, uint32_t *data) const
+void memory_bus::read_32b(uint64_t offset, uint32_t *data)
 {
 	const memory_segment_t * segment = find_segment(offset);
 
@@ -78,7 +93,7 @@ void memory_bus::write_32b(uint64_t offset, uint32_t data)
 	segment -> target -> write_32b(offset - segment -> offset, data);
 }
 
-void memory_bus::read_16b(uint64_t offset, uint16_t *data) const
+void memory_bus::read_16b(uint64_t offset, uint16_t *data)
 {
 	const memory_segment_t * segment = find_segment(offset);
 
@@ -92,7 +107,7 @@ void memory_bus::write_16b(uint64_t offset, uint16_t data)
 	segment -> target -> write_16b(offset - segment -> offset, data);
 }
 
-void memory_bus::read_8b(uint64_t offset, uint8_t *data) const
+void memory_bus::read_8b(uint64_t offset, uint8_t *data)
 {
 	const memory_segment_t * segment = find_segment(offset);
 
