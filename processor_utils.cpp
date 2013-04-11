@@ -133,48 +133,15 @@ int64_t sign_extend(int64_t value, uint8_t bits)
 
 bool test_tc_overflow_32b(int32_t val1, int32_t val2)
 {
-	if (val1 >= 0)
-	{
-		if (val2 >= 0)
-		{
-			int32_t limit = S32_MAX - val1;
+	int32_t result = val1 + val2;
 
-			if (unlikely(val2 > limit))
-				return true;
+	if (val1 < 0 && val2 < 0 && result >= 0)
+		return true;
 
-			return false;
-		}
-		else
-		{
-			uint32_t limit = uint32_t(val1) + S32_MAX + 1;
+	if (val1 > 0 && val2 > 0 && result < 0)
+		return true;
 
-			if (unlikely(abs(val2) > limit))
-				return true;
-
-			return false;
-		}
-	}
-	else
-	{
-		if (val2 >= 0)
-		{
-			uint32_t limit = abs(val1) + S32_MAX;
-
-			if (unlikely(abs(val2) > limit))
-				return true;
-
-			return false;
-		}
-		else
-		{
-			uint32_t limit = U32_MAX + val1;
-
-			if (unlikely(abs(val2) > limit))
-				return true;
-
-			return false;
-		}
-	}
+	return false;
 }
 
 uint32_t make_cmd_I_TYPE(uint8_t rs, uint8_t rt, uint8_t function, int immediate)

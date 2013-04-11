@@ -12,7 +12,7 @@ SO 0 3 Data to serial EEROM.
 SI 4 Data from serial EEROM.
 UNDEF 0 31:5 Reserved.
 
-ADDI    11
+ADDI    11 *
 ADDIU   27 *
 AND     67 *
 ANDI    46 *

@@ -188,7 +188,7 @@ void processor::i_type_07(uint32_t instruction)	// BGTZ
 
 void processor::i_type_08(uint32_t instruction)	// ADDI
 {
-	int immediate_s = int16_t(instruction);
+	int16_t immediate_s = instruction;
 	uint8_t rs = (instruction >> 21) & MASK_5B;
 	uint8_t rt = (instruction >> 16) & MASK_5B;
 

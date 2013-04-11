@@ -966,20 +966,20 @@ void test_test_tc_overflow_32b()
 	if (test_tc_overflow_32b(-1, 3))
 		error_exit("test_tc_overflow_32b: indicates overflow for -1, 3");
 
-	if (!test_tc_overflow_32b(-32767, -32767))
-		error_exit("test_tc_overflow_32b: does not indicate overflow for -32767, -32767");
+	if (!test_tc_overflow_32b(-2147483647, -2147483647))
+		error_exit("test_tc_overflow_32b: does not indicate overflow for -2147483647, -2147483647");
 
-	if (!test_tc_overflow_32b(-32768, 1))
-		error_exit("test_tc_overflow_32b: does not indicate overflow for -32768, 1");
+	if (!test_tc_overflow_32b(-2147483648, -1))
+		error_exit("test_tc_overflow_32b: does not indicate overflow for -2147483648, -1");
 
-	if (test_tc_overflow_32b(-32768, 32769))
-		error_exit("test_tc_overflow_32b: indicates overflow for -32768, 32769");
+	if (test_tc_overflow_32b(-2147483648, 2147483647))
+		error_exit("test_tc_overflow_32b: indicates overflow for -2147483648, 2147483647");
 
-	if (test_tc_overflow_32b(0, 32767))
-		error_exit("test_tc_overflow_32b: indicates overflow for 0, 32767");
+	if (test_tc_overflow_32b(0, 2147483647))
+		error_exit("test_tc_overflow_32b: indicates overflow for 0, 2147483647");
 
-	if (!test_tc_overflow_32b(32767, 1))
-		error_exit("test_tc_overflow_32b: does not indicate overflow for 32767, 1");
+	if (!test_tc_overflow_32b(2147483647, 1))
+		error_exit("test_tc_overflow_32b: does not indicate overflow for 2147483647, 1");
 }
 
 void test_ADDI()
@@ -993,13 +993,13 @@ void test_ADDI()
 	// test 1
 	p -> set_PC(0);
 
-	uint64_t rt_val = 0x1234beefffffdddd;
+	uint64_t rt_val = 0x1234beefccccdddd;
 	uint8_t rt = 1;
 	p -> set_register_64b(rt, rt_val);
 
 	uint16_t immediate = 0x1234;
 
-	uint64_t rs_val = 0x4321abcdaaaabbbb;
+	uint64_t rs_val = 0x4321abcd80000000;
 	uint8_t rs = 9;
 	p -> set_register_64b(rs, rs_val);
 
@@ -1013,25 +1013,28 @@ void test_ADDI()
 
 	tick(p);
 
-	// test 2
-	p -> set_PC(0);
-	p -> set_status_register(1); // enable exceptions
 	uint64_t result = p -> get_register_64b_signed(rt);
 	if (result != expected)
 		error_exit("ADDI: result is %016llx, expected %016llx", result, expected);
 
+	// test 2
+	p -> set_PC(0);
+	p -> set_status_register(0xffffffff); // enable exceptions
+
 	p -> set_register_64b(rt, rt_val);
 	expected = rt_val;
 	immediate = 0x8000;
+	instruction = make_cmd_I_TYPE(rs, rt, function, immediate);
+	m1 -> write_32b(0, instruction);
 
 	tick(p);
-
-	if (p -> get_PC() != 0x80000080)
-		error_exit("ADDI: expected exception, expectec PC: 0x80000080, PC is: %016llx", p -> get_PC());
 
 	result = p -> get_register_64b_signed(rt);
 	if (result != expected)
 		error_exit("ADDI: result is %016llx, expected %016llx", result, expected);
+
+	if (p -> get_PC() != 0x80000080)
+		error_exit("ADDI: expected exception, expected PC: 0x80000080, PC is: %016llx", p -> get_PC());
 
 	free_system(mb, m1, m2, p);
 }
