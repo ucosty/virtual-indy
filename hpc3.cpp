@@ -13,6 +13,7 @@ hpc3::hpc3(debug_console *pdc_in, std::string sram) : pdc(pdc_in)
 	sections_read[4] = &hpc3::section_c_read_hd_dev_regs;
 	sections_read[5] = &hpc3::section_d_read_enet_dev_regs;
 	sections_read[6] = &hpc3::section_e_read_sram;
+	sections_read[7] = NULL;
 
 	sections_write[0] = &hpc3::section_8_write_pbus_dma;
 	sections_write[1] = &hpc3::section_9_write_hd_enet_channel;
@@ -21,6 +22,7 @@ hpc3::hpc3(debug_console *pdc_in, std::string sram) : pdc(pdc_in)
 	sections_write[4] = &hpc3::section_c_write_hd_dev_regs;
 	sections_write[5] = &hpc3::section_d_write_enet_dev_regs;
 	sections_write[6] = &hpc3::section_e_write_sram;
+	sections_write[7] = NULL;
 
 	pep = new eprom(sram, 131072);
 }
@@ -34,7 +36,7 @@ void hpc3::read_64b(uint64_t offset, uint64_t *data)
 {
 	uint8_t section = ((offset >> 16) & 0x0f) - 0x08;
 
-	pdc -> dc_log("HPC3 read64 %08llx %d", offset, section);
+	pdc -> dc_log("HPC3 read64 %016llx %d", offset, section);
 
 	(((hpc3*)this)->*hpc3::sections_read[section])(S_DWORD, offset, data);
 }
@@ -43,7 +45,7 @@ void hpc3::write_64b(uint64_t offset, uint64_t data)
 {
 	uint8_t section = ((offset >> 16) & 0x0f) - 0x08;
 
-	pdc -> dc_log("HPC3 write64 %08llx %d", offset, section);
+	pdc -> dc_log("HPC3 write64 %016llx %d", offset, section);
 
 	(((hpc3*)this)->*hpc3::sections_write[section])(S_DWORD, offset, data);
 }
@@ -52,7 +54,7 @@ void hpc3::read_32b(uint64_t offset, uint32_t *data)
 {
 	uint8_t section = ((offset >> 16) & 0x0f) - 0x08;
 
-	pdc -> dc_log("HPC3 read32 %08llx %d", offset, section);
+	pdc -> dc_log("HPC3 read32 %016llx %d", offset, section);
 
 	uint64_t temp = -1;
 	(((hpc3*)this)->*hpc3::sections_read[section])(S_WORD, offset, &temp);
@@ -63,7 +65,7 @@ void hpc3::write_32b(uint64_t offset, uint32_t data)
 {
 	uint8_t section = ((offset >> 16) & 0x0f) - 0x08;
 
-	pdc -> dc_log("HPC3 write32 %08llx %d", offset, section);
+	pdc -> dc_log("HPC3 write32 %016llx %d", offset, section);
 
 	(((hpc3*)this)->*hpc3::sections_write[section])(S_WORD, offset, data);
 }
@@ -72,7 +74,7 @@ void hpc3::read_16b(uint64_t offset, uint16_t *data)
 {
 	uint8_t section = ((offset >> 16) & 0x0f) - 0x08;
 
-	pdc -> dc_log("HPC3 read16 %08llx %d", offset, section);
+	pdc -> dc_log("HPC3 read16 %016llx %d", offset, section);
 
 	uint64_t temp = -1;
 	(((hpc3*)this)->*hpc3::sections_read[section])(S_SHORT, offset, &temp);
@@ -83,7 +85,7 @@ void hpc3::write_16b(uint64_t offset, uint16_t data)
 {
 	uint8_t section = ((offset >> 16) & 0x0f) - 0x08;
 
-	pdc -> dc_log("HPC3 write16 %08llx %d", offset, section);
+	pdc -> dc_log("HPC3 write16 %016llx %d", offset, section);
 
 	(((hpc3*)this)->*hpc3::sections_write[section])(S_SHORT, offset, data);
 }
@@ -92,18 +94,19 @@ void hpc3::read_8b(uint64_t offset, uint8_t *data)
 {
 	uint8_t section = ((offset >> 16) & 0x0f) - 0x08;
 
-	pdc -> dc_log("HPC3 read8 %08llx %d", offset, section);
+	pdc -> dc_log("HPC3 read8 %016llx %d", offset, section);
 
 	uint64_t temp = -1;
 	(((hpc3*)this)->*hpc3::sections_read[section])(S_BYTE, offset, &temp);
 	*data = temp;
+	pdc -> dc_log(" result: %02x", *data);
 }
 
 void hpc3::write_8b(uint64_t offset, uint8_t data)
 {
 	uint8_t section = ((offset >> 16) & 0x0f) - 0x08;
 
-	pdc -> dc_log("HPC3 write8 %08llx %d", offset, section);
+	pdc -> dc_log("HPC3 write8 %016llx %d", offset, section);
 
 	(((hpc3*)this)->*hpc3::sections_write[section])(S_BYTE, offset, data);
 }
@@ -135,6 +138,7 @@ void hpc3::section_c_read_hd_dev_regs(ws_t ws, uint64_t offset, uint64_t *data)
 
 void hpc3::section_d_read_enet_dev_regs(ws_t ws, uint64_t offset, uint64_t *data)
 {
+	pdc -> dc_log("ENET read %016llx: %016llx", offset, data);
 	*data = rand() | (uint64_t(rand()) << 32);
 }
 
@@ -169,6 +173,7 @@ void hpc3::section_c_write_hd_dev_regs(ws_t ws, uint64_t offset, uint64_t data)
 
 void hpc3::section_d_write_enet_dev_regs(ws_t ws, uint64_t offset, uint64_t data)
 {
+	pdc -> dc_log("ENET write %016llx: %016llx", offset, data);
 }
 
 void hpc3::section_e_write_sram(ws_t ws, uint64_t offset_in, uint64_t data)
