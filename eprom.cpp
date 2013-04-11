@@ -49,8 +49,12 @@ eprom::eprom(std::string file, uint64_t size)
 
 eprom::~eprom()
 {
+	if (msync(pm, len, MS_SYNC) == -1)
+		error_exit("msync on eprom failed");
+
 	if (munmap(pm, len) == -1)
-		error_exit("munmap om eprom failed");
+		error_exit("munmap on eprom failed");
+	pm = NULL; // because parent destructor also runs delete [] on pm
 
 	close(fd);
 }
