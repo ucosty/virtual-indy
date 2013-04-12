@@ -5,7 +5,7 @@ VERSION=0.1
 #    disables DEBUG flag
 # 2: mode for "gprof ./miep"
 #    standard with -pg flag added
-PROFILING=0
+PROFILING=1
 # yes/no, will be set to no in profiling mode
 # enables instruction-usage counting
 # enables logging in non '-d'-mode
@@ -48,7 +48,7 @@ uninstall: clean
 clean:
 	rm -f $(OBJS) $(OBJSmain) miep $(OBJStest) testcases core gmon.out
 
-package: clean
+package:
 	# source package
 	rm -rf miep-$(VERSION)
 	mkdir miep-$(VERSION)

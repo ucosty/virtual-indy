@@ -163,6 +163,9 @@ void processor::r_type_08(uint32_t instruction)	// JR
 	set_delay_slot(PC);
 
 	PC = get_register_64b_unsigned(rs);
+
+	if (unlikely(PC & 0x03))
+		throw processor_exception(PC, status_register, 0, PE_ADDRL, PC);
 }
 
 void processor::r_type_09(uint32_t instruction)	// JALR
@@ -175,6 +178,9 @@ void processor::r_type_09(uint32_t instruction)	// JALR
 	set_register_64b(rd, PC + 4);
 
 	PC = get_register_64b_unsigned(rs);
+
+	if (unlikely(PC & 0x03))
+		throw processor_exception(PC, status_register, 0, PE_ADDRL, PC);
 }
 
 void processor::r_type_0a(uint32_t instruction)	// MOVZ

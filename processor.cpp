@@ -48,18 +48,12 @@ void processor::tick()
 		{
 			if (unlikely(have_delay_slot))
 			{
-				if (unlikely(delay_slot_PC & 0x03))
-					throw processor_exception(delay_slot_PC, status_register, 0, PE_ADDRL, delay_slot_PC);
-
 				pmb -> read_32b(delay_slot_PC, &instruction);
 
 				have_delay_slot = false;
 			}
 			else
 			{
-				if (unlikely(PC & 0x03))
-					throw processor_exception(PC, status_register, 0, PE_ADDRL, PC);
-
 				pmb -> read_32b(PC, &instruction);
 
 				PC += 4;
