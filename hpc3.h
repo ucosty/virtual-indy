@@ -14,18 +14,20 @@ private:
 	void section_9_read_hd_enet_channel(ws_t ws, uint64_t offset, uint64_t *data);
 	void section_a_read_fifo(ws_t ws, uint64_t offset, uint64_t *data);
 	void section_b_read_general(ws_t ws, uint64_t offset, uint64_t *data);
-	void section_c_read_hd_dev_regs(ws_t ws, uint64_t offset, uint64_t *data);
-	void section_d_read_enet_dev_regs(ws_t ws, uint64_t offset, uint64_t *data);
-	void section_e_read_sram(ws_t ws, uint64_t offset, uint64_t *data);
+	void section_c_read_hd0_dev_regs(ws_t ws, uint64_t offset, uint64_t *data);
+	void section_d_read_hd1_dev_regs(ws_t ws, uint64_t offset, uint64_t *data);
+	void section_e_read_enet_dev_regs(ws_t ws, uint64_t offset, uint64_t *data);
+	void section_f_read_sram(ws_t ws, uint64_t offset, uint64_t *data);
 	void (hpc3::*sections_read[8])(ws_t ws, uint64_t offset, uint64_t *data);
 
 	void section_8_write_pbus_dma(ws_t ws, uint64_t offset, uint64_t data);
 	void section_9_write_hd_enet_channel(ws_t ws, uint64_t offset, uint64_t data);
 	void section_a_write_fifo(ws_t ws, uint64_t offset, uint64_t data);
 	void section_b_write_general(ws_t ws, uint64_t offset, uint64_t data);
-	void section_c_write_hd_dev_regs(ws_t ws, uint64_t offset, uint64_t data);
-	void section_d_write_enet_dev_regs(ws_t ws, uint64_t offset, uint64_t data);
-	void section_e_write_sram(ws_t ws, uint64_t offset, uint64_t data);
+	void section_c_write_hd0_dev_regs(ws_t ws, uint64_t offset, uint64_t data);
+	void section_d_write_hd1_dev_regs(ws_t ws, uint64_t offset, uint64_t data);
+	void section_e_write_enet_dev_regs(ws_t ws, uint64_t offset, uint64_t data);
+	void section_f_write_sram(ws_t ws, uint64_t offset, uint64_t data);
 	void (hpc3::*sections_write[8])(ws_t ws, uint64_t offset, uint64_t data);
 
 public:

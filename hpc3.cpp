@@ -10,19 +10,19 @@ hpc3::hpc3(debug_console *pdc_in, std::string sram) : pdc(pdc_in)
 	sections_read[1] = &hpc3::section_9_read_hd_enet_channel;
 	sections_read[2] = &hpc3::section_a_read_fifo;
 	sections_read[3] = &hpc3::section_b_read_general;
-	sections_read[4] = &hpc3::section_c_read_hd_dev_regs;
-	sections_read[5] = &hpc3::section_d_read_enet_dev_regs;
-	sections_read[6] = &hpc3::section_e_read_sram;
-	sections_read[7] = NULL;
+	sections_read[4] = &hpc3::section_c_read_hd0_dev_regs;
+	sections_read[5] = &hpc3::section_d_read_hd1_dev_regs;
+	sections_read[6] = &hpc3::section_e_read_enet_dev_regs;
+	sections_read[7] = &hpc3::section_f_read_sram;
 
 	sections_write[0] = &hpc3::section_8_write_pbus_dma;
 	sections_write[1] = &hpc3::section_9_write_hd_enet_channel;
 	sections_write[2] = &hpc3::section_a_write_fifo;
 	sections_write[3] = &hpc3::section_b_write_general;
-	sections_write[4] = &hpc3::section_c_write_hd_dev_regs;
-	sections_write[5] = &hpc3::section_d_write_enet_dev_regs;
-	sections_write[6] = &hpc3::section_e_write_sram;
-	sections_write[7] = NULL;
+	sections_write[4] = &hpc3::section_c_write_hd0_dev_regs;
+	sections_write[5] = &hpc3::section_d_write_hd1_dev_regs;
+	sections_write[6] = &hpc3::section_e_write_enet_dev_regs;
+	sections_write[7] = &hpc3::section_f_write_sram;
 
 	pep = new eprom(sram, 131072);
 }
@@ -131,18 +131,23 @@ void hpc3::section_b_read_general(ws_t ws, uint64_t offset, uint64_t *data)
 	*data = rand() | (uint64_t(rand()) << 32);
 }
 
-void hpc3::section_c_read_hd_dev_regs(ws_t ws, uint64_t offset, uint64_t *data)
+void hpc3::section_c_read_hd0_dev_regs(ws_t ws, uint64_t offset, uint64_t *data)
 {
 	*data = rand() | (uint64_t(rand()) << 32);
 }
 
-void hpc3::section_d_read_enet_dev_regs(ws_t ws, uint64_t offset, uint64_t *data)
+void hpc3::section_d_read_hd1_dev_regs(ws_t ws, uint64_t offset, uint64_t *data)
+{
+	*data = rand() | (uint64_t(rand()) << 32);
+}
+
+void hpc3::section_e_read_enet_dev_regs(ws_t ws, uint64_t offset, uint64_t *data)
 {
 	pdc -> dc_log("ENET read %016llx: %016llx", offset, data);
 	*data = rand() | (uint64_t(rand()) << 32);
 }
 
-void hpc3::section_e_read_sram(ws_t ws, uint64_t offset_in, uint64_t *data)
+void hpc3::section_f_read_sram(ws_t ws, uint64_t offset_in, uint64_t *data)
 {
 	uint64_t offset = (offset_in & 0xfffff) - 0xe0000;
 
@@ -167,16 +172,20 @@ void hpc3::section_b_write_general(ws_t ws, uint64_t offset, uint64_t data)
 {
 }
 
-void hpc3::section_c_write_hd_dev_regs(ws_t ws, uint64_t offset, uint64_t data)
+void hpc3::section_c_write_hd0_dev_regs(ws_t ws, uint64_t offset, uint64_t data)
 {
 }
 
-void hpc3::section_d_write_enet_dev_regs(ws_t ws, uint64_t offset, uint64_t data)
+void hpc3::section_d_write_hd1_dev_regs(ws_t ws, uint64_t offset, uint64_t data)
+{
+}
+
+void hpc3::section_e_write_enet_dev_regs(ws_t ws, uint64_t offset, uint64_t data)
 {
 	pdc -> dc_log("ENET write %016llx: %016llx", offset, data);
 }
 
-void hpc3::section_e_write_sram(ws_t ws, uint64_t offset_in, uint64_t data)
+void hpc3::section_f_write_sram(ws_t ws, uint64_t offset_in, uint64_t data)
 {
 	uint64_t offset = (offset_in & 0xfffff) - 0xe0000;
 
