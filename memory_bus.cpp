@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "error.h"
+#include "optimize.h"
 #include "memory_bus.h"
 #include "processor_utils.h"
 #include "exceptions.h"
@@ -38,7 +39,7 @@ void memory_bus::register_memory(uint64_t offset, uint64_t mask, memory *target)
 const memory_segment_t * memory_bus::find_segment(uint64_t offset)
 {
 	// see if the last used segment is used again (for speed)
-	if ((offset & plast_seg -> mask) == plast_seg -> offset)
+	if (likely((offset & plast_seg -> mask) == plast_seg -> offset))
 		return plast_seg;
 
 	// if not, (re-)scan segment table
