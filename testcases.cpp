@@ -269,14 +269,48 @@ void test_memory()
 	create_system(&mb, &m1, &m2, &p, &size);
 
 	uint64_t address = 8;
-	uint32_t value = 1;
-	m1 -> write_32b(address, value);
+
+	uint8_t value_8b = 0x0f;
+	m1 -> write_8b(address, value_8b);
+
+	uint8_t temp_8b = -1;
+	m1 -> read_8b(address, &temp_8b);
+
+	if (temp_8b != value_8b)
+		error_exit("failed to verify data (8b)");
+
+	address = 16;
+
+	uint16_t value_16b = 0x1234;
+	m1 -> write_16b(address, value_16b);
+
+	uint16_t temp_16b = -1;
+	m1 -> read_16b(address, &temp_16b);
+
+	if (temp_16b != value_16b)
+		error_exit("failed to verify data (16b)");
+
+	address = 24;
+
+	uint32_t value_32b = 0x12345678;
+	m1 -> write_32b(address, value_32b);
 
 	uint32_t temp_32b = -1;
 	m1 -> read_32b(address, &temp_32b);
 
-	if (temp_32b != value)
-		error_exit("failed to verify data");
+	if (temp_32b != value_32b)
+		error_exit("failed to verify data (32b)");
+
+	address = 32;
+
+	uint64_t value_64b = 0x1234567890abcdef;
+	m1 -> write_64b(address, value_64b);
+
+	uint64_t temp_64b = -1;
+	m1 -> read_64b(address, &temp_64b);
+
+	if (temp_64b != value_64b)
+		error_exit("failed to verify data (64b)");
 
 	free_system(mb, m1, m2, p);
 }
