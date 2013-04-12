@@ -19,8 +19,7 @@ private:
 	memory_segment_t *list;
 	int n_elements;
 
-	memory_segment_t dummy_seg;
-	memory_segment_t *plast_seg;
+	memory_segment_t dummy_seg, *plast_seg;
 
 	debug_console *pdc;
 

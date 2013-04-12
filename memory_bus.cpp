@@ -28,7 +28,7 @@ void memory_bus::register_memory(uint64_t offset, uint64_t mask, memory *target)
 		error_exit("Memory allocation error (register_memory)");
 
 	list[n_elements - 1].offset = offset;
-	list[n_elements - 1].mask   = mask;
+	list[n_elements - 1].mask   = ~mask; // !! ~ of mask!!!
 	list[n_elements - 1].target = target;
 
 	pdc -> dc_log("BUS: register %016llx / %016llx", offset, mask);
@@ -38,10 +38,7 @@ void memory_bus::register_memory(uint64_t offset, uint64_t mask, memory *target)
 const memory_segment_t * memory_bus::find_segment(uint64_t offset)
 {
 	// see if the last used segment is used again (for speed)
-	uint64_t c_seg_offset = plast_seg -> offset;
-	uint64_t c_seg_mask   = ~plast_seg -> mask;
-
-	if ((offset & c_seg_mask) == c_seg_offset)
+	if ((offset & plast_seg -> mask) == plast_seg -> offset)
 		return plast_seg;
 
 	// if not, (re-)scan segment table
@@ -49,10 +46,7 @@ const memory_segment_t * memory_bus::find_segment(uint64_t offset)
 	{
 		memory_segment_t *psegment = &list[index];
 
-		uint64_t seg_offset = psegment -> offset;
-		uint64_t seg_mask   = ~psegment -> mask;
-
-		if ((offset & seg_mask) == seg_offset)
+		if ((offset & psegment -> mask) == psegment -> offset)
 		{
 			plast_seg = psegment;
 
