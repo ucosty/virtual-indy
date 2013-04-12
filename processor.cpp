@@ -42,21 +42,18 @@ void processor::tick()
 {
 	try
 	{
-		uint64_t work_address = PC;
 		uint32_t instruction = -1;
 
 		try
 		{
 			if (unlikely(have_delay_slot))
 			{
-				have_delay_slot = false;
-
-				work_address = delay_slot_PC;
-
 				if (unlikely(delay_slot_PC & 0x03))
 					throw processor_exception(delay_slot_PC, status_register, 0, PE_ADDRL, delay_slot_PC);
 
 				pmb -> read_32b(delay_slot_PC, &instruction);
+
+				have_delay_slot = false;
 			}
 			else
 			{
@@ -71,12 +68,15 @@ void processor::tick()
 		catch(processor_exception & pe)
 		{
 			if (pe.get_cause_ExcCode() == PEE_MEM)
-				throw processor_exception(work_address, status_register, 0, PE_IBUS, PC);
+			{
+				// this assumes that the PC gets increased AFTER the read
+				throw processor_exception(have_delay_slot ? delay_slot_PC : PC, status_register, 0, PE_IBUS, PC);
+			}
 
 			throw pe;
 		}
 
-		uint8_t opcode = get_opcode(instruction);
+		register uint8_t opcode = get_opcode(instruction);
 
 		// the other methods are really i_types with the opcode set to a certain value
 		// well maybe not in the cpu but logically they are
