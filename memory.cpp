@@ -34,39 +34,41 @@ memory::~memory()
 void memory::read_64b(uint64_t offset, uint64_t *data)
 {
 	ASSERT(offset + 7 < len);
-	unsigned char *dummy_p = &pm[offset];
-	uint64_t dummy = *(uint64_t *)dummy_p;
 
-	*data = be64toh(dummy);
+	unsigned char *dummy_p = &pm[offset];
+
+	*data = be64toh(*(uint64_t *)dummy_p);
 }
 
 void memory::read_32b(uint64_t offset, uint32_t *data)
 {
 	ASSERT(offset + 3 < len);
-	unsigned char *dummy_p = &pm[offset];
-	uint32_t dummy = *(uint32_t *)dummy_p;
 
-	*data = be32toh(dummy);
+	unsigned char *dummy_p = &pm[offset];
+
+	*data = be32toh(*(uint32_t *)dummy_p);
 }
 
 void memory::read_16b(uint64_t offset, uint16_t *data)
 {
 	ASSERT(offset + 1 < len);
-	unsigned char *dummy_p = &pm[offset];
-	uint16_t dummy = *(uint16_t *)dummy_p;
 
-	*data = be16toh(dummy);
+	unsigned char *dummy_p = &pm[offset];
+
+	*data = be16toh(*(uint16_t *)dummy_p);
 }
 
 void memory::read_8b(uint64_t offset, uint8_t *data)
 {
 	ASSERT(offset < len);
+
 	*data = pm[offset];
 }
 
 void memory::write_64b(uint64_t offset, uint64_t data)
 {
 	ASSERT(offset + 7 < len);
+
 	unsigned char *dummy_p = &pm[offset];
 
 	*(uint64_t *)dummy_p = htobe64(data);
@@ -75,6 +77,7 @@ void memory::write_64b(uint64_t offset, uint64_t data)
 void memory::write_32b(uint64_t offset, uint32_t data)
 {
 	ASSERT(offset + 3 < len);
+
 	unsigned char *dummy_p = &pm[offset];
 
 	*(uint32_t *)dummy_p = htobe32(data);
@@ -83,6 +86,7 @@ void memory::write_32b(uint64_t offset, uint32_t data)
 void memory::write_16b(uint64_t offset, uint16_t data)
 {
 	ASSERT(offset + 1 < len);
+
 	unsigned char *dummy_p = &pm[offset];
 
 	*(uint16_t *)dummy_p = htobe16(data);
@@ -91,5 +95,6 @@ void memory::write_16b(uint64_t offset, uint16_t data)
 void memory::write_8b(uint64_t offset, uint8_t data)
 {
 	ASSERT(offset < len);
+
 	pm[offset] = data;
 }
