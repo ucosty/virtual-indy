@@ -34,6 +34,8 @@ void z85c30::ser_command_write(uint8_t data)
 	}
 	else
 	{
+		pdc -> dc_log("serial: write %02x to register %d", data, cr);
+
 		if (cr == 8)
 		{
 			pdc -> dc_term("%c", data);
@@ -44,38 +46,36 @@ void z85c30::ser_command_write(uint8_t data)
 	}
 }
 
-void z85c30::ser_data_write(uint8_t data)
-{
-	ASSERT(cr < 16);
-
-	pdc -> dc_term("%c", data);
-
-	d[cr] = data;
-
-	pdc -> dc_log("serial: write to register %d: %d", cr, data);
-}
-
 uint8_t z85c30::ser_command_read()
 {
 	uint8_t ret = -1;
 
-	pdc -> dc_log("serial: read from commmand register %d", cr);
-
 	if (cr == 0)
 	{
-		ret = 0x28 | (tx_full ? 4 : 0); // 00101t00 CTS/DCD/TX_EMPTY, bit 0: rx avail
+		ret = 0x28 | (tx_full ? 0 : 4); // 00101t00 CTS/DCD, t: set when empty
 
 		tx_full = false;
 	}
 
 	cr = 0;
 
+	pdc -> dc_log("serial: read from register %d: %02x", cr, ret);
+
 	return ret;
+}
+
+void z85c30::ser_data_write(uint8_t data)
+{
+	ASSERT(cr < 16);
+
+	pdc -> dc_term("%c", data);
+
+	pdc -> dc_log("serial: write DATA %02x", data);
 }
 
 uint8_t z85c30::ser_data_read()
 {
-	pdc -> dc_log("serial: read from data register %d: %d", cr, d[cr]);
+	pdc -> dc_log("serial: read DATA");
 
-	return d[cr];
+	return 0;
 }
