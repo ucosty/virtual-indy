@@ -13,7 +13,7 @@ typedef enum { C_WHITE = 0, C_GREEN, C_YELLOW, C_BLUE, C_MAGENTA, C_CYAN, C_RED 
 class debug_console
 {
 private:
-	WINDOW *win_regs, *win_logs;
+	WINDOW *win_regs, *win_logs, *win_term;
 	int max_x, max_y;
 	bool nc;
 	unsigned int refresh_counter, refresh_limit;
@@ -37,6 +37,8 @@ public:
 	virtual void tick(processor *p);
 
 	virtual void dc_log(const char *fmt, ...);
+
+	virtual void dc_term(const char *fmt, ...);
 };
 
 #endif

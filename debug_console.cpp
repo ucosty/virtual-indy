@@ -56,7 +56,7 @@ void determine_terminal_size(int *max_y, int *max_x)
 debug_console::debug_console()
 {
 	nc = false;
-	win_regs = win_logs = NULL;
+	win_term = win_regs = win_logs = NULL;
 	max_x = max_y = -1;
 	n_ticks = 0;
 	start_ts = get_ts();
@@ -118,6 +118,7 @@ debug_console::~debug_console()
 	{
 		delwin(win_regs);
 		delwin(win_logs);
+		delwin(win_term);
 
 		endwin();
 	}
@@ -145,11 +146,21 @@ void debug_console::create_windows()
 	if (win_logs)
 		delwin(win_logs);
 
+	if (win_term)
+		delwin(win_term);
+
 	win_regs = newwin(16, 80,  0, 0);
 	scrollok(win_regs, false);
 
-	win_logs = newwin( 9, 80, 16, 0);
-	scrollok(win_logs, true);
+	win_logs = NULL;
+	if (max_x > 81)
+	{
+		win_logs = newwin(16, max_x - 81, 0, 81);
+		scrollok(win_logs, true);
+	}
+
+        win_term = newwin(max_y - 16, 80, 16, 0); 
+        scrollok(win_term, true);
 }
 
 void debug_console::tick(processor *p)
@@ -305,10 +316,25 @@ void debug_console::dc_log(const char *fmt, ...)
 		va_end(ap);
 
 		if (win_logs)
-			wprintw(win_logs, "%s\n", buffer);
+			wprintw(win_logs, "\n%s", buffer);
 
 		dolog("%s", buffer);
 
 		had_logging = true;
+	}
+}
+
+void debug_console::dc_term(const char *fmt, ...)
+{
+	if (win_term)
+	{
+		va_list ap;
+
+		va_start(ap, fmt);
+		vwprintw(win_term, fmt, ap);
+		va_end(ap);
+
+		wnoutrefresh(win_term);
+		doupdate();
 	}
 }

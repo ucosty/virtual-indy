@@ -5,7 +5,7 @@ VERSION=0.1
 #    disables DEBUG flag
 # 2: mode for "gprof ./miep"
 #    standard with -pg flag added
-PROFILING=1
+PROFILING=0
 # yes/no, will be set to no in profiling mode
 # enables instruction-usage counting
 # enables logging in non '-d'-mode
@@ -27,7 +27,7 @@ endif
 CXXFLAGS+=-O3 -pedantic -Wall -Wno-unused-variable -Wno-long-long -DVERSION=\"$(VERSION)\" $(DEBUG_FLAGS)
 LDFLAGS=$(DEBUG_FLAGS) -lncurses -pthread
 
-OBJS=memory_bus.o memory.o processor.o graphics_lg1.o processor_utils.o error.o utils.o debug_console.o debug_console_simple.o log.o processor_r_type.o processor_i_type.o processor_COP0.o processor_j_type.o processor_special2.o processor_regimm.o processor_special3.o rom.o eprom.o hpc3.o mc.o exceptions.o processor_disassembler.o
+OBJS=memory_bus.o memory.o processor.o graphics_lg1.o processor_utils.o error.o utils.o debug_console.o debug_console_simple.o log.o processor_r_type.o processor_i_type.o processor_COP0.o processor_j_type.o processor_special2.o processor_regimm.o processor_special3.o rom.o eprom.o hpc3.o mc.o exceptions.o processor_disassembler.o z85c30.o
 OBJStest=testcases.o debug_console_testcases.o
 OBJSmain=main.o
 
@@ -48,7 +48,7 @@ uninstall: clean
 clean:
 	rm -f $(OBJS) $(OBJSmain) miep $(OBJStest) testcases core gmon.out
 
-package:
+package: clean
 	# source package
 	rm -rf miep-$(VERSION)
 	mkdir miep-$(VERSION)

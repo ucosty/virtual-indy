@@ -37,3 +37,7 @@ void debug_console_simple::dc_log(const char *fmt, ...)
 	dolog("%s", buffer);
 #endif
 }
+
+void debug_console_simple::dc_term(const char *fmt, ...)
+{
+}

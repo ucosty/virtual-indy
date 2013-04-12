@@ -15,4 +15,6 @@ public:
 	void tick(processor *p);
 
 	void dc_log(const char *fmt, ...);
+
+	void dc_term(const char *fmt, ...);
 };

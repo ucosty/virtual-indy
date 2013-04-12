@@ -44,3 +44,7 @@ void debug_console_testcases::dc_log(const char *fmt, ...)
 		dolog("%s", buffer);
 	}
 }
+
+void debug_console_testcases::dc_term(const char *fmt, ...)
+{
+}
