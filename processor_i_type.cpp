@@ -159,7 +159,6 @@ void processor::i_type_08(uint32_t instruction)	// ADDI
 {
 	int16_t immediate_s = instruction;
 	uint8_t rs = get_RS(instruction);
-	uint8_t rt = get_RT(instruction);
 
 	int32_t val1 = get_register_32b_signed(rs);
 	int32_t val2 = immediate_s;
@@ -171,6 +170,8 @@ void processor::i_type_08(uint32_t instruction)	// ADDI
 	}
 	else
 	{
+		uint8_t rt = get_RT(instruction);
+
 		set_register_32b_se(rt, val1 + val2);
 	}
 }
@@ -292,9 +293,9 @@ void processor::i_type_20(uint32_t instruction)	// LB / LBU
 	uint8_t rt = get_RT(instruction);
 
 	if (get_opcode(instruction) == 0x24)	// LBU
-		set_register_32b(rt, temp_8b);
+		set_register_64b(rt, temp_8b);
 	else
-		set_register_32b(rt, int8_t(temp_8b));
+		set_register_64b(rt, int8_t(temp_8b));
 
 	cycles += 5;
 }
@@ -319,9 +320,9 @@ void processor::i_type_21(uint32_t instruction)	// LH / LHU
 		uint8_t rt = get_RT(instruction);
 
 		if (get_opcode(instruction) == 0x25) // LHU
-			set_register_32b(rt, temp_16b);
+			set_register_64b(rt, temp_16b);
 		else
-			set_register_32b(rt, int16_t(temp_16b));
+			set_register_64b(rt, int16_t(temp_16b));
 
 		cycles += 5;
 		cycles += 5; // FIXME

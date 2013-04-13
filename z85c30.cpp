@@ -39,7 +39,8 @@ void z85c30::ser_command_write(uint8_t data)
 		if (cr == 8)
 		{
 			pdc -> dc_term("%c", data);
-			tx_full = true;
+			pdc -> dc_log("serial OUTPUT: %c", data);
+			// tx_full = true; not neccessary
 		}
 
 		cr = 0;
