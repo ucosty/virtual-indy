@@ -5,7 +5,8 @@ VERSION=0.1
 #    disables DEBUG flag
 # 2: mode for "gprof ./miep"
 #    standard with -pg flag added
-PROFILING=0
+# 3: like 1 but normal run (not 600 instructions)
+PROFILING=3
 # yes/no, will be set to no in profiling mode
 # enables instruction-usage counting
 # enables logging in non '-d'-mode
@@ -18,6 +19,10 @@ ifeq ($(PROFILING),1)
 endif
 ifeq ($(PROFILING),2)
 	DEBUG_FLAGS+=-D_PROFILING=2 -pg
+	DEBUG=no
+endif
+ifeq ($(PROFILING),3)
+	DEBUG_FLAGS+=-D_PROFILING=3
 	DEBUG=no
 endif
 ifeq ($(DEBUG),yes)
