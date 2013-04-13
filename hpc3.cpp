@@ -50,8 +50,6 @@ hpc3::~hpc3()
 	delete ser1;
 
 	delete pep;
-
-	free(pm);
 }
 
 void hpc3::read_64b(uint64_t offset, uint64_t *data)
