@@ -1177,6 +1177,87 @@ void test_SLT()
 		error_exit("SLT: result is %016llx, expected %016llx", result, expected);
 }
 
+void test_LB()
+{
+	dolog(" + test_LB");
+	memory_bus *mb = NULL;
+	memory *m1 = NULL, *m2 = NULL;
+	processor *p = NULL;
+	create_system(&mb, &m1, &m2, &p);
+
+	// unsigned offset
+	{
+		p -> reset();
+		p -> set_PC(0);
+
+		uint8_t base = 1;
+		uint64_t base_val = 0x1234;
+		p -> set_register_64b(base, base_val);
+
+		uint8_t rt = 2;
+		uint64_t rt_val = TEST_VAL_2;
+		p -> set_register_64b(rt, rt_val);
+
+		int16_t offset = 0xf8;
+
+		uint8_t function = 0x20;	// LB
+
+		uint32_t instr = make_cmd_I_TYPE(base, rt, function, offset);
+		m1 -> write_32b(0, instr);
+		// printf("instruction: %08x\n", instr);
+
+		uint8_t addr_val = 0x1d;
+		uint64_t addr = base_val + offset;
+		m1 -> write_8b(addr, addr_val);
+
+		tick(p);
+
+		uint64_t temp_64b = p -> get_register_64b_unsigned(rt);
+
+		uint64_t expected = addr_val;
+		if (temp_64b != expected)
+			error_exit("LB: rt (%08x) != %08x", temp_64b, expected);
+	}
+
+	// signed offset
+	{
+		p -> reset();
+		p -> set_PC(0);
+
+		uint8_t base = 1;
+		uint64_t base_val = 0xf0000;
+		p -> set_register_32b(base, base_val);
+
+		uint8_t rt = 2;
+		uint64_t rt_val = TEST_VAL_1;
+		p -> set_register_64b(rt, rt_val);
+
+		uint16_t offset = 0x9014;
+
+		uint8_t function = 0x20;	// LB
+
+		uint32_t temp_32b = -1;
+
+		uint32_t instr = make_cmd_I_TYPE(base, rt, function, offset);
+		m1 -> write_32b(0, instr);
+		// printf("instruction: %08x\n", instr);
+
+		uint8_t addr_val = 0x2c;
+		uint64_t addr = base_val + untwos_complement(offset, 16);
+		m1 -> write_8b(addr, addr_val);
+
+		tick(p);
+
+		uint64_t temp_64b = p -> get_register_64b_unsigned(rt);
+
+		uint64_t expected = addr_val;
+		if (temp_64b != expected)
+			error_exit("LB: rt (%016llx) != %016llx", temp_64b, expected);
+	}
+
+	free_system(mb, m1, m2, p);
+}
+
 int main(int argc, char *argv[])
 {
 	test_untows_complement();
@@ -1196,6 +1277,7 @@ int main(int argc, char *argv[])
 	test_AND();
 	test_ANDI();
 	test_BNE();
+	test_LB();
 	test_LUI();
 	test_LW();
 	test_NOP();
