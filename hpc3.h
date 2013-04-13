@@ -1,6 +1,7 @@
 #include "memory.h"
 #include "eprom.h"
 #include "z85c30.h"
+#include "seeq_8003_8020.h"
 #include "debug_console.h"
 
 typedef enum { S_BYTE, S_SHORT, S_WORD, S_DWORD } ws_t;
@@ -13,6 +14,8 @@ private:
 	z85c30 *ser1, *ser2;
 	
 	eprom *pep;
+
+	seeq_8003_8020 *seeq;
 
 	void section_8_read_pbus_dma(ws_t ws, uint64_t offset, uint64_t *data);
 	void section_9_read_hd_enet_channel(ws_t ws, uint64_t offset, uint64_t *data);
