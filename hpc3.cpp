@@ -14,7 +14,8 @@
 
 hpc3::hpc3(debug_console *pdc_in, std::string sram) : pdc(pdc_in)
 {
-	pm = NULL;
+	len = 512 * 1024;
+	pm = (unsigned char *)malloc(len);
 
 	sections_read[0] = &hpc3::section_8_read_pbus_dma;
 	sections_read[1] = &hpc3::section_9_read_hd_enet_channel;
@@ -49,6 +50,8 @@ hpc3::~hpc3()
 	delete ser1;
 
 	delete pep;
+
+	free(pm);
 }
 
 void hpc3::read_64b(uint64_t offset, uint64_t *data)
@@ -131,9 +134,55 @@ void hpc3::write_8b(uint64_t offset, uint8_t data)
 	(((hpc3*)this)->*hpc3::sections_write[section])(S_BYTE, offset & 0xffff, data);
 }
 
+void hpc3::write_fake(ws_t ws, uint64_t offset, uint64_t data)
+{
+	if (ws == S_BYTE)
+	{
+		memory::write_8b(offset, uint8_t(data));
+	}
+	else if (ws == S_SHORT)
+	{
+		memory::write_16b(offset, uint16_t(data));
+	}
+	else if (ws == S_WORD)
+	{
+		memory::write_32b(offset, uint32_t(data));
+	}
+	else if (ws == S_DWORD)
+	{
+		memory::write_64b(offset, data);
+	}
+}
+
+void hpc3::read_fake(ws_t ws, uint64_t offset, uint64_t *data)
+{
+	if (ws == S_BYTE)
+	{
+		uint8_t dummy;
+		memory::read_8b(offset, &dummy);
+		*data = dummy;
+	}
+	else if (ws == S_SHORT)
+	{
+		uint16_t dummy;
+		memory::read_16b(offset, &dummy);
+		*data = dummy;
+	}
+	else if (ws == S_WORD)
+	{
+		uint32_t dummy;
+		memory::read_32b(offset, &dummy);
+		*data = dummy;
+	}
+	else if (ws == S_DWORD)
+	{
+		memory::read_64b(offset, data);
+	}
+}
+
 void hpc3::section_8_read_pbus_dma(ws_t ws, uint64_t offset, uint64_t *data)
 {
-	*data = rand() | (uint64_t(rand()) << 32);
+	read_fake(ws, offset, data);
 }
 
 void hpc3::section_9_read_hd_enet_channel(ws_t ws, uint64_t offset, uint64_t *data)
@@ -145,22 +194,25 @@ void hpc3::section_9_read_hd_enet_channel(ws_t ws, uint64_t offset, uint64_t *da
 
 void hpc3::section_a_read_fifo(ws_t ws, uint64_t offset, uint64_t *data)
 {
-	*data = rand() | (uint64_t(rand()) << 32);
+	read_fake(ws, offset, data);
 }
 
 void hpc3::section_b_read_general(ws_t ws, uint64_t offset, uint64_t *data)
 {
-	*data = rand() | (uint64_t(rand()) << 32);
+	if (offset == 0x0004)	// gio.misc, gio64 bus, misc
+		*data = gio_misc;	// bit 1: des_endian (1=little), bit 0: en_real_time
+	else
+		read_fake(ws, offset, data);
 }
 
 void hpc3::section_c_read_hd_dev_regs(ws_t ws, uint64_t offset, uint64_t *data)
 {
-	*data = rand() | (uint64_t(rand()) << 32);
+	read_fake(ws, offset, data);
 }
 
 void hpc3::section_d_read_enet_pbus_dev_regs(ws_t ws, uint64_t offset, uint64_t *data)
 {
-	*data = rand() | (uint64_t(rand()) << 32); // FIXME
+	read_fake(ws, offset, data);
 
 	if (offset >= 0x8000)
 	{
@@ -183,15 +235,16 @@ void hpc3::section_d_read_enet_pbus_dev_regs(ws_t ws, uint64_t offset, uint64_t 
 
 void hpc3::section_e_read_sram(ws_t ws, uint64_t offset, uint64_t *data)
 {
-	pdc -> dc_log("SRAM read %016llx", offset);
-
 	uint32_t temp = -1;
 	pep -> read_32b(offset, &temp);
 	*data = temp;
+
+	pdc -> dc_log("SRAM read %016llx: %08lx", temp);
 }
 
 void hpc3::section_8_write_pbus_dma(ws_t ws, uint64_t offset, uint64_t data)
 {
+	write_fake(ws, offset, data);
 }
 
 void hpc3::section_9_write_hd_enet_channel(ws_t ws, uint64_t offset, uint64_t data)
@@ -201,14 +254,20 @@ void hpc3::section_9_write_hd_enet_channel(ws_t ws, uint64_t offset, uint64_t da
 
 void hpc3::section_a_write_fifo(ws_t ws, uint64_t offset, uint64_t data)
 {
+	write_fake(ws, offset, data);
 }
 
 void hpc3::section_b_write_general(ws_t ws, uint64_t offset, uint64_t data)
 {
+	if (offset == 0x0004)	// gio.misc, gio64 bus, misc
+		gio_misc = data;
+	else
+		write_fake(ws, offset, data);
 }
 
 void hpc3::section_c_write_hd_dev_regs(ws_t ws, uint64_t offset, uint64_t data)
 {
+	write_fake(ws, offset, data);
 }
 
 void hpc3::section_d_write_enet_pbus_dev_regs(ws_t ws, uint64_t offset, uint64_t data)
@@ -224,17 +283,21 @@ void hpc3::section_d_write_enet_pbus_dev_regs(ws_t ws, uint64_t offset, uint64_t
 		else if ((offset & ~3) == 0x983c)
 			ser2 -> ser_data_write(uint8_t(data));
 		else
+		{
 			pdc -> dc_log("PBUS write %016llx: %016llx", offset, data);
+			write_fake(ws, offset, data);
+		}
 	}
 	else
 	{
 		pdc -> dc_log("ENET write %016llx: %016llx", offset, data);
+		write_fake(ws, offset, data);
 	}
 }
 
 void hpc3::section_e_write_sram(ws_t ws, uint64_t offset, uint64_t data)
 {
-	pdc -> dc_log("SRAM write %016llx", offset);
+	pdc -> dc_log("SRAM write %016llx: %016llx", offset, data);
 
 	pep -> write_32b(offset, data);
 }

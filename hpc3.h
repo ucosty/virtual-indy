@@ -17,6 +17,8 @@ private:
 
 	seeq_8003_8020 *seeq;
 
+	uint8_t gio_misc;
+
 	void section_8_read_pbus_dma(ws_t ws, uint64_t offset, uint64_t *data);
 	void section_9_read_hd_enet_channel(ws_t ws, uint64_t offset, uint64_t *data);
 	void section_a_read_fifo(ws_t ws, uint64_t offset, uint64_t *data);
@@ -34,6 +36,9 @@ private:
 	void section_d_write_enet_pbus_dev_regs(ws_t ws, uint64_t offset, uint64_t data);
 	void section_e_write_sram(ws_t ws, uint64_t offset, uint64_t data);
 	void (hpc3::*sections_write[8])(ws_t ws, uint64_t offset, uint64_t data);
+
+	void write_fake(ws_t ws, uint64_t offset, uint64_t data);
+	void read_fake(ws_t ws, uint64_t offset, uint64_t *data);
 
 public:
 	hpc3(debug_console *pdc_in, std::string sram_file);
