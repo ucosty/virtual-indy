@@ -40,4 +40,9 @@ void debug_console_simple::dc_log(const char *fmt, ...)
 
 void debug_console_simple::dc_term(const char *fmt, ...)
 {
+	va_list ap;
+
+	va_start(ap, fmt);
+	vfprintf(stderr, fmt, ap);
+	va_end(ap);
 }
