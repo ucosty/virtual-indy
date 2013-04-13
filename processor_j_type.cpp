@@ -7,13 +7,9 @@ void processor::j_type(uint8_t opcode, uint32_t instruction)
 	ASSERT(opcode == 2 || opcode == 3);
 
 	if (opcode == 3)	// JAL
-		set_register_64b(31, PC);
+		set_register_64b(31, PC + 4);
 
 	set_delay_slot(PC);
 
-	// note: the PC in the following instruction is the PC of the
-	// instruction in the delay slot
-	// the tick() already increased the PC before invoking this
-	// function, so no need to increase here
 	PC = ((instruction & MASK_26B) << 2) | (PC & 0xfffffffff0000000);
 }
