@@ -994,9 +994,9 @@ void test_NOP()
 	free_system(mb, m1, m2, p);
 }
 
-void test_BNE()
+void test_Bxx(std::string which)
 {
-	dolog(" + test_BNE");
+	dolog(" + test_%s", which.c_str());
 	memory_bus *mb = NULL;
 	memory *m1 = NULL, *m2 = NULL;
 	processor *p = NULL;
@@ -1016,16 +1016,18 @@ void test_BNE()
 	int immediate_org = -1235;
 	uint16_t immediate = immediate_org;
 
-	uint8_t function = 0x05;
+	uint8_t function = 0x05; // FIXME depend on test_J_JAL
 	uint32_t instruction = make_cmd_I_TYPE(rs, rt, function, immediate);
 
 	m1 -> write_32b(0, instruction);
 
 	tick(p);
 
+	// FIXME test taken and not taken
+
 	uint64_t expected_PC = 4;
 	if (expected_PC != p -> get_PC())
-		error_exit("BNE(1): expected PC %08x, got %08x", expected_PC, p -> get_PC());
+		error_exit("%s(1): expected PC %08x, got %08x", which.c_str(), expected_PC, p -> get_PC());
 
 	//
 	rt_value = ~rs_value;
@@ -1038,7 +1040,7 @@ void test_BNE()
 	expected_PC = 4 + immediate_org * 4;
 
 	if (expected_PC != p -> get_PC())
-		error_exit("BNE(2): expected PC %08x, got %08x", expected_PC, p -> get_PC());
+		error_exit("%s(2): expected PC %08x, got %08x", which.c_str(), expected_PC, p -> get_PC());
 
 	free_system(mb, m1, m2, p);
 }
@@ -1258,7 +1260,7 @@ void test_LB()
 	free_system(mb, m1, m2, p);
 }
 
-void test_J()
+void test_J_JAL(bool is_JAL)
 {
 	dolog(" + test_J");
 	memory_bus *mb = NULL;
@@ -1280,7 +1282,21 @@ void test_J()
 	if (p -> is_delay_slot() == false || p -> get_delay_slot_PC() != expected_pc)
 		error_exit("J: expected PC at address %llx because of delay slot, got %s/%016llx", expected_pc, p -> is_delay_slot() ? "true" : "false", p -> get_delay_slot_PC());
 
+	if (is_JAL)
+	{
+		uint64_t expected_return_address = 0x08;
+		if (p -> get_register_64b_unsigned(31) != expected_return_address)
+			error_exit("JAL: expected return address %016llx, got %016llx", expected_return_address, p -> get_register_64b_unsigned(31));
+	}
+
 	tick(p);
+
+	if (is_JAL)
+	{
+		uint64_t expected_return_address = 0x08;
+		if (p -> get_register_64b_unsigned(31) != expected_return_address)
+			error_exit("JAL: expected return address %016llx, got %016llx", expected_return_address, p -> get_register_64b_unsigned(31));
+	}
 
 	expected_pc = offset_unshifted << 2;
 	if (p -> get_PC() != expected_pc)
@@ -1307,8 +1323,9 @@ int main(int argc, char *argv[])
 	test_ADDIU();
 	test_AND();
 	test_ANDI();
-	test_BNE();
-	test_J();
+	test_Bxx("BNE");
+	test_J_JAL(false);
+	test_J_JAL(true);
 	test_LB();
 	test_LUI();
 	test_LW();
