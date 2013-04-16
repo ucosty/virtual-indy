@@ -994,7 +994,7 @@ void test_NOP()
 	free_system(mb, m1, m2, p);
 }
 
-void test_Bxx(std::string which, uint8_t function, uint8_t rs, uint8_t rt, uint64_t rs_M, uint64_t rt_M, bool br, uint64_t rs_NM, uint64_t rt_NM)
+void test_Bxx(std::string which, uint8_t function, uint8_t rs, uint8_t rt, uint64_t rs_M, uint64_t rt_M, uint64_t rs_NM, uint64_t rt_NM)
 {
 	// FIXME
 	// invoke function with rs/rs_M, rt/rt_M
@@ -1011,45 +1011,53 @@ void test_Bxx(std::string which, uint8_t function, uint8_t rs, uint8_t rt, uint6
 	processor *p = NULL;
 	create_system(&mb, &m1, &m2, &p);
 
+	// DO branch
 	p -> reset();
 	p -> set_PC(0);
 
-	int rs_value = 0xdeadbeef;
-	uint8_t rs = 3;
-	p -> set_register_32b(rs, rs_value);
+	p -> set_register_64b(rs, rs_M);
 
-	int rt_value = rs_value;
-	uint8_t rt = 18;
-	p -> set_register_32b(rt, rt_value);
+	if (rt == 0 && rt_M != 0)
+		error_exit("testcase failure: rt_M must be 0 for register 0");
 
-	int immediate_org = -1235;
-	uint16_t immediate = immediate_org;
+	if (rt) // register 0 is always 0
+		p -> set_register_64b(rt, rt_M);
 
-	uint8_t function = 0x05; // FIXME depend on test_J_JAL
+	uint16_t immediate = 0x128;
+
 	uint32_t instruction = make_cmd_I_TYPE(rs, rt, function, immediate);
-
 	m1 -> write_32b(0, instruction);
 
 	tick(p);
 
-	// FIXME test taken and not taken
+	uint64_t expected_pc = 4 + (int16_t(immediate) << 2);
 
-	uint64_t expected_PC = 4;
-	if (expected_PC != p -> get_PC())
-		error_exit("%s(1): expected PC %08x, got %08x", which.c_str(), expected_PC, p -> get_PC());
+	if (p -> get_PC() != expected_pc)
+		error_exit("%s with branch: expected %016llx, got %016llx", which.c_str(), expected_pc, p -> get_PC());
 
-	//
-	rt_value = ~rs_value;
-	p -> set_register_32b(rt, rt_value);
-
+	// DON'T branch
+	p -> reset();
 	p -> set_PC(0);
+
+	p -> set_register_64b(rs, rs_NM);
+
+	if (rt == 0 && rt_NM != 0)
+		error_exit("testcase failure: rt_NM must be 0 for register 0");
+
+	if (rt) // register 0 is always 0
+		p -> set_register_64b(rt, rt_NM);
+
+	immediate = 0x128;
+
+	instruction = make_cmd_I_TYPE(rs, rt, function, immediate);
+	m1 -> write_32b(0, instruction);
 
 	tick(p);
 
-	expected_PC = 4 + immediate_org * 4;
+	expected_pc = 4;
 
-	if (expected_PC != p -> get_PC())
-		error_exit("%s(2): expected PC %08x, got %08x", which.c_str(), expected_PC, p -> get_PC());
+	if (p -> get_PC() != expected_pc)
+		error_exit("%s without branch: expected %016llx, got %016llx", which.c_str(), expected_pc, p -> get_PC());
 
 	free_system(mb, m1, m2, p);
 }
@@ -1334,8 +1342,8 @@ int main(int argc, char *argv[])
 	test_ANDI();
 	test_Bxx("BEQ", 0x04, 1, 2, 0x1234, 0x1234, 0x1000, 0x2000);
 	test_Bxx("BNE", 0x05, 1, 2, 0x1000, 0x2000, 0x1234, 0x1234);
-	test_Bxx("BLEZ", 0x06, 1, 0, 0x8000000000000000, 0, 0x1000000000000000, 0);
-	test_Bxx("BGTZ", 0x07, 1, 0, 0x1000000000000000, 0, 0x8000000000000000, 0);
+	test_Bxx("BLEZ", 0x06, 1, 0, 0x8000000000000000ll, 0, 0x1000000000000000ll, 0);
+	test_Bxx("BGTZ", 0x07, 1, 0, 0x1000000000000000ll, 0, 0x8000000000000000ll, 0);
 	test_J_JAL(false);
 	test_J_JAL(true);
 	test_LB();
