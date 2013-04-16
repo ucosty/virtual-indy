@@ -1377,7 +1377,7 @@ void test_J_JAL(bool is_JAL)
 	p -> set_PC(0);
 
 	uint32_t offset_unshifted = 0x18;
-	uint32_t instruction = (2 << 26) | offset_unshifted;
+	uint32_t instruction = ((is_JAL ? 3 : 2) << 26) | offset_unshifted;
 
 	m1 -> write_32b(0, instruction);
 
