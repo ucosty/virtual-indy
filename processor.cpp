@@ -34,7 +34,7 @@ void processor::reset()
 
 	set_PC(0xffffffffbfc00000);
 
-	have_delay_slot = false;
+	nullify_instruction = have_delay_slot = false;
 	delay_slot_PC = -1;
 
 	RMW_sequence = false;
@@ -48,11 +48,18 @@ void processor::tick()
 
 		try
 		{
+// FIXME combine have_delay_slot/nullify_instruction in 3 option-variable
 			if (unlikely(have_delay_slot))
 			{
-				pmb -> read_32b(delay_slot_PC, &instruction);
+				if (unlikely(nullify_instruction))
+				{
+					instruction = 0;	// NOP
+					PC += 4;
+				}
+				else
+					pmb -> read_32b(delay_slot_PC, &instruction);
 
-				have_delay_slot = false;
+				nullify_instruction = have_delay_slot = false;
 			}
 			else
 			{
@@ -177,11 +184,11 @@ void processor::conditional_jump(bool do_jump, uint32_t instruction, bool skip_d
 	if (do_jump)
 	{
 		set_delay_slot(PC);
-
 		PC += get_SB18(instruction);
 	}
 	else if (skip_delay_slot_if_not)
 	{
-		PC += 4;
+		have_delay_slot = nullify_instruction = true;
 	}
+pdc -> dc_log("jump: %d, skip_delay_slot_if_not: %d | %d %d", do_jump, skip_delay_slot_if_not, have_delay_slot, nullify_instruction);
 }

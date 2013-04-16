@@ -1,4 +1,6 @@
+#include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
 #define __STDC_LIMIT_MACROS // for INT32_MIN
 #include <stdint.h>
 
@@ -16,6 +18,21 @@ bool single_step = false; // not applicable
 debug_console *dc = new debug_console_testcases();
 
 const char *logfile = "testcases.log";
+
+void error_exit(const char *format, ...)
+{
+	char buffer[4096] = { 0 };
+	va_list ap;
+
+	va_start(ap, format);
+	(void)vsnprintf(buffer, sizeof buffer, format, ap);
+	va_end(ap);
+
+	fprintf(stderr, "%s\n", buffer);
+	dc -> dc_log("%s", buffer);
+
+	exit(1);
+}
 
 void tick(processor *p)
 {
@@ -994,7 +1011,7 @@ void test_NOP()
 	free_system(mb, m1, m2, p);
 }
 
-void test_Bxx(std::string which, uint8_t function, uint8_t rs, uint8_t rt, uint64_t rs_M, uint64_t rt_M, uint64_t rs_NM, uint64_t rt_NM)
+void test_Bxx(std::string which, uint8_t function, uint8_t rs, uint8_t rt, uint64_t rs_M, uint64_t rt_M, uint64_t rs_NM, uint64_t rt_NM, bool likely)
 {
 	// FIXME
 	// invoke function with rs/rs_M, rt/rt_M
@@ -1011,7 +1028,8 @@ void test_Bxx(std::string which, uint8_t function, uint8_t rs, uint8_t rt, uint6
 	processor *p = NULL;
 	create_system(&mb, &m1, &m2, &p);
 
-	// DO branch
+	// DO branch positive offset
+	dolog(" > DO branch");
 	p -> reset();
 	p -> set_PC(0);
 
@@ -1028,14 +1046,68 @@ void test_Bxx(std::string which, uint8_t function, uint8_t rs, uint8_t rt, uint6
 	uint32_t instruction = make_cmd_I_TYPE(rs, rt, function, immediate);
 	m1 -> write_32b(0, instruction);
 
+	// If the branch is taken, the instruction in the delay slot is executed.
+	if (likely)
+	{
+		uint8_t likely_rt = rs, likely_rs = 7;
+
+		dolog(" >> if the branch is taken, the instruction in the delay slot is executed");
+		if (rt == likely_rs || rs == likely_rs)
+			error_exit("testcase failure: rs/rt cannot be %d due to testcase restrictions", likely_rs);
+		p -> set_register_64b(likely_rs, 1);
+
+		uint8_t a_function = 0x09;
+		uint32_t a_instruction = make_cmd_I_TYPE(likely_rs, likely_rt, a_function, 1234);
+
+		m1 -> write_32b(4, a_instruction);
+	}
+
 	tick(p);
 
 	uint64_t expected_pc = 4 + (int16_t(immediate) << 2);
 
 	if (p -> get_PC() != expected_pc)
-		error_exit("%s with branch: expected %016llx, got %016llx", which.c_str(), expected_pc, p -> get_PC());
+		error_exit("%s with branch (pos): expected %016llx, got %016llx", which.c_str(), expected_pc, p -> get_PC());
+
+	if (likely)
+	{
+		tick(p);
+
+		if (p -> get_PC() != expected_pc)
+			error_exit("%s with branch [1]: unexpected pc (%016llx), expecting %016llx", which.c_str(), p -> get_PC(), expected_pc);
+		if (p -> get_register_64b_unsigned(rt) != rt_M)
+			error_exit("%s with branch (pos/likely): delay slot changed rt (double fault!)", which.c_str());
+		if (p -> get_register_64b_unsigned(rs) == rs_M)
+			error_exit("%s with branch (pos/likely): delay slot did not change rs", which.c_str());
+	}
+
+	// DO branch negative offset
+	dolog(" > DO branch");
+	p -> reset();
+	p -> set_PC(0);
+
+	p -> set_register_64b(rs, rs_M);
+
+	if (rt == 0 && rt_M != 0)
+		error_exit("testcase failure: rt_M must be 0 for register 0");
+
+	if (rt) // register 0 is always 0
+		p -> set_register_64b(rt, rt_M);
+
+	immediate = -0x128;
+
+	instruction = make_cmd_I_TYPE(rs, rt, function, immediate);
+	m1 -> write_32b(0, instruction);
+
+	tick(p);
+
+	expected_pc = 4 + (int16_t(immediate) << 2);
+
+	if (p -> get_PC() != expected_pc)
+		error_exit("%s with branch (neg): expected %016llx, got %016llx", which.c_str(), expected_pc, p -> get_PC());
 
 	// DON'T branch
+	dolog(" > DON'T branch");
 	p -> reset();
 	p -> set_PC(0);
 
@@ -1058,6 +1130,22 @@ void test_Bxx(std::string which, uint8_t function, uint8_t rs, uint8_t rt, uint6
 
 	if (p -> get_PC() != expected_pc)
 		error_exit("%s without branch: expected %016llx, got %016llx", which.c_str(), expected_pc, p -> get_PC());
+
+	// If the branch is not taken, the instruction in the delay slot is not executed.
+	if (likely)
+	{
+		dolog(" >> if the branch is not taken, the instruction in the delay slot is not executed");
+		tick(p);
+
+		uint16_t cur_expected_pc = 8;
+		if (p -> get_PC() != cur_expected_pc)
+			error_exit("%s without branch (likely): unexpected pc (%016llx), expecting %016llx", which.c_str(), p -> get_PC(), cur_expected_pc);
+
+		if (p -> get_register_64b_unsigned(rs) != rs_NM)
+			error_exit("%s without branch (pos/likely): delay slot changed rs %016llx (rs) %016llx (expected)", which.c_str(), p -> get_register_64b_unsigned(rs), rs_NM);
+		if (p -> get_register_64b_unsigned(rt) != rt_NM)
+			error_exit("%s without branch (pos/likely): delay slot executed?", which.c_str());
+	}
 
 	free_system(mb, m1, m2, p);
 }
@@ -1340,10 +1428,14 @@ int main(int argc, char *argv[])
 	test_ADDIU();
 	test_AND();
 	test_ANDI();
-	test_Bxx("BEQ", 0x04, 1, 2, 0x1234, 0x1234, 0x1000, 0x2000);
-	test_Bxx("BNE", 0x05, 1, 2, 0x1000, 0x2000, 0x1234, 0x1234);
-	test_Bxx("BLEZ", 0x06, 1, 0, 0x8000000000000000ll, 0, 0x1000000000000000ll, 0);
-	test_Bxx("BGTZ", 0x07, 1, 0, 0x1000000000000000ll, 0, 0x8000000000000000ll, 0);
+	test_Bxx("BEQ", 0x04, 1, 2, 0x1234, 0x1234, 0x1000, 0x2000, false);
+	test_Bxx("BEQL", 0x04 | 16, 1, 2, 0x1234, 0x1234, 0x1000, 0x2000, true);
+	test_Bxx("BNE", 0x05, 1, 2, 0x1000, 0x2000, 0x1234, 0x1234, false);
+	test_Bxx("BNEL", 0x05 | 16, 1, 2, 0x1000, 0x2000, 0x1234, 0x1234, true);
+	test_Bxx("BLEZ", 0x06, 1, 0, 0x8000000000000000ll, 0, 0x1000000000000000ll, 0, false);
+	test_Bxx("BLEZL", 0x06 | 16, 1, 0, 0x8000000000000000ll, 0, 0x1000000000000000ll, 0, true);
+	test_Bxx("BGTZ", 0x07, 1, 0, 0x1000000000000000ll, 0, 0x8000000000000000ll, 0, false);
+	test_Bxx("BGTZL", 0x07 | 16, 1, 0, 0x1000000000000000ll, 0, 0x8000000000000000ll, 0, true);
 	test_J_JAL(false);
 	test_J_JAL(true);
 	test_LB();

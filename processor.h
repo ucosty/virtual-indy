@@ -39,7 +39,7 @@ private:
 
 	bool RMW_sequence;
 
-	bool have_delay_slot;
+	bool have_delay_slot, nullify_instruction;
 	uint64_t delay_slot_PC;
 
 	long long int cycles;

@@ -124,7 +124,7 @@ void processor::i_type_04(uint32_t instruction)	// BEQ/BEQL
 {
 	uint8_t rs = get_RS(instruction);
 	uint8_t rt = get_RT(instruction);
-	bool likely_op = IS_BIT_OFF0_SET(4, instruction); // BEQL
+	bool likely_op = IS_BIT_OFF0_SET(4, get_opcode(instruction)); // BEQL
 
 	conditional_jump(get_register_64b_unsigned(rs) == get_register_64b_unsigned(rt), instruction, likely_op);
 }
@@ -133,7 +133,7 @@ void processor::i_type_05(uint32_t instruction)	// BNE/BNEL
 {
 	uint8_t rs = get_RS(instruction);
 	uint8_t rt = get_RT(instruction);
-	bool likely_op = IS_BIT_OFF0_SET(4, instruction); // BNEL
+	bool likely_op = IS_BIT_OFF0_SET(4, get_opcode(instruction)); // BNEL
 
 	conditional_jump(get_register_64b_unsigned(rs) != get_register_64b_unsigned(rt), instruction, likely_op);
 }
@@ -141,7 +141,7 @@ void processor::i_type_05(uint32_t instruction)	// BNE/BNEL
 void processor::i_type_06(uint32_t instruction)	// BLEZ/BLEZL
 {
         uint8_t rs = get_RS(instruction);
-	bool likely_op = IS_BIT_OFF0_SET(4, instruction); // BLEZL
+	bool likely_op = IS_BIT_OFF0_SET(4, get_opcode(instruction)); // BLEZL
 
 	conditional_jump(get_register_64b_signed(rs) <= 0, instruction, likely_op);
 }
@@ -149,7 +149,7 @@ void processor::i_type_06(uint32_t instruction)	// BLEZ/BLEZL
 void processor::i_type_07(uint32_t instruction)	// BGTZ
 {
         uint8_t rs = get_RS(instruction);
-	bool likely_op = IS_BIT_OFF0_SET(4, instruction); // BGTZL
+	bool likely_op = IS_BIT_OFF0_SET(4, get_opcode(instruction)); // BGTZL
 
 	conditional_jump(get_register_64b_signed(rs) >= 0, instruction, likely_op);
 }
