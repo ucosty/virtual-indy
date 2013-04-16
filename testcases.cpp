@@ -994,8 +994,17 @@ void test_NOP()
 	free_system(mb, m1, m2, p);
 }
 
-void test_Bxx(std::string which)
+void test_Bxx(std::string which, uint8_t function, uint8_t rs, uint8_t rt, uint64_t rs_M, uint64_t rt_M, bool br, uint64_t rs_NM, uint64_t rt_NM)
 {
+	// FIXME
+	// invoke function with rs/rs_M, rt/rt_M
+	// if branches and br == true: OK, check pc, check delay slot processing
+	// LIKELY invoke function with rs/rs_M, rt/rt_M
+	// LIKELY if branches and br == true: OK, check pc, check delay slot processing
+	// invoke function with rs/rs_NM, rt/rt_NM
+	// if NOT branches and br == true: OK, check pc, check delay slot processing
+	// LIKELY invoke function with rs/rs_M, rt/rt_M
+	// LIKELY if NOT branches and br == true: OK, check pc, check delay slot processing
 	dolog(" + test_%s", which.c_str());
 	memory_bus *mb = NULL;
 	memory *m1 = NULL, *m2 = NULL;
@@ -1323,7 +1332,10 @@ int main(int argc, char *argv[])
 	test_ADDIU();
 	test_AND();
 	test_ANDI();
-	test_Bxx("BNE");
+	test_Bxx("BEQ", 0x04, 1, 2, 0x1234, 0x1234, 0x1000, 0x2000);
+	test_Bxx("BNE", 0x05, 1, 2, 0x1000, 0x2000, 0x1234, 0x1234);
+	test_Bxx("BLEZ", 0x06, 1, 0, 0x8000000000000000, 0, 0x1000000000000000, 0);
+	test_Bxx("BGTZ", 0x07, 1, 0, 0x1000000000000000, 0, 0x8000000000000000, 0);
 	test_J_JAL(false);
 	test_J_JAL(true);
 	test_LB();
