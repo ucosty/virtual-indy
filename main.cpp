@@ -98,7 +98,7 @@ int main(int argc, char *argv[])
 	memory *mem2 = new memory(256 * 1024 * 1024, true);
 	mb -> register_memory(0x20000000, mem2 -> get_mask(), mem2);
 
-	rom *m_prom = new rom("ip24prom.070-9101-011.bin");
+	rom *m_prom = new rom("ip24prom.070-9101-007.bin");
 	mb -> register_memory(0xffffffff1fc00000, m_prom -> get_size() - 1, m_prom);
 	mb -> register_memory(0xffffffff9fc00000, m_prom -> get_size() - 1, m_prom); // FIXME klopt deze?
 	mb -> register_memory(0xffffffffbfc00000, m_prom -> get_size() - 1, m_prom);
