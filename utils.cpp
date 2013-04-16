@@ -57,3 +57,19 @@ double get_ts()
 
         return double(ts.tv_sec) + double(ts.tv_usec) / 1000000.0;
 }
+
+std::string to_bin_str(uint64_t value, uint8_t bits)
+{
+	char buffer[65] = { 0 };
+	int out = 0;
+
+	for(int bit=bits-1; bit>=0; bit--)
+	{
+		if (value & (1 << bit))
+			buffer[out++] = '1';
+		else
+			buffer[out++] = '0';
+	}
+
+	return buffer;
+}
