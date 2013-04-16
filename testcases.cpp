@@ -59,7 +59,7 @@ void exec(memory_bus *mb, std::vector<int> instructions, processor *p)
 	tick(p);
 }
 
-void create_system(memory_bus **mb, memory **m1, memory **m2, processor **p, int *m1s = NULL, int *m2s = NULL, uint64_t *po1 = NULL, uint64_t *po2 = NULL)
+void create_system(memory_bus **mb, memory **m1, memory **m2, memory **m3 = NULL, processor **p = NULL, int *m1s = NULL, int *m2s = NULL, int *m3s = NULL, uint64_t *po1 = NULL, uint64_t *po2 = NULL, uint64_t *po3 = NULL)
 {
 	*mb = new memory_bus(dc);
 
@@ -73,16 +73,28 @@ void create_system(memory_bus **mb, memory **m1, memory **m2, processor **p, int
 	uint64_t o2 = 0xf00000;
 	(*mb) -> register_memory(o2, mem_size2 - 1, *m2);
 
+	int mem_size3 = 128 * 1024;
+	uint64_t o3 = 0xffffffffbfa00000;
+	if (m3)
+	{
+		*m3 = new memory(mem_size3, true);
+		(*mb) -> register_memory(o3, mem_size3 - 1, *m3);
+	}
+
 	*p = new processor(dc, *mb);
 
 	if (m1s)
 		*m1s = mem_size1;
 	if (m2s)
 		*m2s = mem_size2;
+	if (m3s)
+		*m3s = mem_size3;
 	if (po1)
 		*po1 = o1;
 	if (po2)
 		*po2 = o2;
+	if (po3)
+		*po3 = o3;
 }
 
 void free_system(memory_bus *mb, memory *m1, memory *m2, processor *p)
@@ -190,9 +202,9 @@ void test_processor()
 {
 	dolog(" + test_processor");
 	memory_bus *mb = NULL;
-	memory *m1 = NULL, *m2 = NULL;
+	memory *m1 = NULL, *m2 = NULL, *m3 = NULL;
 	processor *p = NULL;
-	create_system(&mb, &m1, &m2, &p);
+	create_system(&mb, &m1, &m2, &m3, &p);
 
 	// 32bit
 	{
@@ -280,10 +292,10 @@ void test_memory()
 {
 	dolog(" + test_memory");
 	memory_bus *mb = NULL;
-	memory *m1 = NULL, *m2 = NULL;
+	memory *m1 = NULL, *m2 = NULL, *m3 = NULL;
 	processor *p = NULL;
 	int size = -1;
-	create_system(&mb, &m1, &m2, &p, &size);
+	create_system(&mb, &m1, &m2, &m3, &p, &size);
 
 	uint64_t address = 8;
 
@@ -336,11 +348,11 @@ void test_memory_bus()
 {
 	dolog(" + test_memory_bus");
 	memory_bus *mb = NULL;
-	memory *m1 = NULL, *m2 = NULL;
+	memory *m1 = NULL, *m2 = NULL, *m3 = NULL;
 	processor *p = NULL;
-	uint64_t o1 = -1, o2 = -1;
+	uint64_t o1 = -1, o2 = -1, o3 = -1;
 	int dummy = -2;
-	create_system(&mb, &m1, &m2, &p, &dummy, &dummy, &o1, &o2);
+	create_system(&mb, &m1, &m2, &m3, &p, &dummy, &dummy, &dummy, &o1, &o2, &o3);
 
 	try
 	{
@@ -468,9 +480,9 @@ void test_LW()
 {
 	dolog(" + test_LW");
 	memory_bus *mb = NULL;
-	memory *m1 = NULL, *m2 = NULL;
+	memory *m1 = NULL, *m2 = NULL, *m3 = NULL;
 	processor *p = NULL;
-	create_system(&mb, &m1, &m2, &p);
+	create_system(&mb, &m1, &m2, &m3, &p);
 
 	// unsigned offset
 	{
@@ -549,9 +561,9 @@ void test_SLL()
 {
 	dolog(" + test_SLL");
 	memory_bus *mb = NULL;
-	memory *m1 = NULL, *m2 = NULL;
+	memory *m1 = NULL, *m2 = NULL, *m3 = NULL;
 	processor *p = NULL;
-	create_system(&mb, &m1, &m2, &p);
+	create_system(&mb, &m1, &m2, &m3, &p);
 
 	p -> reset();
 	p -> set_PC(0);
@@ -590,9 +602,9 @@ void test_SRL()
 {
 	dolog(" + test_SRL");
 	memory_bus *mb = NULL;
-	memory *m1 = NULL, *m2 = NULL;
+	memory *m1 = NULL, *m2 = NULL, *m3 = NULL;
 	processor *p = NULL;
-	create_system(&mb, &m1, &m2, &p);
+	create_system(&mb, &m1, &m2, &m3, &p);
 
 	p -> reset();
 	p -> set_PC(0);
@@ -630,9 +642,9 @@ void test_LUI()
 {
 	dolog(" + test_LUI");
 	memory_bus *mb = NULL;
-	memory *m1 = NULL, *m2 = NULL;
+	memory *m1 = NULL, *m2 = NULL, *m3 = NULL;
 	processor *p = NULL;
-	create_system(&mb, &m1, &m2, &p);
+	create_system(&mb, &m1, &m2, &m3, &p);
 
 	p -> reset();
 	p -> set_PC(0);
@@ -669,9 +681,9 @@ void test_SW()
 {
 	dolog(" + test_SW");
 	memory_bus *mb = NULL;
-	memory *m1 = NULL, *m2 = NULL;
+	memory *m1 = NULL, *m2 = NULL, *m3 = NULL;
 	processor *p = NULL;
-	create_system(&mb, &m1, &m2, &p);
+	create_system(&mb, &m1, &m2, &m3, &p);
 
 	p -> reset();
 	p -> set_PC(0);
@@ -710,9 +722,9 @@ void test_ORI()
 {
 	dolog(" + test_ORI");
 	memory_bus *mb = NULL;
-	memory *m1 = NULL, *m2 = NULL;
+	memory *m1 = NULL, *m2 = NULL, *m3 = NULL;
 	processor *p = NULL;
-	create_system(&mb, &m1, &m2, &p);
+	create_system(&mb, &m1, &m2, &m3, &p);
 
 	p -> reset();
 	p -> set_PC(0);
@@ -747,9 +759,9 @@ void test_ANDI()
 {
 	dolog(" + test_ANDI");
 	memory_bus *mb = NULL;
-	memory *m1 = NULL, *m2 = NULL;
+	memory *m1 = NULL, *m2 = NULL, *m3 = NULL;
 	processor *p = NULL;
-	create_system(&mb, &m1, &m2, &p);
+	create_system(&mb, &m1, &m2, &m3, &p);
 
 	p -> reset();
 	p -> set_PC(0);
@@ -784,9 +796,9 @@ void test_XORI()
 {
 	dolog(" + test_XORI");
 	memory_bus *mb = NULL;
-	memory *m1 = NULL, *m2 = NULL;
+	memory *m1 = NULL, *m2 = NULL, *m3 = NULL;
 	processor *p = NULL;
-	create_system(&mb, &m1, &m2, &p);
+	create_system(&mb, &m1, &m2, &m3, &p);
 
 	p -> reset();
 	p -> set_PC(0);
@@ -821,9 +833,9 @@ void test_ADDIU()
 {
 	dolog(" + test_ADDIU");
 	memory_bus *mb = NULL;
-	memory *m1 = NULL, *m2 = NULL;
+	memory *m1 = NULL, *m2 = NULL, *m3 = NULL;
 	processor *p = NULL;
-	create_system(&mb, &m1, &m2, &p);
+	create_system(&mb, &m1, &m2, &m3, &p);
 
 	p -> reset();
 	p -> set_PC(0);
@@ -859,9 +871,9 @@ void test_AND()
 {
 	dolog(" + test_AND");
 	memory_bus *mb = NULL;
-	memory *m1 = NULL, *m2 = NULL;
+	memory *m1 = NULL, *m2 = NULL, *m3 = NULL;
 	processor *p = NULL;
-	create_system(&mb, &m1, &m2, &p);
+	create_system(&mb, &m1, &m2, &m3, &p);
 
 	p -> reset();
 	p -> set_PC(0);
@@ -900,9 +912,9 @@ void test_OR()
 {
 	dolog(" + test_OR");
 	memory_bus *mb = NULL;
-	memory *m1 = NULL, *m2 = NULL;
+	memory *m1 = NULL, *m2 = NULL, *m3 = NULL;
 	processor *p = NULL;
-	create_system(&mb, &m1, &m2, &p);
+	create_system(&mb, &m1, &m2, &m3, &p);
 
 	p -> reset();
 	p -> set_PC(0);
@@ -966,9 +978,9 @@ void test_NOP()
 {
 	dolog(" + test_NOP");
 	memory_bus *mb = NULL;
-	memory *m1 = NULL, *m2 = NULL;
+	memory *m1 = NULL, *m2 = NULL, *m3 = NULL;
 	processor *p = NULL;
-	create_system(&mb, &m1, &m2, &p);
+	create_system(&mb, &m1, &m2, &m3, &p);
 
 	p -> reset();
 	p -> set_PC(0);
@@ -1024,9 +1036,9 @@ void test_Bxx(std::string which, uint8_t function, uint8_t rs, uint8_t rt, uint6
 	// LIKELY if NOT branches and br == true: OK, check pc, check delay slot processing
 	dolog(" + test_%s", which.c_str());
 	memory_bus *mb = NULL;
-	memory *m1 = NULL, *m2 = NULL;
+	memory *m1 = NULL, *m2 = NULL, *m3 = NULL;
 	processor *p = NULL;
-	create_system(&mb, &m1, &m2, &p);
+	create_system(&mb, &m1, &m2, &m3, &p);
 
 	// DO branch positive offset
 	dolog(" > DO branch");
@@ -1191,9 +1203,9 @@ void test_ADDI()
 {
 	dolog(" + test_ADDI");
 	memory_bus *mb = NULL;
-	memory *m1 = NULL, *m2 = NULL;
+	memory *m1 = NULL, *m2 = NULL, *m3 = NULL;
 	processor *p = NULL;
-	create_system(&mb, &m1, &m2, &p);
+	create_system(&mb, &m1, &m2, &m3, &p);
 
 	p -> reset();
 	// test 1
@@ -1249,9 +1261,9 @@ void test_SLT()
 {
 	dolog(" + test_SLT");
 	memory_bus *mb = NULL;
-	memory *m1 = NULL, *m2 = NULL;
+	memory *m1 = NULL, *m2 = NULL, *m3 = NULL;
 	processor *p = NULL;
-	create_system(&mb, &m1, &m2, &p);
+	create_system(&mb, &m1, &m2, &m3, &p);
 
 	p -> reset();
 	// test 1
@@ -1288,9 +1300,9 @@ void test_LB()
 {
 	dolog(" + test_LB");
 	memory_bus *mb = NULL;
-	memory *m1 = NULL, *m2 = NULL;
+	memory *m1 = NULL, *m2 = NULL, *m3 = NULL;
 	processor *p = NULL;
-	create_system(&mb, &m1, &m2, &p);
+	create_system(&mb, &m1, &m2, &m3, &p);
 
 	// unsigned offset
 	{
@@ -1369,9 +1381,9 @@ void test_J_JAL(bool is_JAL)
 {
 	dolog(" + test_J");
 	memory_bus *mb = NULL;
-	memory *m1 = NULL, *m2 = NULL;
+	memory *m1 = NULL, *m2 = NULL, *m3 = NULL;
 	processor *p = NULL;
-	create_system(&mb, &m1, &m2, &p);
+	create_system(&mb, &m1, &m2, &m3, &p);
 
 	p -> reset();
 	p -> set_PC(0);

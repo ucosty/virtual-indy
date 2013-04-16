@@ -16,8 +16,10 @@ ADDI    11 *
 ADDIU   27 *
 AND     67 *
 ANDI    46 *
-BEQ     55
-BNE     55 *
+BEQ-L   55 *
+BNE-L   55 *
+BLEZ-L     *
+BGTZ-L     *
 J       1 *
 JAL     4 *
 JR      2
