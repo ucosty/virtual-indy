@@ -98,10 +98,9 @@ void processor::i_type_10(uint32_t instruction)
 	COP0(instruction);
 }
 
-void processor::i_type_11(uint32_t instruction)
+void processor::i_type_11(uint32_t instruction)	// COP1
 {
-	// COP1(instruction);
-	pdc -> dc_log("i_type_11 not implemented");
+	COP1(instruction);
 }
 
 void processor::i_type_12(uint32_t instruction)
@@ -459,10 +458,9 @@ void processor::i_type_31(uint32_t instruction)	// LWC1
 
 	uint8_t rt = get_RT(instruction);
 
-	uint32_t temp_32b = -1;
-	pmb -> read_32b(address, &temp_32b);
-
-	C1_registers[rt] = temp_32b;
+	uint32_t dummy = -1;
+	pmb -> read_32b(address, &dummy);
+	C1_registers[rt] = dummy;
 }
 
 void processor::i_type_32(uint32_t instruction)	// LWC2
@@ -471,10 +469,9 @@ void processor::i_type_32(uint32_t instruction)	// LWC2
 
 	uint8_t rt = get_RT(instruction);
 
-	uint32_t temp_32b = -1;
-	pmb -> read_32b(address, &temp_32b);
-
-	C2_registers[rt] = temp_32b;
+	uint32_t dummy = -1;
+	pmb -> read_32b(address, &dummy);
+	C2_registers[rt] = dummy;
 }
 
 void processor::i_type_33(uint32_t instruction)
@@ -487,14 +484,22 @@ void processor::i_type_34(uint32_t instruction)
 	pdc -> dc_log("i_type_34 not implemented");
 }
 
-void processor::i_type_35(uint32_t instruction)
+void processor::i_type_35(uint32_t instruction)	// LDC1
 {
-	pdc -> dc_log("i_type_35 not implemented");
+	uint64_t address = get_base_register_with_offset(instruction);
+
+	uint8_t rt = get_RT(instruction);
+
+	pmb -> read_64b(address, &C1_registers[rt]);
 }
 
-void processor::i_type_36(uint32_t instruction)
+void processor::i_type_36(uint32_t instruction)	// LDC2
 {
-	pdc -> dc_log("i_type_36 not implemented");
+	uint64_t address = get_base_register_with_offset(instruction);
+
+	uint8_t rt = get_RT(instruction);
+
+	pmb -> read_64b(address, &C2_registers[rt]);
 }
 
 void processor::i_type_37(uint32_t instruction)
@@ -560,14 +565,22 @@ void processor::i_type_3c(uint32_t instruction)
 	pdc -> dc_log("i_type_3c not implemented");
 }
 
-void processor::i_type_3d(uint32_t instruction)
+void processor::i_type_3d(uint32_t instruction)	// SDC1
 {
-	pdc -> dc_log("i_type_3d not implemented");
+	uint64_t address = get_base_register_with_offset(instruction);
+
+	uint8_t rt = get_RT(instruction);
+
+	pmb -> write_64b(address, C1_registers[rt]);
 }
 
-void processor::i_type_3e(uint32_t instruction)
+void processor::i_type_3e(uint32_t instruction)	// SDC2
 {
-	pdc -> dc_log("i_type_3e not implemented");
+	uint64_t address = get_base_register_with_offset(instruction);
+
+	uint8_t rt = get_RT(instruction);
+
+	pmb -> write_64b(address, C2_registers[rt]);
 }
 
 void processor::i_type_3f(uint32_t instruction)

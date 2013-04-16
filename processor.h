@@ -48,6 +48,7 @@ private:
 	void special2(uint32_t instruction);
 	void special3(uint32_t instruction);
 	void COP0(uint32_t instruction);
+	void COP1(uint32_t instruction);
 	// not in a group? FIXME
 	void SLTI(uint32_t instruction);
 	void regimm(uint32_t instruction);
