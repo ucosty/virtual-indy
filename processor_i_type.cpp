@@ -103,16 +103,16 @@ void processor::i_type_11(uint32_t instruction)	// COP1
 	COP1(instruction);
 }
 
-void processor::i_type_12(uint32_t instruction)
+void processor::i_type_12(uint32_t instruction)	// COP2
 {
 	// COP2(instruction);
-	pdc -> dc_log("i_type_12 not implemented");
+	pdc -> dc_log("i_type_12 (COP2) not implemented");
 }
 
-void processor::i_type_13(uint32_t instruction)
+void processor::i_type_13(uint32_t instruction)	// COP1X
 {
 	// COP3(instruction);
-	pdc -> dc_log("i_type_13 not implemented");
+	COP1X(instruction);
 }
 
 void processor::i_type_01(uint32_t instruction)	// BGEZAL
