@@ -98,7 +98,7 @@ void processor::r_type_02(uint32_t instruction)	// SRL / ROTR
 
 	if (IS_BIT_OFF0_SET(21, instruction))
 		set_register_32b(rd, rotate_right(get_register_32b_unsigned(rt), sa, 32));
-	else
+	else	// SRL
 		set_register_32b_se(rd, get_register_32b_unsigned(rt) >> sa);
 }
 

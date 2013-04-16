@@ -285,11 +285,11 @@ void processor::i_type_1f(uint32_t instruction)	// SPECIAL3
 
 void processor::i_type_20(uint32_t instruction)	// LB / LBU
 {
-	uint64_t address = get_base_register_with_offset(instruction);
-	uint8_t temp_8b = -1;
-	pmb -> read_8b(address, &temp_8b);
-
 	uint8_t rt = get_RT(instruction);
+
+	uint8_t temp_8b = -1;
+	uint64_t address = get_base_register_with_offset(instruction);
+	pmb -> read_8b(address, &temp_8b);
 
 	if (get_opcode(instruction) == 0x24)	// LBU
 		set_register_64b(rt, temp_8b);
@@ -375,11 +375,9 @@ void processor::i_type_28(uint32_t instruction)	// SB
 
 	uint8_t rt = get_RT(instruction);
 
-	int temp_32b = get_register_32b_unsigned(rt);
+	pmb -> write_8b(address, get_register_32b_unsigned(rt));
 
 	cycles += 4;
-
-	pmb -> write_8b(address, temp_32b);
 }
 
 void processor::i_type_29(uint32_t instruction)	// SH

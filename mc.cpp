@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include "mc.h"
+#include "utils.h"
 
 mc::mc(debug_console *pdc_in) : pdc(pdc_in)
 {
@@ -67,7 +68,8 @@ void mc::read_32b(uint64_t offset, uint32_t *data)
 		// 1111111101000000
 		// 11111111001000001111111101000000
 		*data = 0xFF20FF40;
-		pdc -> dc_log("MEMCFG0 read (%08x)", *data);
+		std::string dummy = to_bin_str(*data, 32);
+		pdc -> dc_log("MEMCFG0 read (%08x) %s", *data, dummy.c_str());
 	}
 	else if (offset == 0xcc)	// MEMCFG1
 	{
@@ -87,7 +89,8 @@ void mc::read_32b(uint64_t offset, uint32_t *data)
 		// 1111111110000000
 		// 11111111010000001111111110000000
 		*data = 0xFF40FF80;
-		pdc -> dc_log("MEMCFG1 read (%08x)", *data);
+		std::string dummy = to_bin_str(*data, 32);
+		pdc -> dc_log("MEMCFG1 read (%08x) %s", *data, dummy.c_str());
 	}
 	else if (offset == 0xd4)	// CPU_MEMACC
 	{

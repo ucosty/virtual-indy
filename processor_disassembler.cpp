@@ -361,6 +361,13 @@ std::string processor::decode_to_text(uint32_t instruction)
 			}
 		}
 	}
+	else if (opcode == 17)	// COP1
+	{
+		// uint8_t rt = get_RT(instruction);
+
+		// return format("MFC1 %s,%d", reg_to_name(rt), (instruction >> 11) & 31);
+		return "COP1_command";
+	}
 
 	return "???";
 }
