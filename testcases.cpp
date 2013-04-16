@@ -74,7 +74,7 @@ void create_system(memory_bus **mb, memory **m1, memory **m2, memory **m3 = NULL
 	(*mb) -> register_memory(o2, mem_size2 - 1, *m2);
 
 	int mem_size3 = 128 * 1024;
-	uint64_t o3 = 0xffffffffbfa00000;
+	uint64_t o3 = 0xffffffffbfc00000;
 	if (m3)
 	{
 		*m3 = new memory(mem_size3, true);
@@ -1418,6 +1418,25 @@ void test_J_JAL(bool is_JAL)
 	expected_pc = offset_unshifted << 2;
 	if (p -> get_PC() != expected_pc)
 		error_exit("J: expected PC at address %llx,  got %016llx", expected_pc, p -> get_PC());
+
+	uint64_t hm_offset = 0xffffffffbfc00000;
+	mb -> write_32b(hm_offset, instruction);
+
+	p -> reset();
+	p -> set_PC(hm_offset);
+
+	tick(p);
+
+	expected_pc = (hm_offset & sign_extend_32b(15 << 28)) | (offset_unshifted << 2);
+	if (p -> get_PC() != expected_pc)
+		error_exit("J: expected PC at address %llx,  got %016llx", expected_pc, p -> get_PC());
+
+	if (is_JAL)
+	{
+		uint64_t expected_return_address = hm_offset + 0x08;
+		if (p -> get_register_64b_unsigned(31) != expected_return_address)
+			error_exit("JAL: expected return address %016llx, got %016llx", expected_return_address, p -> get_register_64b_unsigned(31));
+	}
 
 	free_system(mb, m1, m2, p);
 }
