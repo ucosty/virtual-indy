@@ -97,10 +97,11 @@ void create_system(memory_bus **mb, memory **m1, memory **m2, memory **m3 = NULL
 		*po3 = o3;
 }
 
-void free_system(memory_bus *mb, memory *m1, memory *m2, processor *p)
+void free_system(memory_bus *mb, memory *m1, memory *m2, memory *m3, processor *p)
 {
 	delete p;
 	delete mb;
+	delete m3;
 	delete m2;
 	delete m1;
 }
@@ -285,7 +286,7 @@ void test_processor()
 			error_exit("register 0 changed value!");
 	}
 
-	free_system(mb, m1, m2, p);
+	free_system(mb, m1, m2, m3, p);
 }
 
 void test_memory()
@@ -341,7 +342,7 @@ void test_memory()
 	if (temp_64b != value_64b)
 		error_exit("failed to verify data (64b)");
 
-	free_system(mb, m1, m2, p);
+	free_system(mb, m1, m2, m3, p);
 }
 
 void test_memory_bus()
@@ -375,7 +376,7 @@ void test_memory_bus()
 		error_exit("failed to access memory EXCEPTION %d at/for %016llx, PC: %016llx (1), sr: %08x", pe.get_cause(), pe.get_BadVAddr(), pe.get_EPC(), pe.get_status());
 	}
 
-	free_system(mb, m1, m2, p);
+	free_system(mb, m1, m2, m3, p);
 }
 
 void test_twos_complement()
@@ -554,7 +555,7 @@ void test_LW()
 			error_exit("LW: rt (%016llx) != %016llx", temp_32b, expected);
 	}
 
-	free_system(mb, m1, m2, p);
+	free_system(mb, m1, m2, m3, p);
 }
 
 void test_SLL()
@@ -572,14 +573,13 @@ void test_SLL()
 	uint8_t rd = 1;
 	p -> set_register_64b(rd, rd_val);
 
-	uint64_t rt_val = 0xf000e000d000c000;
+	uint64_t rt_val = 0xf123e456d789cdef;
 	uint8_t rt = 2;
 	p -> set_register_64b(rt, rt_val);
 
 	uint8_t sa = 3;
 
 	uint8_t function = 0, extra = 0;
-
 	uint32_t instr = make_cmd_SPECIAL(rt, rd, sa, function, extra);
 	m1 -> write_32b(0, instr);
 
@@ -595,7 +595,7 @@ void test_SLL()
 	if (temp_64b != expected)
 		error_exit("SLL: rd (%016llx) != %016llx", temp_64b, expected);
 
-	free_system(mb, m1, m2, p);
+	free_system(mb, m1, m2, m3, p);
 }
 
 void test_SRL()
@@ -635,7 +635,7 @@ void test_SRL()
 	if (temp_32b != expected)
 		error_exit("SRL: rd (%d) != %d", temp_32b, expected);
 
-	free_system(mb, m1, m2, p);
+	free_system(mb, m1, m2, m3, p);
 }
 
 void test_LUI()
@@ -674,7 +674,7 @@ void test_LUI()
 	if (rc != rs_val)
 		error_exit("LUI failed: register %d changed from %016llx to %016llx", rs, rs_val, rc);
 
-	free_system(mb, m1, m2, p);
+	free_system(mb, m1, m2, m3, p);
 }
 
 void test_SW()
@@ -715,7 +715,7 @@ void test_SW()
 
 	// FIXME test that unaligned memory access causes a AddressError exception
 
-	free_system(mb, m1, m2, p);
+	free_system(mb, m1, m2, m3, p);
 }
 
 void test_ORI()
@@ -752,7 +752,7 @@ void test_ORI()
 	if (result != expected)
 		error_exit("ORI: result is %08x, expected %08x", result, expected);
 
-	free_system(mb, m1, m2, p);
+	free_system(mb, m1, m2, m3, p);
 }
 
 void test_ANDI()
@@ -789,7 +789,7 @@ void test_ANDI()
 	if (result != expected)
 		error_exit("ANDI: result is %08x, expected %08x", result, expected);
 
-	free_system(mb, m1, m2, p);
+	free_system(mb, m1, m2, m3, p);
 }
 
 void test_XORI()
@@ -826,7 +826,7 @@ void test_XORI()
 	if (result != expected)
 		error_exit("ANDI: result is %08x, expected %08x", result, expected);
 
-	free_system(mb, m1, m2, p);
+	free_system(mb, m1, m2, m3, p);
 }
 
 void test_ADDIU()
@@ -864,7 +864,7 @@ void test_ADDIU()
 	if (result != expected)
 		error_exit("ADDIU: result is %08x, expected %08x", result, expected);
 
-	free_system(mb, m1, m2, p);
+	free_system(mb, m1, m2, m3, p);
 }
 
 void test_AND()
@@ -905,7 +905,7 @@ void test_AND()
 	if (result != expected)
 		error_exit("AND: result is %016llx, expected %016llx", result, expected);
 
-	free_system(mb, m1, m2, p);
+	free_system(mb, m1, m2, m3, p);
 }
 
 void test_OR()
@@ -946,7 +946,7 @@ void test_OR()
 	if (result != expected)
 		error_exit("OR: result is %016llx, expected %016llx", result, expected);
 
-	free_system(mb, m1, m2, p);
+	free_system(mb, m1, m2, m3, p);
 }
 
 typedef struct
@@ -1020,7 +1020,7 @@ void test_NOP()
 
 	delete reg_copy;
 
-	free_system(mb, m1, m2, p);
+	free_system(mb, m1, m2, m3, p);
 }
 
 void test_Bxx(std::string which, uint8_t function, uint8_t rs, uint8_t rt, uint64_t rs_M, uint64_t rt_M, uint64_t rs_NM, uint64_t rt_NM, bool likely)
@@ -1159,7 +1159,7 @@ void test_Bxx(std::string which, uint8_t function, uint8_t rs, uint8_t rt, uint6
 			error_exit("%s without branch (pos/likely): delay slot executed?", which.c_str());
 	}
 
-	free_system(mb, m1, m2, p);
+	free_system(mb, m1, m2, m3, p);
 }
 
 void test_test_tc_overflow_32b()
@@ -1254,7 +1254,7 @@ void test_ADDI()
 	if (p -> get_PC() != 0x80000080)
 		error_exit("ADDI: expected exception, expected PC: 0x80000080, PC is: %016llx", p -> get_PC());
 
-	free_system(mb, m1, m2, p);
+	free_system(mb, m1, m2, m3, p);
 }
 
 void test_SLT()
@@ -1374,7 +1374,7 @@ void test_LB()
 			error_exit("LB: rt (%016llx) != %016llx", temp_64b, expected);
 	}
 
-	free_system(mb, m1, m2, p);
+	free_system(mb, m1, m2, m3, p);
 }
 
 void test_J_JAL(bool is_JAL)
@@ -1438,7 +1438,7 @@ void test_J_JAL(bool is_JAL)
 			error_exit("JAL: expected return address %016llx, got %016llx", expected_return_address, p -> get_register_64b_unsigned(31));
 	}
 
-	free_system(mb, m1, m2, p);
+	free_system(mb, m1, m2, m3, p);
 }
 
 int main(int argc, char *argv[])
