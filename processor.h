@@ -33,7 +33,9 @@ private:
 	// 31		$ra		return address
 	uint64_t registers[32], PC, HI, LO, EPC;
 	uint32_t status_register;
-	uint32_t C0_registers[32];
+	uint32_t C0_registers[32]; // COP0
+	uint64_t C1_registers[32]; // FP, COP1
+	uint64_t C2_registers[32]; // COP2
 
 	bool RMW_sequence;
 

@@ -29,6 +29,8 @@ void processor::reset()
 	status_register = HI = LO = PC = EPC = 0;
 
 	memset(C0_registers, 0x00, sizeof C0_registers);
+	memset(C1_registers, 0x00, sizeof C1_registers);
+	memset(C2_registers, 0x00, sizeof C2_registers);
 
 	set_PC(0xffffffffbfc00000);
 
