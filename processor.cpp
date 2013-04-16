@@ -190,5 +190,6 @@ void processor::conditional_jump(bool do_jump, uint32_t instruction, bool skip_d
 	{
 		have_delay_slot = nullify_instruction = true;
 	}
-pdc -> dc_log("jump: %d, skip_delay_slot_if_not: %d | %d %d", do_jump, skip_delay_slot_if_not, have_delay_slot, nullify_instruction);
+
+	// pdc -> dc_log("jump: %d, skip_delay_slot_if_not: %d | %d %d", do_jump, skip_delay_slot_if_not, have_delay_slot, nullify_instruction);
 }
