@@ -18,7 +18,7 @@ AND     67 *
 ANDI    46 *
 BEQ     55
 BNE     55 *
-J       1
+J       1 *
 JAL     4
 JR      2
 LB      1

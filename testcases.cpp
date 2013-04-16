@@ -1258,6 +1258,37 @@ void test_LB()
 	free_system(mb, m1, m2, p);
 }
 
+void test_J()
+{
+	dolog(" + test_J");
+	memory_bus *mb = NULL;
+	memory *m1 = NULL, *m2 = NULL;
+	processor *p = NULL;
+	create_system(&mb, &m1, &m2, &p);
+
+	p -> reset();
+	p -> set_PC(0);
+
+	uint32_t offset_unshifted = 0x18;
+	uint32_t instruction = (2 << 26) | offset_unshifted;
+
+	m1 -> write_32b(0, instruction);
+
+	tick(p);
+
+	uint64_t expected_pc = 0x04;
+	if (p -> is_delay_slot() == false || p -> get_delay_slot_PC() != expected_pc)
+		error_exit("J: expected PC at address %llx because of delay slot, got %s/%016llx", expected_pc, p -> is_delay_slot() ? "true" : "false", p -> get_delay_slot_PC());
+
+	tick(p);
+
+	expected_pc = offset_unshifted << 2;
+	if (p -> get_PC() != expected_pc)
+		error_exit("J: expected PC at address %llx,  got %016llx", expected_pc, p -> get_PC());
+
+	free_system(mb, m1, m2, p);
+}
+
 int main(int argc, char *argv[])
 {
 	test_untows_complement();
@@ -1277,6 +1308,7 @@ int main(int argc, char *argv[])
 	test_AND();
 	test_ANDI();
 	test_BNE();
+	test_J();
 	test_LB();
 	test_LUI();
 	test_LW();
