@@ -242,16 +242,12 @@ public:
 	{
 		ASSERT(nr >= 0 && nr <= 31);
 
-if (nr == 31) pdc -> dc_log("GET 31 signed");
-
 		return int32_t(registers[nr]);
 	}
 
 	inline uint32_t get_register_32b_unsigned(uint8_t nr) const
 	{
 		ASSERT(nr >= 0 && nr <= 31);
-
-if (nr == 31) pdc -> dc_log("GET 31 unsigned");
 
 		return uint32_t(registers[nr]);
 	}
@@ -300,5 +296,4 @@ if (nr == 31) pdc -> dc_log("GET 31 unsigned");
 			pdc -> dc_log("(64b) trying to alter register 0! (%d)", nr);
 	}
 };
-
 #endif
