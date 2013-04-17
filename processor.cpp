@@ -38,8 +38,6 @@ void processor::reset()
 	delay_slot_PC = -1;
 
 	RMW_sequence = false;
-
-	memset(fp_regs, 0x00, sizeof fp_regs);
 }
 
 void processor::tick()
