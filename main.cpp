@@ -16,7 +16,7 @@
 bool single_step = false;
 const char *logfile = NULL;
 
-volatile bool terminate = false;
+volatile bool sig_terminate = false, sig_interrupt = false/* , sig_alarm = false */;
 
 void help()
 {
@@ -34,7 +34,13 @@ void version()
 
 void sig_handler(int sig)
 {
-        terminate = true;
+	sig_interrupt = true;
+
+	if (sig == SIGTERM || sig == SIGINT || sig == SIGQUIT)
+		sig_terminate = true;
+
+	// if (sig == SIGALRM)
+		// sig_alarm = true;
 }
 
 int main(int argc, char *argv[])
@@ -133,15 +139,19 @@ int main(int argc, char *argv[])
 	double dcnt = double(cnt) * 600.0;
 	printf("i/s: %f\n", dcnt / (get_ts() - start_ts));
 #elif _PROFILING == 3
-	for(;!terminate;)
+        double start_ts = get_ts();
+        int cnt = 0;
+	for(;!sig_terminate;)
 	{
-		dc -> tick(p);
 		p -> tick();
+
+		cnt++;
 	}
+        printf("i/s: %f\n", double(cnt) / (get_ts() - start_ts));
 #else
 	if (single_step || debug)
 	{
-		for(;!terminate;)
+		for(;!sig_terminate;)
 		{
 			dc -> tick(p);
 			p -> tick();
@@ -152,7 +162,7 @@ int main(int argc, char *argv[])
 	}
 	else
 	{
-		for(;!terminate;)
+		for(;!sig_terminate;)
 			p -> tick();
 	}
 #endif
