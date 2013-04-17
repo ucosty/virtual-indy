@@ -8,8 +8,8 @@
 
 typedef struct
 {
-	uint64_t offset;
-	uint64_t mask;
+	uint64_t offset_start;
+	uint64_t offset_end;
 	memory *target;
 } memory_segment_t;
 
@@ -18,8 +18,7 @@ class memory_bus
 private:
 	memory_segment_t *list;
 	int n_elements;
-
-	memory_segment_t dummy_seg, *plast_seg;
+	int last_index;
 
 	debug_console *pdc;
 
@@ -29,7 +28,7 @@ public:
 	memory_bus(debug_console *pdc_in);
 	~memory_bus();
 
-	void register_memory(uint64_t offset, uint64_t mask, memory *target);
+	void register_memory(uint64_t offset, uint64_t size, memory *target);
 
 	void read_64b(uint64_t offset, uint64_t *data);
 	void write_64b(uint64_t offset, uint64_t data);

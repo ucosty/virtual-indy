@@ -93,23 +93,23 @@ int main(int argc, char *argv[])
 	memory_bus *mb = new memory_bus(dc);
 
 	memory *mem1 = new memory(256 * 1024 * 1024, true);
-	mb -> register_memory(0x08000000, mem1 -> get_mask(), mem1);
-	mb -> register_memory(0, 512 * 1024 - 1, mem1); // needed for exception vectors
+	mb -> register_memory(0x08000000, mem1 -> get_size(), mem1);
+	mb -> register_memory(0, 512 * 1024, mem1); // needed for exception vectors
 	memory *mem2 = new memory(256 * 1024 * 1024, true);
-	mb -> register_memory(0x20000000, mem2 -> get_mask(), mem2);
+	mb -> register_memory(0x20000000, mem2 -> get_size(), mem2);
 
 	rom *m_prom = new rom("ip24prom.070-9101-007.bin");
-	mb -> register_memory(0xffffffff1fc00000, m_prom -> get_size() - 1, m_prom);
-	mb -> register_memory(0xffffffff9fc00000, m_prom -> get_size() - 1, m_prom); // FIXME klopt deze?
-	mb -> register_memory(0xffffffffbfc00000, m_prom -> get_size() - 1, m_prom);
+	mb -> register_memory(0xffffffff1fc00000, m_prom -> get_size(), m_prom);
+	mb -> register_memory(0xffffffff9fc00000, m_prom -> get_size(), m_prom); // FIXME klopt deze?
+	mb -> register_memory(0xffffffffbfc00000, m_prom -> get_size(), m_prom);
 
 	memory *pmc = new mc(dc);
-	mb -> register_memory(0xffffffff1fa00000, pmc -> get_mask(), pmc);
-	mb -> register_memory(0xffffffffbfa00000, pmc -> get_mask(), pmc);
+	mb -> register_memory(0xffffffff1fa00000, pmc -> get_size(), pmc);
+	mb -> register_memory(0xffffffffbfa00000, pmc -> get_size(), pmc);
 
 	memory *hpc = new hpc3(dc, "sram.dat");
-	mb -> register_memory(0xffffffff1fb00000, hpc -> get_mask(), hpc);
-	mb -> register_memory(0xffffffffbfb00000, hpc -> get_mask(), hpc);
+	mb -> register_memory(0xffffffff1fb00000, hpc -> get_size(), hpc);
+	mb -> register_memory(0xffffffffbfb00000, hpc -> get_size(), hpc);
 
 	processor *p = new processor(dc, mb);
 

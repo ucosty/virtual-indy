@@ -17,7 +17,6 @@ public:
 	virtual ~memory();
 
 	virtual uint64_t get_size() const { return len; }
-	virtual uint64_t get_mask() const { return len - 1; }
 
 	virtual void read_64b(uint64_t offset, uint64_t *data);
 	virtual void read_32b(uint64_t offset, uint32_t *data);
