@@ -79,7 +79,7 @@ void processor::COP1(uint32_t instruction)
 			break;
 
 		default:
-			pdc -> dc_log("COP1 unsupported fmt %02x", fmt);
+			pdc -> dc_log("COP1 fmt %02x not implemented", fmt);
 			break;
 	}
 }
@@ -93,7 +93,7 @@ void processor::COP1X(uint32_t instruction)
 	switch(fmt)
 	{
 		default:
-			pdc -> dc_log("COP1X unsupported fmt %02x", fmt);
+			pdc -> dc_log("COP1X fmt %02x not implemented", fmt);
 			break;
 	}
 }

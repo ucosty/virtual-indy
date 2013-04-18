@@ -18,7 +18,7 @@ void processor::special3(uint32_t instruction)
 			break;
 
 		default:
-			pdc -> dc_log("special3 function %02x not supported", function);
+			pdc -> dc_log("special3 function %02x not implemented", function);
 			break;
 	}
 }
