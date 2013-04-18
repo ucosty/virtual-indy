@@ -137,6 +137,9 @@ uint64_t processor::get_C0_register(uint8_t nr, uint8_t sel)
 // what to do with `sel'?
 // FIXME verify cpu mode? (privileged) and log msg
 
+	if (sel)
+		pdc -> dc_log("get_C0_register: handling of sel %d not implemented", sel);
+
 	return C0_registers[nr];
 }
 
@@ -146,6 +149,9 @@ void processor::set_C0_register(uint8_t nr, uint8_t sel, uint64_t value)
 
 // what to do with `sel'?
 // FIXME verify cpu mode? (privileged) and log msg
+
+	if (sel)
+		pdc -> dc_log("set_C0_register: handling of sel %d not implemented", sel);
 
 	C0_registers[nr] = value;
 }
