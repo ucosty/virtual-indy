@@ -237,7 +237,7 @@ void hpc3::section_e_read_sram(ws_t ws, uint64_t offset, uint64_t *data)
 	pep -> read_32b(offset, &temp);
 	*data = temp;
 
-	pdc -> dc_log("SRAM read %016llx: %08lx", temp);
+	pdc -> dc_log("HPC3 SRAM read %016llx: %08lx", temp);
 }
 
 void hpc3::section_8_write_pbus_dma(ws_t ws, uint64_t offset, uint64_t data)
@@ -282,20 +282,20 @@ void hpc3::section_d_write_enet_pbus_dev_regs(ws_t ws, uint64_t offset, uint64_t
 			ser2 -> ser_data_write(uint8_t(data));
 		else
 		{
-			pdc -> dc_log("PBUS write %016llx: %016llx", offset, data);
+			pdc -> dc_log("HPC3 PBUS write %016llx: %016llx", offset, data);
 			write_fake(ws, offset, data);
 		}
 	}
 	else
 	{
-		pdc -> dc_log("ENET write %016llx: %016llx", offset, data);
+		pdc -> dc_log("HPC3 ENET write %016llx: %016llx", offset, data);
 		write_fake(ws, offset, data);
 	}
 }
 
 void hpc3::section_e_write_sram(ws_t ws, uint64_t offset, uint64_t data)
 {
-	pdc -> dc_log("SRAM write %016llx: %016llx", offset, data);
+	pdc -> dc_log("HPC3 SRAM write %016llx: %016llx", offset, data);
 
 	pep -> write_32b(offset, data);
 }
