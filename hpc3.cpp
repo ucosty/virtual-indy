@@ -180,11 +180,13 @@ void hpc3::read_fake(ws_t ws, uint64_t offset, uint64_t *data)
 
 void hpc3::section_8_read_pbus_dma(ws_t ws, uint64_t offset, uint64_t *data)
 {
+	pdc -> dc_log("HPC3 PBUS read not implemented");
 	read_fake(ws, offset, data);
 }
 
 void hpc3::section_9_read_hd_enet_channel(ws_t ws, uint64_t offset, uint64_t *data)
 {
+	pdc -> dc_log("HPC3 HD ENET read not implemented");
 	uint32_t dummy = -1;
 	seeq -> read_32b(offset, &dummy);
 	*data = dummy;
@@ -192,6 +194,7 @@ void hpc3::section_9_read_hd_enet_channel(ws_t ws, uint64_t offset, uint64_t *da
 
 void hpc3::section_a_read_fifo(ws_t ws, uint64_t offset, uint64_t *data)
 {
+	pdc -> dc_log("HPC3 FIFO read not implemented");
 	read_fake(ws, offset, data);
 }
 
@@ -200,11 +203,15 @@ void hpc3::section_b_read_general(ws_t ws, uint64_t offset, uint64_t *data)
 	if (offset == 0x0004)	// gio.misc, gio64 bus, misc
 		*data = gio_misc;	// bit 1: des_endian (1=little), bit 0: en_real_time
 	else
+	{
+		pdc -> dc_log("HPC3 GENERAL read not implemented");
 		read_fake(ws, offset, data);
+	}
 }
 
 void hpc3::section_c_read_hd_dev_regs(ws_t ws, uint64_t offset, uint64_t *data)
 {
+	pdc -> dc_log("HPC3 HD DEV read not implemented");
 	read_fake(ws, offset, data);
 }
 
@@ -223,11 +230,11 @@ void hpc3::section_d_read_enet_pbus_dev_regs(ws_t ws, uint64_t offset, uint64_t 
 		else if ((offset & ~3) == 0x983c)
 			*data = ser2 -> ser_data_read();
 		else
-			pdc -> dc_log("PBUS read %016llx", offset);
+			pdc -> dc_log("HPC3 PBUS read %016llx not implemented", offset);
 	}
 	else
 	{
-		pdc -> dc_log("ENET read %016llx", offset);
+		pdc -> dc_log("HPC3 ENET read %016llx not implemented", offset);
 	}
 }
 
@@ -242,16 +249,19 @@ void hpc3::section_e_read_sram(ws_t ws, uint64_t offset, uint64_t *data)
 
 void hpc3::section_8_write_pbus_dma(ws_t ws, uint64_t offset, uint64_t data)
 {
+	pdc -> dc_log("HPC3 PBUS write not implemented");
 	write_fake(ws, offset, data);
 }
 
 void hpc3::section_9_write_hd_enet_channel(ws_t ws, uint64_t offset, uint64_t data)
 {
+	pdc -> dc_log("HPC3 HD ENET write not implemented");
 	seeq -> write_32b(offset, data);
 }
 
 void hpc3::section_a_write_fifo(ws_t ws, uint64_t offset, uint64_t data)
 {
+	pdc -> dc_log("HPC3 FIFO write not implemented");
 	write_fake(ws, offset, data);
 }
 
@@ -260,11 +270,16 @@ void hpc3::section_b_write_general(ws_t ws, uint64_t offset, uint64_t data)
 	if (offset == 0x0004)	// gio.misc, gio64 bus, misc
 		gio_misc = data;
 	else
+	{
+		pdc -> dc_log("HPC3 GENERAL write not implemented");
 		write_fake(ws, offset, data);
+	}
 }
 
 void hpc3::section_c_write_hd_dev_regs(ws_t ws, uint64_t offset, uint64_t data)
 {
+	pdc -> dc_log("HPC3 HD DEV write not implemented");
+
 	write_fake(ws, offset, data);
 }
 
@@ -282,13 +297,13 @@ void hpc3::section_d_write_enet_pbus_dev_regs(ws_t ws, uint64_t offset, uint64_t
 			ser2 -> ser_data_write(uint8_t(data));
 		else
 		{
-			pdc -> dc_log("HPC3 PBUS write %016llx: %016llx", offset, data);
+			pdc -> dc_log("HPC3 PBUS write %016llx: %016llx not implemented", offset, data);
 			write_fake(ws, offset, data);
 		}
 	}
 	else
 	{
-		pdc -> dc_log("HPC3 ENET write %016llx: %016llx", offset, data);
+		pdc -> dc_log("HPC3 ENET write %016llx: %016llx not implemented", offset, data);
 		write_fake(ws, offset, data);
 	}
 }

@@ -86,11 +86,13 @@ void mc::read_32b(uint64_t offset, uint32_t *data)
 	}
 	else if (offset == 0xc4)	// MEMCFG0
 	{
+		//*data = 0x3110;
 		std::string dummy = to_bin_str(*data, 32);
 		pdc -> dc_log("MC MEMCFG0 read (%08x) %s", *data, dummy.c_str());
 	}
 	else if (offset == 0xcc)	// MEMCFG1
 	{
+		//*data = 0;
 		std::string dummy = to_bin_str(*data, 32);
 		pdc -> dc_log("MC MEMCFG1 read (%08x) %s", *data, dummy.c_str());
 	}
@@ -136,13 +138,12 @@ void mc::read_32b(uint64_t offset, uint32_t *data)
 	}
 	else
 	{
-		pdc -> dc_log("MC read %016llx", offset);
+		pdc -> dc_log("MC read %016llx not implemented", offset);
 	}
 }
 
 void mc::write_32b(uint64_t offset, uint32_t data)
 {
-	pdc -> dc_log("MC_write %016llx %08lx", offset, data);
 	if (offset <= 0x0f)	// CPUCTRL 0 & 1
 	{
 		pdc -> dc_log("MC CPUCTRL0/1 write: %08x", data);
@@ -209,7 +210,7 @@ void mc::write_32b(uint64_t offset, uint32_t data)
 	}
 	else
 	{
-		pdc -> dc_log("MC write @ %016llx: %016llx %c%c%c%c", offset, data, data & 8?'1':'0', data&4?'1':'0', data&2?'1':'0', data&1?'1':'0');
+		pdc -> dc_log("MC write @ %016llx: %016llx %c%c%c%c not implemented", offset, data, data & 8?'1':'0', data&4?'1':'0', data&2?'1':'0', data&1?'1':'0');
 	}
 
 	uint32_t index = offset / 4;
