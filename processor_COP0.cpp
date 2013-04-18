@@ -3,20 +3,22 @@
 
 void processor::COP0(uint32_t instruction)
 {
-	if (IS_BIT_OFF0_SET(21, instruction))	//
+	if (IS_BIT_OFF0_SET(25, instruction))	//
 	{
 		uint8_t function = instruction & MASK_6B;
 
 		switch(function)
 		{
+#if 0
 			case 0x18:	// ERET
 				PC = get_C0_register(14, 0);	// EPC (FIXME: sel 0?)
 				status_register >>= 4;
 				// FIXME
 				break;
+#endif
 
 			default:
-				pdc -> dc_log("cop0: don't know how to handle function %02x (1)", function);
+				pdc -> dc_log("COP0: function %02x not implemented (1)", function);
 		}
 	}
 	else
@@ -54,7 +56,7 @@ void processor::COP0(uint32_t instruction)
 				break;
 
 			default:
-				pdc -> dc_log("cop0: don't know how to handle function %02x (0)", function);
+				pdc -> dc_log("COP0: function %02x not implemented (0)", function);
 		}
 	}
 }
