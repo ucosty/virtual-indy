@@ -100,22 +100,26 @@ int main(int argc, char *argv[])
 
 	memory *mem1 = new memory(256 * 1024 * 1024, true);
 	mb -> register_memory(0x08000000, mem1 -> get_size(), mem1);
+	mb -> register_memory(0xffffffff88000000, mem1 -> get_size(), mem1); // KSEG0
+	mb -> register_memory(0xffffffffa8000000, mem1 -> get_size(), mem1); // KSEG1
 	mb -> register_memory(0, 512 * 1024, mem1); // needed for exception vectors
 	memory *mem2 = new memory(256 * 1024 * 1024, true);
 	mb -> register_memory(0x20000000, mem2 -> get_size(), mem2);
 
 	rom *m_prom = new rom("ip24prom.070-9101-007.bin");
 	mb -> register_memory(0xffffffff1fc00000, m_prom -> get_size(), m_prom);
-	mb -> register_memory(0xffffffff9fc00000, m_prom -> get_size(), m_prom); // FIXME klopt deze?
-	mb -> register_memory(0xffffffffbfc00000, m_prom -> get_size(), m_prom);
+	mb -> register_memory(0xffffffff9fc00000, m_prom -> get_size(), m_prom); // KSEG0
+	mb -> register_memory(0xffffffffbfc00000, m_prom -> get_size(), m_prom); // KSEG1
 
 	memory *pmc = new mc(dc);
 	mb -> register_memory(0xffffffff1fa00000, pmc -> get_size(), pmc);
-	mb -> register_memory(0xffffffffbfa00000, pmc -> get_size(), pmc);
+	mb -> register_memory(0xffffffff9fa00000, pmc -> get_size(), pmc); // KSEG0
+	mb -> register_memory(0xffffffffbfa00000, pmc -> get_size(), pmc); // KSEG1
 
 	memory *hpc = new hpc3(dc, "sram.dat");
 	mb -> register_memory(0xffffffff1fb00000, hpc -> get_size(), hpc);
-	mb -> register_memory(0xffffffffbfb00000, hpc -> get_size(), hpc);
+	mb -> register_memory(0xffffffff9fb00000, hpc -> get_size(), hpc); // KSEG0
+	mb -> register_memory(0xffffffffbfb00000, hpc -> get_size(), hpc); // KSEG1
 
 	processor *p = new processor(dc, mb);
 
