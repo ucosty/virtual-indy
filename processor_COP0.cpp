@@ -32,10 +32,12 @@ void processor::COP0(uint32_t instruction)
 		switch(function)
 		{
 			case 0x00:	// MFC0
+				pdc -> dc_log("COP0: get register %d,%d", rd, sel);
 				set_register_32b(rt, get_C0_register(rd, sel));
 				break;
 
 			case 0x04:	// MTC0
+				pdc -> dc_log("COP0: set register %d,%d to value of register %d", rd, sel, rt);
 				set_C0_register(rd, sel, get_register_32b_unsigned(rt));
 				break;
 
