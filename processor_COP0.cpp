@@ -37,6 +37,9 @@ void processor::COP0(uint32_t instruction)
 				set_C0_register(rd, sel, get_register_32b_unsigned(rt));
 				break;
 
+			//case 0x08:	// TLBP
+				//break;
+
 			case 0x0b:	// DI/EI
 				if (IS_BIT_OFF0_SET(5, instruction))
 				{

@@ -350,8 +350,16 @@ std::string processor::decode_to_text(uint32_t instruction)
 			{
 				case 0x00:
 					return format("MFC0 %s,%d,%d", reg_to_name(rt), rd, sel);
+				case 0x01:
+					return "TLBR";
+				case 0x02:
+					return "TLBWI";
 				case 0x04:
 					return format("MTC0 %s,%d,%d", reg_to_name(rt), rd, sel);
+				case 0x06:
+					return "TLBWR";
+				case 0x08:
+					return "TLBP";
 				case 0x0b:
 					if (IS_BIT_OFF0_SET(5, instruction))
 						return "EI";
