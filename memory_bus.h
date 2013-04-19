@@ -16,11 +16,8 @@ typedef struct
 class memory_bus
 {
 private:
-	memory_segment_t *list;
-	int n_elements;
-
-	int last_index;
-	memory_segment_t *last_psegment;
+	memory_segment_t *list, *last_psegment;
+	int n_elements, last_index;
 
 	debug_console *pdc;
 
