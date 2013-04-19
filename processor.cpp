@@ -57,13 +57,13 @@ void processor::tick()
 					PC += 4;
 				}
 				else
-					pmb -> read_32b(delay_slot_PC, &instruction);
+					pmb -> read_32b_i(delay_slot_PC, &instruction);
 
 				nullify_instruction = have_delay_slot = false;
 			}
 			else
 			{
-				pmb -> read_32b(PC, &instruction);
+				pmb -> read_32b_i(PC, &instruction);
 
 				PC += 4;
 			}

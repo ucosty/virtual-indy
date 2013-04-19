@@ -193,6 +193,8 @@ public:
 	processor(debug_console *pdc_in, memory_bus *pmb_in);
 	~processor();
 
+	memory_bus *get_memory_bus() const { return pmb; }
+
 	inline bool is_delay_slot() { return have_delay_slot; }
 	void set_delay_slot(uint64_t offset);
 	uint64_t get_delay_slot_PC();

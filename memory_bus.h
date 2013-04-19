@@ -16,18 +16,24 @@ typedef struct
 class memory_bus
 {
 private:
-	memory_segment_t *list, *last_psegment;
-	int n_elements, last_index;
+	memory_segment_t *list, *last_psegment, *last_psegment_i;
+	int n_elements, last_index, last_index_i;
 
 	debug_console *pdc;
 
 	const memory_segment_t * find_segment(uint64_t offset);
+	const memory_segment_t * find_segment_i(uint64_t offset);
 
 public:
 	memory_bus(debug_console *pdc_in);
 	~memory_bus();
 
+	uint64_t get_cur_segment() const { return last_psegment -> offset_start; }
+	uint64_t get_cur_segment_i() const { return last_psegment_i -> offset_start; }
+
 	void register_memory(uint64_t offset, uint64_t size, memory *target);
+
+	void read_32b_i(uint64_t offset, uint32_t *data);
 
 	void read_64b(uint64_t offset, uint64_t *data);
 	void write_64b(uint64_t offset, uint64_t data);

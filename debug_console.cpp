@@ -290,6 +290,12 @@ void debug_console::tick(processor *p)
 		else
 			mvwprintw(win_regs, 11, 44, "cnt: %lld", n_ticks);
 
+			mvwprintw(win_regs, 11, 44, "cnt: %lld", n_ticks);
+
+		const memory_bus *pmb = p -> get_memory_bus();
+		mvwprintw(win_regs, 12, 44, "I_S: %016x", pmb -> get_cur_segment_i());
+		mvwprintw(win_regs, 13, 44, "D_S: %016x", pmb -> get_cur_segment());
+
 		if (had_logging)
 		{
 			wnoutrefresh(win_logs);

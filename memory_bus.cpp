@@ -12,7 +12,7 @@
 uint64_t index_dist = 0, index_cnt = 0;
 #endif
 
-memory_bus::memory_bus(debug_console *pdc_in) : list(NULL), n_elements(0), last_index(0), pdc(pdc_in)
+memory_bus::memory_bus(debug_console *pdc_in) : list(NULL), n_elements(0), pdc(pdc_in)
 {
 }
 
@@ -39,8 +39,8 @@ void memory_bus::register_memory(uint64_t offset, uint64_t size, memory *target)
 
 	pdc -> dc_log("BUS: register %016llx / %016llx", offset, size);
 
-	last_index = 0;
-	last_psegment = &list[last_index];
+	last_index_i = last_index = 0;
+	last_psegment_i = last_psegment = &list[last_index];
 }
 
 // r/w might overlap segments? FIXME
@@ -48,7 +48,6 @@ const memory_segment_t * memory_bus::find_segment(uint64_t offset)
 {
 	int start_last_index = last_index;
 
-	// if not, (re-)scan segment table
 	for(;;)
 	{
 		if (offset >= last_psegment -> offset_start && offset < last_psegment -> offset_end)
@@ -70,6 +69,31 @@ const memory_segment_t * memory_bus::find_segment(uint64_t offset)
 	return NULL; // should not be reached
 }
 
+const memory_segment_t * memory_bus::find_segment_i(uint64_t offset)
+{
+	int start_last_index = last_index_i;
+
+	for(;;)
+	{
+		if (offset >= last_psegment_i -> offset_start && offset < last_psegment_i -> offset_end)
+			return last_psegment_i;
+
+		last_index_i++;
+		last_index_i %= n_elements;
+
+		if (last_index_i == start_last_index)
+			break;
+
+		last_psegment_i = &list[last_index_i];
+	}
+
+	pdc -> dc_log("%016llx is not mapped", offset);
+
+	throw processor_exception(offset, -1, -1, PEE_MEM, -1);
+
+	return NULL; // should not be reached
+}
+
 void memory_bus::read_64b(uint64_t offset, uint64_t *data)
 {
 	const memory_segment_t * segment = find_segment(offset);
@@ -82,6 +106,13 @@ void memory_bus::write_64b(uint64_t offset, uint64_t data)
 	const memory_segment_t * segment = find_segment(offset);
 
 	segment -> target -> write_64b(offset - segment -> offset_start, data);
+}
+
+void memory_bus::read_32b_i(uint64_t offset, uint32_t *data)
+{
+	const memory_segment_t * segment = find_segment_i(offset);
+
+	segment -> target -> read_32b(offset - segment -> offset_start, data);
 }
 
 void memory_bus::read_32b(uint64_t offset, uint32_t *data)
