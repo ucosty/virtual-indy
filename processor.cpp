@@ -44,7 +44,7 @@ void processor::tick()
 {
 	try
 	{
-		uint32_t instruction = -1;
+		register uint32_t instruction;
 
 		try
 		{
