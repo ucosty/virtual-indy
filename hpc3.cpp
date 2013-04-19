@@ -1,5 +1,6 @@
 #include <stdlib.h>
 
+#include "debug.h"
 #include "hpc3.h"
 
 // 0x1fb80000 0x1fb8ffff PBUS DMA channel registers
@@ -56,7 +57,7 @@ void hpc3::read_64b(uint64_t offset, uint64_t *data)
 {
 	uint8_t section = ((offset >> 16) & 0x0f) - 0x08;
 
-	pdc -> dc_log("HPC3 read64 %016llx %d", offset, section);
+	DEBUG(pdc -> dc_log("HPC3 read64 %016llx %d", offset, section));
 
 	(((hpc3*)this)->*hpc3::sections_read[section])(S_DWORD, offset & 0xffff, data);
 }
@@ -65,7 +66,7 @@ void hpc3::write_64b(uint64_t offset, uint64_t data)
 {
 	uint8_t section = ((offset >> 16) & 0x0f) - 0x08;
 
-	pdc -> dc_log("HPC3 write64 %016llx %d: %016llx", offset, section, data);
+	DEBUG(pdc -> dc_log("HPC3 write64 %016llx %d: %016llx", offset, section, data));
 
 	(((hpc3*)this)->*hpc3::sections_write[section])(S_DWORD, offset & 0xffff, data);
 }
@@ -74,7 +75,7 @@ void hpc3::read_32b(uint64_t offset, uint32_t *data)
 {
 	uint8_t section = ((offset >> 16) & 0x0f) - 0x08;
 
-	pdc -> dc_log("HPC3 read32 %016llx %d", offset, section);
+	DEBUG(pdc -> dc_log("HPC3 read32 %016llx %d", offset, section));
 
 	uint64_t temp = -1;
 	(((hpc3*)this)->*hpc3::sections_read[section])(S_WORD, offset & 0xffff, &temp);
@@ -85,7 +86,7 @@ void hpc3::write_32b(uint64_t offset, uint32_t data)
 {
 	uint8_t section = ((offset >> 16) & 0x0f) - 0x08;
 
-	pdc -> dc_log("HPC3 write32 %016llx %d: %08x", offset, section, data);
+	DEBUG(pdc -> dc_log("HPC3 write32 %016llx %d: %08x", offset, section, data));
 
 	(((hpc3*)this)->*hpc3::sections_write[section])(S_WORD, offset & 0xffff, data);
 }
@@ -94,7 +95,7 @@ void hpc3::read_16b(uint64_t offset, uint16_t *data)
 {
 	uint8_t section = ((offset >> 16) & 0x0f) - 0x08;
 
-	pdc -> dc_log("HPC3 read16 %016llx %d", offset, section);
+	DEBUG(pdc -> dc_log("HPC3 read16 %016llx %d", offset, section));
 
 	uint64_t temp = -1;
 	(((hpc3*)this)->*hpc3::sections_read[section])(S_SHORT, offset & 0xffff, &temp);
@@ -105,7 +106,7 @@ void hpc3::write_16b(uint64_t offset, uint16_t data)
 {
 	uint8_t section = ((offset >> 16) & 0x0f) - 0x08;
 
-	pdc -> dc_log("HPC3 write16 %016llx %d: %04x", offset, section, data);
+	DEBUG(pdc -> dc_log("HPC3 write16 %016llx %d: %04x", offset, section, data));
 
 	(((hpc3*)this)->*hpc3::sections_write[section])(S_SHORT, offset & 0xffff, data);
 }
@@ -114,20 +115,20 @@ void hpc3::read_8b(uint64_t offset, uint8_t *data)
 {
 	uint8_t section = ((offset >> 16) & 0x0f) - 0x08;
 
-	pdc -> dc_log("HPC3 read8 %016llx %d", offset & 0xffff, section);
+	DEBUG(pdc -> dc_log("HPC3 read8 %016llx %d", offset & 0xffff, section));
 
 	uint64_t temp = -1;
 	(((hpc3*)this)->*hpc3::sections_read[section])(S_BYTE, offset & 0xffff, &temp);
 	*data = temp;
 
-	pdc -> dc_log(" result: %02x", *data);
+	DEBUG(pdc -> dc_log(" result: %02x", *data));
 }
 
 void hpc3::write_8b(uint64_t offset, uint8_t data)
 {
 	uint8_t section = ((offset >> 16) & 0x0f) - 0x08;
 
-	pdc -> dc_log("HPC3 write8 %016llx %d: %02x", offset, section, data);
+	DEBUG(pdc -> dc_log("HPC3 write8 %016llx %d: %02x", offset, section, data));
 
 	(((hpc3*)this)->*hpc3::sections_write[section])(S_BYTE, offset & 0xffff, data);
 }
@@ -244,7 +245,7 @@ void hpc3::section_e_read_sram(ws_t ws, uint64_t offset, uint64_t *data)
 	pep -> read_32b(offset, &temp);
 	*data = temp;
 
-	pdc -> dc_log("HPC3 SRAM read %016llx: %08lx", temp);
+	DEBUG(pdc -> dc_log("HPC3 SRAM read %016llx: %08lx", temp));
 }
 
 void hpc3::section_8_write_pbus_dma(ws_t ws, uint64_t offset, uint64_t data)

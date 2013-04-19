@@ -164,7 +164,7 @@ void processor::i_type_08(uint32_t instruction)	// ADDI
 
 	if (unlikely(test_tc_overflow_32b(val1, val2)))
 	{
-		pdc -> dc_log("ADDI overflow");
+		DEBUG(pdc -> dc_log("ADDI overflow"));
 		throw processor_exception(PC, status_register, 0, PE_OVF, PC);
 	}
 	else
@@ -305,7 +305,7 @@ void processor::i_type_21(uint32_t instruction)	// LH / LHU
 
 	if (unlikely(address & 1))
 	{
-		pdc -> dc_log("i-type read 16b from %016llx: unaligned", address);
+		DEBUG(pdc -> dc_log("i-type read 16b from %016llx: unaligned", address));
 
 		cycles += 5; // FIXME
 
@@ -339,7 +339,7 @@ void processor::i_type_23(uint32_t instruction)	// LW / LL
 
 	if (unlikely(address & 3))
 	{
-		pdc -> dc_log("i-type read 32b from %016llx: unaligned", address);
+		DEBUG(pdc -> dc_log("i-type read 32b from %016llx: unaligned", address));
 
 		cycles += 5; // FIXME
 
@@ -388,7 +388,7 @@ void processor::i_type_29(uint32_t instruction)	// SH
 
 	if (unlikely(address & 1))
 	{
-		pdc -> dc_log("i-type write 16b %04x to %08x: unaligned", registers[rt] & 0xffff, address);
+		DEBUG(pdc -> dc_log("i-type write 16b %04x to %08x: unaligned", registers[rt] & 0xffff, address));
 
 		cycles += 4; // FIXME
 
@@ -416,7 +416,7 @@ void processor::i_type_2b(uint32_t instruction)	// SW
 
 	if (unlikely(address & 3))
 	{
-		pdc -> dc_log("i-type write 32b %08x to %08x: unaligned", registers[rt], address);
+		DEBUG(pdc -> dc_log("i-type write 32b %08x to %08x: unaligned", registers[rt], address));
 
 		cycles += 4; // FIXME
 
@@ -516,7 +516,7 @@ void processor::i_type_38(uint32_t instruction)	// SC
 	}
 	else if (unlikely(address & 3))
 	{
-		pdc -> dc_log("i-type write 32b to %016llx: unaligned", address);
+		DEBUG(pdc -> dc_log("i-type write 32b to %016llx: unaligned", address));
 
 		set_register_64b(rt, 0);
 		cycles += 5; // FIXME

@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "debug.h"
 #include "mc.h"
 #include "utils.h"
 
@@ -115,7 +116,7 @@ void mc::read_32b(uint64_t offset, uint32_t *data)
 		// 0x10000 - 0x1f000
 	else if (offset == 0x104)	// SYS_SEMAPHORE
 	{
-		pdc -> dc_log("MC SYS_SEMAPHORE read (%08x)", *data);
+		DEBUG(pdc -> dc_log("MC SYS_SEMAPHORE read (%08x)", *data));
 		pthread_mutex_lock(&semaphore_lock);
 		*data = sys_semaphore;
 		sys_semaphore = 1;
@@ -128,7 +129,7 @@ void mc::read_32b(uint64_t offset, uint32_t *data)
 	}
 	else if (offset >= 0x100000 && offset <= 0x1ffff)	// USER_SEMAPHORES
 	{
-		pdc -> dc_log("MC USER_SEMAPHORES read: %08x", *data);
+		DEBUG(pdc -> dc_log("MC USER_SEMAPHORES read: %08x", *data));
 		int nr = offset >> 13;
 
 		pthread_mutex_lock(&semaphore_lock);

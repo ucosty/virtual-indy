@@ -32,7 +32,7 @@ void processor::regimm(uint32_t instruction)
 		case 0x11:		// BAL / BGEZAL
 		case 0x13:		// BGEZALL
 			if (rs == 31)
-				pdc -> dc_log("i-type / REGIMM / BGEZ using rs 31");
+				DEBUG(pdc -> dc_log("i-type / REGIMM / BGEZ using rs 31"));
 
 			if (get_register_32b_signed(rs) >= 0)
 			{
@@ -53,6 +53,6 @@ void processor::regimm(uint32_t instruction)
 			break;
 
 		default:
-			pdc -> dc_log("i-type, opcode 0x01, REGIMM 0x%02x unknown", function);
+			pdc -> dc_log("i-type, opcode 0x01, REGIMM 0x%02x not implemented", function);
 	}
 }

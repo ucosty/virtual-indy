@@ -88,7 +88,7 @@ void processor::tick()
 	catch(processor_exception & pe)
 	{
 		// FIXME handle PE_*
-		pdc -> dc_log("EXCEPTION %d at/for %016llx, PC: %016llx (1), sr: %08x", pe.get_cause(), pe.get_BadVAddr(), pe.get_EPC(), pe.get_status());
+		DEBUG(pdc -> dc_log("EXCEPTION %d at/for %016llx, PC: %016llx (1), sr: %08x", pe.get_cause(), pe.get_BadVAddr(), pe.get_EPC(), pe.get_status()));
 
 		if (pe.get_cause_ExcCode() == PEE_MEM)
 			pe = processor_exception(pe.get_BadVAddr(), status_register, 0, PE_DBUS, PC);
@@ -110,7 +110,7 @@ void processor::tick()
 void processor::set_delay_slot(uint64_t offset)
 {
 	if (have_delay_slot)
-		pdc -> dc_log("trying to set delay slot (%016llx) while already set (%016llx)", offset, delay_slot_PC);
+		DEBUG(pdc -> dc_log("trying to set delay slot (%016llx) while already set (%016llx)", offset, delay_slot_PC));
 
 	have_delay_slot = true;
 
@@ -120,7 +120,7 @@ void processor::set_delay_slot(uint64_t offset)
 uint64_t processor::get_delay_slot_PC()
 {
 	if (!have_delay_slot)
-		pdc -> dc_log("trying to retrieve delay slot address (%016llx) while it is not valid (set)", delay_slot_PC);
+		DEBUG(pdc -> dc_log("trying to retrieve delay slot address (%016llx) while it is not valid (set)", delay_slot_PC));
 
 	return delay_slot_PC;
 }
@@ -178,7 +178,7 @@ void processor::interrupt(int nr)
 void processor::start_RMW_sequence()
 {
 	if (RMW_sequence)
-		pdc -> dc_log("Re(!)-starting RMW sequence");
+		DEBUG(pdc -> dc_log("Re(!)-starting RMW sequence"));
 
 	RMW_sequence = true;
 }
@@ -197,5 +197,5 @@ void processor::conditional_jump(bool do_jump, uint32_t instruction, bool skip_d
 		have_delay_slot = nullify_instruction = true;
 	}
 
-	// pdc -> dc_log("jump: %d, skip_delay_slot_if_not: %d | %d %d", do_jump, skip_delay_slot_if_not, have_delay_slot, nullify_instruction);
+	// DEBUG(pdc -> dc_log("jump: %d, skip_delay_slot_if_not: %d | %d %d", do_jump, skip_delay_slot_if_not, have_delay_slot, nullify_instruction));
 }

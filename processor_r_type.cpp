@@ -158,7 +158,7 @@ void processor::r_type_08(uint32_t instruction)	// JR
 	uint8_t rs = get_RS(instruction);
 
 	if (unlikely(hint))
-		pdc -> dc_log("r_type_08: hint is unexpected value (%d, expected 0)", hint);
+		DEBUG(pdc -> dc_log("r_type_08: hint is unexpected value (%d, expected 0)", hint));
 
 	set_delay_slot(PC);
 
@@ -205,13 +205,13 @@ void processor::r_type_0b(uint32_t instruction)	// MOVN
 
 void processor::r_type_0c(uint32_t instruction)	// SYSCALL
 {
-	pdc -> dc_log("SYSCALL");
+	DEBUG(pdc -> dc_log("SYSCALL"));
 	throw processor_exception(PC, status_register, 0, PE_SYSCALL, 0);
 }
 
 void processor::r_type_0d(uint32_t instruction)	// BREAK for debugging FIXME
 {
-	pdc -> dc_log("BREAK");
+	DEBUG(pdc -> dc_log("BREAK"));
 	throw processor_exception(PC, status_register, 0, PE_BKPT, 0);
 }
 

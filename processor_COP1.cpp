@@ -6,7 +6,7 @@ void processor::COP1(uint32_t instruction)
 	uint8_t fmt = (instruction >> 21) & MASK_5B;
 	uint8_t function = instruction & MASK_5B; // FIXME
 
-	pdc -> dc_log("COP1 fmt %02x", fmt);
+	DEBUG(pdc -> dc_log("COP1 fmt %02x", fmt));
 
 	switch(fmt)
 	{
@@ -88,7 +88,7 @@ void processor::COP1X(uint32_t instruction)
 {
 	uint8_t fmt = (instruction >> 21) & MASK_5B;
 
-	pdc -> dc_log("COP1X fmt %02x", fmt);
+	DEBUG(pdc -> dc_log("COP1X fmt %02x", fmt));
 
 	switch(fmt)
 	{

@@ -16,7 +16,7 @@
 bool single_step = false;
 const char *logfile = NULL;
 
-volatile bool sig_terminate = false, sig_interrupt = false/* , sig_alarm = false */;
+volatile sig_atomic_t sig_terminate = 0, sig_interrupt = 0/* , sig_alarm = 0 */;
 
 void help()
 {
@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
 #if _PROFILING == 1 || _PROFILING == 2
 	double start_ts = get_ts();
 	int cnt = 0;
-	for(;!terminate;)
+	for(;!sig_terminate;)
 	{
 		p -> reset();
 
@@ -142,7 +142,7 @@ int main(int argc, char *argv[])
 	}
 	double dcnt = double(cnt) * 600.0;
 	printf("i/s: %f\n", dcnt / (get_ts() - start_ts));
-#elif _PROFILING == 3
+#elif _PROFILING == 3 || _PROFILING == 4
         double start_ts = get_ts();
         int cnt = 0;
 	for(;!sig_terminate;)
