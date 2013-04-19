@@ -50,11 +50,9 @@ const memory_segment_t * memory_bus::find_segment(uint64_t offset)
 	int index = 0;
 
 	// if not, (re-)scan segment table
-	for(index = 0; index < n_elements; index++)
+	do
 	{
-		int cur_index = (index + last_index) % n_elements;
-
-		memory_segment_t *psegment = &list[cur_index];
+		memory_segment_t *psegment = &list[last_index];
 
 		if (offset >= psegment -> offset_start && offset < psegment -> offset_end)
 		{
@@ -62,11 +60,15 @@ const memory_segment_t * memory_bus::find_segment(uint64_t offset)
 			index_dist += index;
 			index_cnt++;
 #endif
-			last_index = cur_index;
-
 			return psegment;
 		}
+
+		last_index++;
+		last_index %= n_elements;
+
+		index++;
 	}
+	while(index < n_elements);
 
 #ifdef _DEBUG
 	index_dist += index;
