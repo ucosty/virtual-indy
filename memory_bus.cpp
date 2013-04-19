@@ -8,6 +8,10 @@
 #include "processor_utils.h"
 #include "exceptions.h"
 
+#ifdef _DEBUG
+uint64_t index_dist = 0, index_cnt = 0;
+#endif
+
 memory_bus::memory_bus(debug_console *pdc_in) : list(NULL), n_elements(0), last_index(0), pdc(pdc_in)
 {
 }
@@ -15,6 +19,10 @@ memory_bus::memory_bus(debug_console *pdc_in) : list(NULL), n_elements(0), last_
 memory_bus::~memory_bus()
 {
 	free(list);
+
+#ifdef _DEBUG
+	fprintf(stderr, "average bus index: %f (%lld)\n", double(index_dist) / double(index_cnt), index_cnt);
+#endif
 }
 
 void memory_bus::register_memory(uint64_t offset, uint64_t size, memory *target)
@@ -39,8 +47,10 @@ void memory_bus::register_memory(uint64_t offset, uint64_t size, memory *target)
 // r/w might overlap segments? FIXME
 const memory_segment_t * memory_bus::find_segment(uint64_t offset)
 {
+	int index = 0;
+
 	// if not, (re-)scan segment table
-	for(int index = 0; index < n_elements; index++)
+	for(index = 0; index < n_elements; index++)
 	{
 		int cur_index = (index + last_index) % n_elements;
 
@@ -48,11 +58,20 @@ const memory_segment_t * memory_bus::find_segment(uint64_t offset)
 
 		if (offset >= psegment -> offset_start && offset < psegment -> offset_end)
 		{
+#ifdef _DEBUG
+			index_dist += index;
+			index_cnt++;
+#endif
 			last_index = cur_index;
 
 			return psegment;
 		}
 	}
+
+#ifdef _DEBUG
+	index_dist += index;
+	index_cnt++;
+#endif
 
 	pdc -> dc_log("%016llx is not mapped", offset);
 
