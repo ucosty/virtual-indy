@@ -19,10 +19,6 @@ memory_bus::memory_bus(debug_console *pdc_in) : list(NULL), n_elements(0), last_
 memory_bus::~memory_bus()
 {
 	free(list);
-
-#ifdef _DEBUG
-	fprintf(stderr, "average bus index: %f (%lld)\n", double(index_dist) / double(index_cnt), index_cnt);
-#endif
 }
 
 void memory_bus::register_memory(uint64_t offset, uint64_t size, memory *target)
@@ -42,38 +38,30 @@ void memory_bus::register_memory(uint64_t offset, uint64_t size, memory *target)
 	list[n_elements - 1].target = target;
 
 	pdc -> dc_log("BUS: register %016llx / %016llx", offset, size);
+
+	last_index = 0;
+	last_psegment = &list[last_index];
 }
 
 // r/w might overlap segments? FIXME
 const memory_segment_t * memory_bus::find_segment(uint64_t offset)
 {
-	int index = 0;
+	int start_last_index = last_index;
 
 	// if not, (re-)scan segment table
-	do
+	for(;;)
 	{
-		memory_segment_t *psegment = &list[last_index];
-
-		if (offset >= psegment -> offset_start && offset < psegment -> offset_end)
-		{
-#ifdef _DEBUG
-			index_dist += index;
-			index_cnt++;
-#endif
-			return psegment;
-		}
+		if (offset >= last_psegment -> offset_start && offset < last_psegment -> offset_end)
+			return last_psegment;
 
 		last_index++;
 		last_index %= n_elements;
 
-		index++;
-	}
-	while(index < n_elements);
+		if (last_index == start_last_index)
+			break;
 
-#ifdef _DEBUG
-	index_dist += index;
-	index_cnt++;
-#endif
+		last_psegment = &list[last_index];
+	}
 
 	pdc -> dc_log("%016llx is not mapped", offset);
 

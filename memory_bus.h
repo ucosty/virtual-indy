@@ -18,7 +18,9 @@ class memory_bus
 private:
 	memory_segment_t *list;
 	int n_elements;
+
 	int last_index;
+	memory_segment_t *last_psegment;
 
 	debug_console *pdc;
 
