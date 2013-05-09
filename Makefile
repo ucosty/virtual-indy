@@ -7,7 +7,7 @@ VERSION=0.1
 #    standard with -pg flag added
 # 3: like 1 but normal run (not 600 instructions)
 # 4: like 2 but normal run (not 600 instructions)
-PROFILING=4
+PROFILING=0
 # yes/no, will be set to no in profiling mode
 # enables instruction-usage counting
 # enables logging in non '-d'-mode

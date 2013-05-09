@@ -718,6 +718,47 @@ void test_SW()
 	free_system(mb, m1, m2, m3, p);
 }
 
+void test_SB()
+{
+	dolog(" + test_SB");
+	memory_bus *mb = NULL;
+	memory *m1 = NULL, *m2 = NULL, *m3 = NULL;
+	processor *p = NULL;
+	create_system(&mb, &m1, &m2, &m3, &p);
+
+	p -> reset();
+	p -> set_PC(0);
+
+	uint8_t verify_val = 0xb3;
+	uint8_t rt = 1;
+	p -> set_register_32b(rt, verify_val);
+
+	int address_base = 0x1000;
+	uint8_t base = 9, rs = base;
+	p -> set_register_32b(base, address_base);
+
+	int offset = 0x100, immediate = offset;
+
+	int final_address = address_base + offset;
+
+	uint8_t function = 0x28;
+	uint32_t instruction = make_cmd_I_TYPE(rs, rt, function, immediate);
+
+	m1 -> write_32b(0, instruction);
+
+	tick(p);
+
+	uint8_t result_mem_val = -1;
+	m1 -> read_8b(final_address, &result_mem_val);
+
+	if (result_mem_val != verify_val)
+		error_exit("SW: expected %08x, got %08x", verify_val, result_mem_val);
+
+	// FIXME VERIFY that other registers / memory is not affected
+
+	free_system(mb, m1, m2, m3, p);
+}
+
 void test_ORI()
 {
 	dolog(" + test_ORI");
@@ -1475,6 +1516,7 @@ int main(int argc, char *argv[])
 	test_NOP();
 	test_OR();
 	test_ORI();
+	test_SB();
 	test_SLL();
 	test_SLT();
 	test_SRL();

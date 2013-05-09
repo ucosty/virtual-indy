@@ -35,9 +35,8 @@ ORI     73 *
 SLL     56 *
 SLLV    1
 SLT     626
-SRL
+SRL         *
 SUBU    626
 SW      125 *
-SB      18
-SRL     1
-XORI    1
+SB      18 *
+XORI    1 *

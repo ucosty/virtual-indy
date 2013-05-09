@@ -135,10 +135,10 @@ bool test_tc_overflow_32b(int32_t val1, int32_t val2)
 {
 	int32_t result = val1 + val2;
 
-	if (val1 < 0 && val2 < 0 && result >= 0)
+	if (val1 > 0 && val2 > 0 && result <= 0)
 		return true;
 
-	if (val1 > 0 && val2 > 0 && result < 0)
+	if (val1 < 0 && val2 < 0 && result >= 0)
 		return true;
 
 	return false;

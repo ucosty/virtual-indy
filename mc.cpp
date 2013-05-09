@@ -127,6 +127,11 @@ void mc::read_32b(uint64_t offset, uint32_t *data)
 		*data = RPSS_CTR++;
 		pdc -> dc_log("MC GIO_ERROR_STATUS read: %08x", *data);
 	}
+	else if (offset == 0x204c)	// DMA_STDMA
+	{
+		pdc -> dc_log("MC DMA_STDMA write: %08x", data);
+		*data = 0;
+	}
 	else if (offset >= 0x100000 && offset <= 0x1ffff)	// USER_SEMAPHORES
 	{
 		DEBUG(pdc -> dc_log("MC USER_SEMAPHORES read: %08x", *data));
@@ -200,6 +205,10 @@ void mc::write_32b(uint64_t offset, uint32_t data)
 	else if (offset == 0x1004)	// RPSS_CTR
 	{
 		pdc -> dc_log("MC GIO_ERROR_STATUS write: %08x", data);
+	}
+	else if (offset == 0x204c)	// DMA_STDMA
+	{
+		pdc -> dc_log("MC DMA_STDMA write: %08x", data);
 	}
 	else if (offset >= 0x100000 && offset <= 0x1ffff)	// USER_SEMAPHORES
 	{
