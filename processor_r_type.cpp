@@ -82,11 +82,6 @@ void processor::r_type_00(uint32_t instruction)	// NOP / SLL
 
 void processor::r_type_01(uint32_t instruction)
 {
-	uint8_t sa = get_SA(instruction);
-	uint8_t rd = get_RD(instruction);
-	uint8_t rt = get_RT(instruction);
-	uint8_t rs = get_RS(instruction);
-
 	pdc -> dc_log("r_type_01 not implemented");
 }
 
@@ -122,11 +117,6 @@ void processor::r_type_04(uint32_t instruction)	// SLLV
 
 void processor::r_type_05(uint32_t instruction)
 {
-	uint8_t sa = get_SA(instruction);
-	uint8_t rd = get_RD(instruction);
-	uint8_t rt = get_RT(instruction);
-	uint8_t rs = get_RS(instruction);
-
 	pdc -> dc_log("r_type_05 not implemented");
 }
 
@@ -144,11 +134,6 @@ void processor::r_type_06(uint32_t instruction)	// SRLV / ROTRV
 
 void processor::r_type_07(uint32_t instruction)
 {
-	uint8_t sa = get_SA(instruction);
-	uint8_t rd = get_RD(instruction);
-	uint8_t rt = get_RT(instruction);
-	uint8_t rs = get_RS(instruction);
-
 	pdc -> dc_log("r_type_07 not implemented");
 }
 
@@ -217,21 +202,11 @@ void processor::r_type_0d(uint32_t instruction)	// BREAK for debugging FIXME
 
 void processor::r_type_0e(uint32_t instruction)
 {
-	uint8_t sa = get_SA(instruction);
-	uint8_t rd = get_RD(instruction);
-	uint8_t rt = get_RT(instruction);
-	uint8_t rs = get_RS(instruction);
-
 	pdc -> dc_log("r_type_0e not implemented");
 }
 
 void processor::r_type_0f(uint32_t instruction)
 {
-	uint8_t sa = get_SA(instruction);
-	uint8_t rd = get_RD(instruction);
-	uint8_t rt = get_RT(instruction);
-	uint8_t rs = get_RS(instruction);
-
 	pdc -> dc_log("r_type_0f not implemented");
 }
 
@@ -265,130 +240,65 @@ void processor::r_type_13(uint32_t instruction)	// MTLO
 
 void processor::r_type_14(uint32_t instruction)
 {
-	uint8_t sa = get_SA(instruction);
-	uint8_t rd = get_RD(instruction);
-	uint8_t rt = get_RT(instruction);
-	uint8_t rs = get_RS(instruction);
-
 	pdc -> dc_log("r_type_14 not implemented");
 }
 
 void processor::r_type_15(uint32_t instruction)
 {
-	uint8_t sa = get_SA(instruction);
-	uint8_t rd = get_RD(instruction);
-	uint8_t rt = get_RT(instruction);
-	uint8_t rs = get_RS(instruction);
-
 	pdc -> dc_log("r_type_15 not implemented");
 }
 
 void processor::r_type_16(uint32_t instruction)
 {
-	uint8_t sa = get_SA(instruction);
-	uint8_t rd = get_RD(instruction);
-	uint8_t rt = get_RT(instruction);
-	uint8_t rs = get_RS(instruction);
-
 	pdc -> dc_log("r_type_16 not implemented");
 }
 
 void processor::r_type_17(uint32_t instruction)
 {
-	uint8_t sa = get_SA(instruction);
-	uint8_t rd = get_RD(instruction);
-	uint8_t rt = get_RT(instruction);
-	uint8_t rs = get_RS(instruction);
-
 	pdc -> dc_log("r_type_17 not implemented");
 }
 
 void processor::r_type_18(uint32_t instruction)
 {
-	uint8_t sa = get_SA(instruction);
-	uint8_t rd = get_RD(instruction);
-	uint8_t rt = get_RT(instruction);
-	uint8_t rs = get_RS(instruction);
-
 	pdc -> dc_log("r_type_18 not implemented");
 }
 
 void processor::r_type_19(uint32_t instruction)
 {
-	uint8_t sa = get_SA(instruction);
-	uint8_t rd = get_RD(instruction);
-	uint8_t rt = get_RT(instruction);
-	uint8_t rs = get_RS(instruction);
-
 	pdc -> dc_log("r_type_19 not implemented");
 }
 
 void processor::r_type_1a(uint32_t instruction)
 {
-	uint8_t sa = get_SA(instruction);
-	uint8_t rd = get_RD(instruction);
-	uint8_t rt = get_RT(instruction);
-	uint8_t rs = get_RS(instruction);
-
 	pdc -> dc_log("r_type_1a not implemented");
 }
 
 void processor::r_type_1b(uint32_t instruction)
 {
-	uint8_t sa = get_SA(instruction);
-	uint8_t rd = get_RD(instruction);
-	uint8_t rt = get_RT(instruction);
-	uint8_t rs = get_RS(instruction);
-
 	pdc -> dc_log("r_type_1b not implemented");
 }
 
 void processor::r_type_1c(uint32_t instruction)
 {
-	uint8_t sa = get_SA(instruction);
-	uint8_t rd = get_RD(instruction);
-	uint8_t rt = get_RT(instruction);
-	uint8_t rs = get_RS(instruction);
-
 	pdc -> dc_log("r_type_1c not implemented");
 }
 
 void processor::r_type_1d(uint32_t instruction)
 {
-	uint8_t sa = get_SA(instruction);
-	uint8_t rd = get_RD(instruction);
-	uint8_t rt = get_RT(instruction);
-	uint8_t rs = get_RS(instruction);
-
 	pdc -> dc_log("r_type_1d not implemented");
 }
 
 void processor::r_type_1e(uint32_t instruction)
 {
-	uint8_t sa = get_SA(instruction);
-	uint8_t rd = get_RD(instruction);
-	uint8_t rt = get_RT(instruction);
-	uint8_t rs = get_RS(instruction);
-
 	pdc -> dc_log("r_type_1e not implemented");
 }
 
 void processor::r_type_1f(uint32_t instruction)
 {
-	uint8_t sa = get_SA(instruction);
-	uint8_t rd = get_RD(instruction);
-	uint8_t rt = get_RT(instruction);
-	uint8_t rs = get_RS(instruction);
-
 	pdc -> dc_log("r_type_1f not implemented");
 }
 void processor::r_type_20(uint32_t instruction)
 {
-	uint8_t sa = get_SA(instruction);
-	uint8_t rd = get_RD(instruction);
-	uint8_t rt = get_RT(instruction);
-	uint8_t rs = get_RS(instruction);
-
 	pdc -> dc_log("r_type_20 not implemented");
 }
 
@@ -403,11 +313,6 @@ void processor::r_type_21(uint32_t instruction)	// ADDU
 
 void processor::r_type_22(uint32_t instruction)
 {
-	uint8_t sa = get_SA(instruction);
-	uint8_t rd = get_RD(instruction);
-	uint8_t rt = get_RT(instruction);
-	uint8_t rs = get_RS(instruction);
-
 	pdc -> dc_log("r_type_22 not implemented");
 }
 
@@ -449,31 +354,16 @@ void processor::r_type_26(uint32_t instruction)	// XOR
 
 void processor::r_type_27(uint32_t instruction)
 {
-	uint8_t sa = get_SA(instruction);
-	uint8_t rd = get_RD(instruction);
-	uint8_t rt = get_RT(instruction);
-	uint8_t rs = get_RS(instruction);
-
 	pdc -> dc_log("r_type_27 not implemented");
 }
 
 void processor::r_type_28(uint32_t instruction)
 {
-	uint8_t sa = get_SA(instruction);
-	uint8_t rd = get_RD(instruction);
-	uint8_t rt = get_RT(instruction);
-	uint8_t rs = get_RS(instruction);
-
 	pdc -> dc_log("r_type_28 not implemented");
 }
 
 void processor::r_type_29(uint32_t instruction)
 {
-	uint8_t sa = get_SA(instruction);
-	uint8_t rd = get_RD(instruction);
-	uint8_t rt = get_RT(instruction);
-	uint8_t rs = get_RS(instruction);
-
 	pdc -> dc_log("r_type_29 not implemented");
 }
 
@@ -503,201 +393,100 @@ void processor::r_type_2b(uint32_t instruction)	// SLTU
 
 void processor::r_type_2c(uint32_t instruction)
 {
-	uint8_t sa = get_SA(instruction);
-	uint8_t rd = get_RD(instruction);
-	uint8_t rt = get_RT(instruction);
-	uint8_t rs = get_RS(instruction);
-
 	pdc -> dc_log("r_type_2c not implemented");
 }
 
 void processor::r_type_2d(uint32_t instruction)
 {
-	uint8_t sa = get_SA(instruction);
-	uint8_t rd = get_RD(instruction);
-	uint8_t rt = get_RT(instruction);
-	uint8_t rs = get_RS(instruction);
-
 	pdc -> dc_log("r_type_2d not implemented");
 }
 
 void processor::r_type_2e(uint32_t instruction)
 {
-	uint8_t sa = get_SA(instruction);
-	uint8_t rd = get_RD(instruction);
-	uint8_t rt = get_RT(instruction);
-	uint8_t rs = get_RS(instruction);
-
 	pdc -> dc_log("r_type_2e not implemented");
 }
 
 void processor::r_type_2f(uint32_t instruction)
 {
-	uint8_t sa = get_SA(instruction);
-	uint8_t rd = get_RD(instruction);
-	uint8_t rt = get_RT(instruction);
-	uint8_t rs = get_RS(instruction);
-
 	pdc -> dc_log("r_type_2f not implemented");
 }
 
 void processor::r_type_30(uint32_t instruction)
 {
-	uint8_t sa = get_SA(instruction);
-	uint8_t rd = get_RD(instruction);
-	uint8_t rt = get_RT(instruction);
-	uint8_t rs = get_RS(instruction);
-
 	pdc -> dc_log("r_type_30 not implemented");
 }
 
 void processor::r_type_31(uint32_t instruction)
 {
-	uint8_t sa = get_SA(instruction);
-	uint8_t rd = get_RD(instruction);
-	uint8_t rt = get_RT(instruction);
-	uint8_t rs = get_RS(instruction);
-
 	pdc -> dc_log("r_type_31 not implemented");
 }
 
 void processor::r_type_32(uint32_t instruction)
 {
-	uint8_t sa = get_SA(instruction);
-	uint8_t rd = get_RD(instruction);
-	uint8_t rt = get_RT(instruction);
-	uint8_t rs = get_RS(instruction);
-
 	pdc -> dc_log("r_type_32 not implemented");
 }
 
 void processor::r_type_33(uint32_t instruction)
 {
-	uint8_t sa = get_SA(instruction);
-	uint8_t rd = get_RD(instruction);
-	uint8_t rt = get_RT(instruction);
-	uint8_t rs = get_RS(instruction);
-
 	pdc -> dc_log("r_type_33 not implemented");
 }
 
 void processor::r_type_34(uint32_t instruction)
 {
-	uint8_t sa = get_SA(instruction);
-	uint8_t rd = get_RD(instruction);
-	uint8_t rt = get_RT(instruction);
-	uint8_t rs = get_RS(instruction);
-
 	pdc -> dc_log("r_type_34 not implemented");
 }
 
 void processor::r_type_35(uint32_t instruction)
 {
-	uint8_t sa = get_SA(instruction);
-	uint8_t rd = get_RD(instruction);
-	uint8_t rt = get_RT(instruction);
-	uint8_t rs = get_RS(instruction);
-
 	pdc -> dc_log("r_type_35 not implemented");
 }
 
 void processor::r_type_36(uint32_t instruction)
 {
-	uint8_t sa = get_SA(instruction);
-	uint8_t rd = get_RD(instruction);
-	uint8_t rt = get_RT(instruction);
-	uint8_t rs = get_RS(instruction);
-
 	pdc -> dc_log("r_type_36 not implemented");
 }
 
 void processor::r_type_37(uint32_t instruction)
 {
-	uint8_t sa = get_SA(instruction);
-	uint8_t rd = get_RD(instruction);
-	uint8_t rt = get_RT(instruction);
-	uint8_t rs = get_RS(instruction);
-
 	pdc -> dc_log("r_type_37 not implemented");
 }
 
 void processor::r_type_38(uint32_t instruction)
 {
-	uint8_t sa = get_SA(instruction);
-	uint8_t rd = get_RD(instruction);
-	uint8_t rt = get_RT(instruction);
-	uint8_t rs = get_RS(instruction);
-
 	pdc -> dc_log("r_type_38 not implemented");
 }
 
 void processor::r_type_39(uint32_t instruction)
 {
-	uint8_t sa = get_SA(instruction);
-	uint8_t rd = get_RD(instruction);
-	uint8_t rt = get_RT(instruction);
-	uint8_t rs = get_RS(instruction);
-
 	pdc -> dc_log("r_type_39 not implemented");
 }
 
 void processor::r_type_3a(uint32_t instruction)
 {
-	uint8_t sa = get_SA(instruction);
-	uint8_t rd = get_RD(instruction);
-	uint8_t rt = get_RT(instruction);
-	uint8_t rs = get_RS(instruction);
-
 	pdc -> dc_log("r_type_3a not implemented");
 }
 
 void processor::r_type_3b(uint32_t instruction)
 {
-	uint8_t sa = get_SA(instruction);
-	uint8_t rd = get_RD(instruction);
-	uint8_t rt = get_RT(instruction);
-	uint8_t rs = get_RS(instruction);
-
 	pdc -> dc_log("r_type_3b not implemented");
 }
 
 void processor::r_type_3c(uint32_t instruction)
 {
-	uint8_t sa = get_SA(instruction);
-	uint8_t rd = get_RD(instruction);
-	uint8_t rt = get_RT(instruction);
-	uint8_t rs = get_RS(instruction);
-
 	pdc -> dc_log("r_type_3c not implemented");
 }
 
 void processor::r_type_3d(uint32_t instruction)
 {
-	uint8_t sa = get_SA(instruction);
-	uint8_t rd = get_RD(instruction);
-	uint8_t rt = get_RT(instruction);
-	uint8_t rs = get_RS(instruction);
-
 	pdc -> dc_log("r_type_3d not implemented");
 }
 
 void processor::r_type_3e(uint32_t instruction)
 {
-	uint8_t sa = get_SA(instruction);
-	uint8_t rd = get_RD(instruction);
-	uint8_t rt = get_RT(instruction);
-	uint8_t rs = get_RS(instruction);
-
 	pdc -> dc_log("r_type_3e not implemented");
 }
 
 void processor::r_type_3f(uint32_t instruction)
 {
-	uint8_t sa = get_SA(instruction);
-	uint8_t rd = get_RD(instruction);
-	uint8_t rt = get_RT(instruction);
-	uint8_t rs = get_RS(instruction);
-
 	pdc -> dc_log("r_type_3f not implemented");
 }
-
