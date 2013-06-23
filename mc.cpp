@@ -49,6 +49,26 @@ mc::mc(debug_console *pdc_in) : pdc(pdc_in)
 	// 1111111110000000
 	// 11111111010000001111111110000000
 	regs[0xcc / 4] = 0xFF40FF80;
+
+	uint32_t CPU_MEMACC = 0;
+	CPU_MEMACC |= 0x03 << 0;	// WR_COL
+	CPU_MEMACC |= 0x03 << 4;	// RD_COL
+	CPU_MEMACC |= 0x03 << 8;	// ROW
+	CPU_MEMACC |= 0x04 << 12;	// RASH
+	CPU_MEMACC |= 0x05 << 16;	// RCASL
+	CPU_MEMACC |= 0x04 << 20;	// RASL
+	CPU_MEMACC |= 0x01 << 24;	// CBR
+	CPU_MEMACC |= 0x00 << 28;	// CAS_HALF
+	regs[0xd4 / 4] = CPU_MEMACC;
+
+	uint32_t GIO_MEMACC = 0;
+	GIO_MEMACC |= 0x03 << 0;	// WR_COL
+	GIO_MEMACC |= 0x03 << 4;	// RD_COL
+	GIO_MEMACC |= 0x03 << 8;	// ROW
+	GIO_MEMACC |= 0x04 << 12;	// RASH
+	GIO_MEMACC |= 0x00 << 16;	// CAS_HALF
+	GIO_MEMACC |= 0x00 << 17;	// ADDR_HALF
+	regs[0xdc / 4] = GIO_MEMACC;
 }
 
 mc::~mc()
