@@ -1,3 +1,5 @@
+- zoveel mogelijk by-reference ten opzichte van pointers want beter te optimaliseren want geen pointer aliasing
+==============================================================================
 - testcases: untwos_complement_16b
 
 - LWC0/SWC0?
