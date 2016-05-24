@@ -1,0 +1,5 @@
+*.o
+miep
+testcases
+testcases.log
+sram.dat
