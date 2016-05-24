@@ -205,6 +205,8 @@ void mc::set_dma_default()
 
 void mc::write_32b(uint64_t offset, uint32_t data)
 {
+	offset &= ~4; // 0x0c -> 0x08
+
 	if (offset <= 0x0f)	// CPUCTRL 0 & 1
 	{
 		pdc -> dc_log("MC CPUCTRL0/1 write: %08x", data);
