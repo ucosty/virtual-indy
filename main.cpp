@@ -99,6 +99,8 @@ int main(int argc, char *argv[])
 
 	memory_bus *mb = new memory_bus(dc);
 
+	processor *p = new processor(dc, mb);
+
 	memory *mem1 = new memory(256 * 1024 * 1024, true);
 	mb -> register_memory(0x08000000, mem1 -> get_size(), mem1);
 	mb -> register_memory(0xffffffff88000000, mem1 -> get_size(), mem1); // KSEG0
@@ -112,7 +114,7 @@ int main(int argc, char *argv[])
 	mb -> register_memory(0xffffffff9fc00000, m_prom -> get_size(), m_prom); // KSEG0
 	mb -> register_memory(0xffffffffbfc00000, m_prom -> get_size(), m_prom); // KSEG1
 
-	memory *pmc = new mc(dc);
+	memory *pmc = new mc(p, dc);
 	mb -> register_memory(0xffffffff1fa00000, pmc -> get_size(), pmc);
 	mb -> register_memory(0xffffffff9fa00000, pmc -> get_size(), pmc); // KSEG0
 	mb -> register_memory(0xffffffffbfa00000, pmc -> get_size(), pmc); // KSEG1
@@ -121,8 +123,6 @@ int main(int argc, char *argv[])
 	mb -> register_memory(0xffffffff1fb00000, hpc -> get_size(), hpc);
 	mb -> register_memory(0xffffffff9fb00000, hpc -> get_size(), hpc); // KSEG0
 	mb -> register_memory(0xffffffffbfb00000, hpc -> get_size(), hpc); // KSEG1
-
-	processor *p = new processor(dc, mb);
 
 #if _PROFILING == 1 || _PROFILING == 2
 	double start_ts = get_ts();

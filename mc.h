@@ -8,6 +8,7 @@ typedef enum { vdma_stopped, vdma_running, vdma_not_yet_started } vdma_state_t;
 class mc : public memory
 {
 private:
+	processor *const pp;
 	uint32_t refresh_counter;
 	debug_console *pdc;
 	uint32_t regs[128];
@@ -29,7 +30,7 @@ private:
 	void set_dma_default();
 
 public:
-	mc(debug_console *pdc_in);
+	mc(processor *const pp, debug_console *pdc_in);
 	~mc();
 
 	uint64_t get_size() const { return 0x100000; }

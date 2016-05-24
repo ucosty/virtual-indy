@@ -4,8 +4,9 @@
 #include "debug.h"
 #include "mc.h"
 #include "utils.h"
+#include "processor.h"
 
-mc::mc(debug_console *pdc_in) : pdc(pdc_in)
+mc::mc(processor *const ppIn, debug_console *pdc_in) : pp(ppIn), pdc(pdc_in)
 {
 	pm = NULL;
 	len = 0;
@@ -83,13 +84,13 @@ void mc::read_32b(uint64_t offset, uint32_t *data)
 
 	offset &= ~4; // 0x0c -> 0x08
 
+	pdc -> dc_log("MC read from %016llx", offset);
+
 	if (offset <= 0x0f)	// CPUCTRL 0 & 1
 	{
 		pdc -> dc_log("MC CPUCTRL0/1 read (%08x)", *data);
 	}
-	else if (offset == 0x28)	// RPSS_DIVIDER 
-	{
-		pdc -> dc_log("MC RPSS_DIVIDER read (%08x)", *data);
+	else if (offset == 0x28) {	// RPSS_DIVIDER 
 	}
 	else if (offset == 0x30)	// EEROM
 	{
@@ -121,6 +122,11 @@ void mc::read_32b(uint64_t offset, uint32_t *data)
 	}
 	else if (offset == 0xd0)	// CPU_MEMACC
 	{
+		uint8_t v = regs[0xd4 / 4] >> 24;
+		v--;
+		v &= 0x0f;
+
+		*data = (regs[0xd4 / 4] & 0xf0ffffff) | (v << 24);
 		pdc -> dc_log("MC CPU_MEMACC read (%08x)", *data);
 	}
 	else if (offset == 0xd8)	// GIO_MEMACC
@@ -146,8 +152,13 @@ void mc::read_32b(uint64_t offset, uint32_t *data)
 	}
 	else if (offset == 0x1000)	// RPSS_CTR
 	{
-		*data = RPSS_CTR++;
-		pdc -> dc_log("MC GIO_ERROR_STATUS read: %08x", *data);
+		int div = (regs[offset / 4] & 0xff) + 1;
+		int mul = ((regs[offset / 4] >> 8) & 0xff) + 1;
+
+		unsigned long long int cycles = pp -> get_cycle_count();
+		*data = (cycles / div) * mul;
+
+		pdc -> dc_log("MC RPSS_CTR read: %08x (%llx)", *data, cycles);
 	}
 	else if (offset == 0x2000 || offset == 0x2008)	// DMA_MEMADRD, like DMA_MEMADR but also sets defaults
 		*data = DMA_MEMADDR;
@@ -206,6 +217,8 @@ void mc::set_dma_default()
 void mc::write_32b(uint64_t offset, uint32_t data)
 {
 	offset &= ~4; // 0x0c -> 0x08
+
+	pdc -> dc_log("MC write @ %016llx: %016llx", offset, data);
 
 	if (offset <= 0x0f)	// CPUCTRL 0 & 1
 	{

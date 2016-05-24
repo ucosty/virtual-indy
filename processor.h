@@ -199,6 +199,8 @@ public:
 	void set_delay_slot(uint64_t offset);
 	uint64_t get_delay_slot_PC();
 
+	inline unsigned long long int get_cycle_count() const { return cycles; }
+
 	inline uint64_t get_PC() const { return PC; }
 	inline uint64_t get_HI() const { return HI; }
 	inline uint64_t get_LO() const { return LO; }
