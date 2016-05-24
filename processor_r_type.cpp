@@ -354,9 +354,13 @@ void processor::r_type_26(uint32_t instruction)	// XOR
 	set_register_64b(rd, get_register_64b_unsigned(rs) ^ get_register_64b_unsigned(rt));
 }
 
-void processor::r_type_27(uint32_t instruction)
+void processor::r_type_27(uint32_t instruction) // DIVU
 {
-	pdc -> dc_log("r_type_27 not implemented");
+	uint8_t rt = get_RT(instruction);
+	uint8_t rs = get_RS(instruction);
+
+	set_LO(rs / rt);
+	set_HI(rs % rt);
 }
 
 void processor::r_type_28(uint32_t instruction)
