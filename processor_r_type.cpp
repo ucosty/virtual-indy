@@ -311,9 +311,11 @@ void processor::r_type_21(uint32_t instruction)	// ADDU
 	set_register_32b_se(rd, get_register_32b_unsigned(rs) + get_register_32b_unsigned(rt));
 }
 
-void processor::r_type_22(uint32_t instruction)
+void processor::r_type_22(uint32_t instruction) // MFHI
 {
-	pdc -> dc_log("r_type_22 not implemented");
+	uint8_t rd = get_RD(instruction);
+
+	set_register_32b_se(rd, get_HI());
 }
 
 void processor::r_type_23(uint32_t instruction)	// SUBU
