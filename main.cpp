@@ -1,3 +1,4 @@
+#include <atomic>
 #include <signal.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -16,7 +17,7 @@
 bool single_step = false;
 const char *logfile = NULL;
 
-volatile sig_atomic_t sig_terminate = 0, sig_interrupt = 0/* , sig_alarm = 0 */;
+std::atomic_bool sig_terminate(false), sig_interrupt(false);
 
 void help()
 {
@@ -29,7 +30,7 @@ void help()
 
 void version()
 {
-	printf("miep v" VERSION ", (C) 2013 by folkert@vanheusden.com\n\n");
+	printf("miep v" VERSION ", (C) 2013-2016 by folkert@vanheusden.com\n\n");
 }
 
 void sig_handler(int sig)
