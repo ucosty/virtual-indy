@@ -3,6 +3,8 @@
 #include "debug_console.h"
 #include "memory.h"
 
+#define REGS_DIV 8
+
 typedef enum { vdma_stopped, vdma_running, vdma_not_yet_started } vdma_state_t;
 
 class mc : public memory
@@ -17,6 +19,8 @@ private:
 	pthread_mutex_t semaphore_lock;
 	uint8_t user_semaphores[16];
 	uint8_t sys_semaphore;
+
+	uint32_t RPSS_DIVIDER;
 
 	// VDMA
 	uint32_t DMA_MEMADDR;

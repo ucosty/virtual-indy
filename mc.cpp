@@ -17,6 +17,8 @@ mc::mc(processor *const ppIn, debug_console *pdc_in) : pp(ppIn), pdc(pdc_in)
 	memset(user_semaphores, 0x00, sizeof user_semaphores);
 	pthread_mutex_init(&semaphore_lock, NULL);
 
+	RPSS_DIVIDER = 0;
+
 	// BASE0
 	// 31 1 served
 	// 30 1 number of subbanks
@@ -32,7 +34,7 @@ mc::mc(processor *const ppIn, debug_console *pdc_in) : pp(ppIn), pdc(pdc_in)
 	// 07-00 01000000 (0x10000000 >> 22), 
 	// 1111111101000000
 	// 11111111001000001111111101000000
-	regs[0xc4 / 4] = 0xFF20FF40;
+	regs[0xc4 / REGS_DIV] = 0xFF20FF40;
 
 	// BASE0
 	// 31 1 served
@@ -49,7 +51,7 @@ mc::mc(processor *const ppIn, debug_console *pdc_in) : pp(ppIn), pdc(pdc_in)
 	// 07-00 10000000 (0x30000000 >> 22), 
 	// 1111111110000000
 	// 11111111010000001111111110000000
-	regs[0xcc / 4] = 0xFF40FF80;
+	regs[0xcc / REGS_DIV] = 0xFF40FF80;
 
 	uint32_t CPU_MEMACC = 0;
 	CPU_MEMACC |= 0x03 << 0;	// WR_COL
@@ -60,7 +62,7 @@ mc::mc(processor *const ppIn, debug_console *pdc_in) : pp(ppIn), pdc(pdc_in)
 	CPU_MEMACC |= 0x04 << 20;	// RASL
 	CPU_MEMACC |= 0x01 << 24;	// CBR
 	CPU_MEMACC |= 0x00 << 28;	// CAS_HALF
-	regs[0xd4 / 4] = CPU_MEMACC;
+	regs[0xd4 / REGS_DIV] = CPU_MEMACC;
 
 	uint32_t GIO_MEMACC = 0;
 	GIO_MEMACC |= 0x03 << 0;	// WR_COL
@@ -69,7 +71,7 @@ mc::mc(processor *const ppIn, debug_console *pdc_in) : pp(ppIn), pdc(pdc_in)
 	GIO_MEMACC |= 0x04 << 12;	// RASH
 	GIO_MEMACC |= 0x00 << 16;	// CAS_HALF
 	GIO_MEMACC |= 0x00 << 17;	// ADDR_HALF
-	regs[0xdc / 4] = GIO_MEMACC;
+	regs[0xdc / REGS_DIV] = GIO_MEMACC;
 }
 
 mc::~mc()
@@ -78,7 +80,7 @@ mc::~mc()
 
 void mc::read_32b(uint64_t offset, uint32_t *data)
 {
-	uint32_t index = offset / 4;
+	uint32_t index = offset / REGS_DIV;
 	if (index < 128)
 		*data = regs[index];
 
@@ -90,8 +92,8 @@ void mc::read_32b(uint64_t offset, uint32_t *data)
 	{
 		pdc -> dc_log("MC CPUCTRL0/1 read (%08x)", *data);
 	}
-	else if (offset == 0x28) {	// RPSS_DIVIDER 
-	}
+	else if (offset == 0x28)	// RPSS_DIVIDER 
+		*data = RPSS_DIVIDER;
 	else if (offset == 0x30)	// EEROM
 	{
 		pdc -> dc_log("MC EEROM read (%08x)", *data);
@@ -122,11 +124,11 @@ void mc::read_32b(uint64_t offset, uint32_t *data)
 	}
 	else if (offset == 0xd0)	// CPU_MEMACC
 	{
-		uint8_t v = regs[0xd4 / 4] >> 24;
+		uint8_t v = regs[0xd4 / REGS_DIV] >> 24;
 		v--;
 		v &= 0x0f;
 
-		*data = (regs[0xd4 / 4] & 0xf0ffffff) | (v << 24);
+		*data = (regs[0xd4 / REGS_DIV] & 0xf0ffffff) | (v << 24);
 		pdc -> dc_log("MC CPU_MEMACC read (%08x)", *data);
 	}
 	else if (offset == 0xd8)	// GIO_MEMACC
@@ -152,8 +154,8 @@ void mc::read_32b(uint64_t offset, uint32_t *data)
 	}
 	else if (offset == 0x1000)	// RPSS_CTR
 	{
-		int div = (regs[offset / 4] & 0xff) + 1;
-		int mul = ((regs[offset / 4] >> 8) & 0xff) + 1;
+		int div = (RPSS_DIVIDER & 0xff) + 1;
+		int mul = ((RPSS_DIVIDER >> 8) & 0xff) + 1;
 
 		unsigned long long int cycles = pp -> get_cycle_count();
 		*data = (cycles / div) * mul;
@@ -227,6 +229,7 @@ void mc::write_32b(uint64_t offset, uint32_t data)
 	else if (offset == 0x28)	// RPSS_DIVIDER 
 	{
 		pdc -> dc_log("MC RPSS_DIVIDER write: %08x", data);
+		RPSS_DIVIDER = data;
 	}
 	else if (offset == 0x30)	// EEROM
 	{
@@ -322,7 +325,7 @@ void mc::write_32b(uint64_t offset, uint32_t data)
 		pdc -> dc_log("MC write @ %016llx: %016llx %c%c%c%c not implemented", offset, data, data & 8?'1':'0', data&4?'1':'0', data&2?'1':'0', data&1?'1':'0');
 	}
 
-	uint32_t index = offset / 4;
+	uint32_t index = offset / REGS_DIV;
 	if (index < 128)
 		regs[index] = data;
 }
