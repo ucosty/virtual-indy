@@ -5,7 +5,7 @@
 
 #define REGS_DIV 8
 
-typedef enum { vdma_stopped, vdma_running, vdma_not_yet_started } vdma_state_t;
+typedef enum { vdma_stopped, vdma_running } vdma_state_t;
 
 class mc : public memory
 {

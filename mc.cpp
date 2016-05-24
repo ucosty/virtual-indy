@@ -124,11 +124,6 @@ void mc::read_32b(uint64_t offset, uint32_t *data)
 	}
 	else if (offset == 0xd0)	// CPU_MEMACC
 	{
-		uint8_t v = regs[0xd4 / REGS_DIV] >> 24;
-		v--;
-		v &= 0x0f;
-
-		*data = (regs[0xd4 / REGS_DIV] & 0xf0ffffff) | (v << 24);
 		pdc -> dc_log("MC CPU_MEMACC read (%08x)", *data);
 	}
 	else if (offset == 0xd8)	// GIO_MEMACC
@@ -180,11 +175,7 @@ void mc::read_32b(uint64_t offset, uint32_t *data)
 		pdc -> dc_log("MC DMA_RUN read");
 		*data = 0;
 
-		if (vdma_state == vdma_not_yet_started) {
-			*data = 0;
-			vdma_state = vdma_running;
-		}
-		else if (vdma_state == vdma_running) {
+		if (vdma_state == vdma_running) {
 			*data = -1;
 			vdma_state = vdma_stopped;
 		}
@@ -301,7 +292,7 @@ void mc::write_32b(uint64_t offset, uint32_t data)
 		if (offset == 0x2070)
 			set_dma_default();
 
-		vdma_state = vdma_not_yet_started;
+		vdma_state = vdma_running;
 		// FIXME start DMA
 
 		pdc -> dc_log("MC start VDMA");
