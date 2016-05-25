@@ -172,7 +172,6 @@ void mc::read_32b(uint64_t offset, uint32_t *data)
 	else if (offset == 0x2040)
 		*data = DMA_STDMA;
 	else if (offset == 0x2048) {	// DMA_RUN
-		pdc -> dc_log("MC DMA_RUN read");
 		*data = 0;
 
 		if (vdma_state == vdma_running) {
@@ -182,6 +181,8 @@ void mc::read_32b(uint64_t offset, uint32_t *data)
 		else {
 			*data = 0;
 		}
+
+		pdc -> dc_log("MC DMA_RUN read: %x", *data);
 	}
 	else if (offset >= 0x100000 && offset <= 0x1ffff)	// USER_SEMAPHORES
 	{
@@ -201,6 +202,8 @@ void mc::read_32b(uint64_t offset, uint32_t *data)
 
 void mc::set_dma_default()
 {
+	pdc -> dc_log("MC set VDMA defaults");
+
 	DMA_SIZE = 0x1000c;
 	DMA_STRIDE = 0x10000;
 	DMA_MODE = 0xd0;
@@ -273,15 +276,31 @@ void mc::write_32b(uint64_t offset, uint32_t data)
 	else if (offset == 0x2000 || offset == 0x2008) {	// DMA_MEMADR, DMA_MEMADRD, like DMA_MEMADR but also sets defaults
 		DMA_MEMADDR = data;
 
-		if (offset == 0x2008)
+		if (offset == 0x2008) {
+			pdc -> dc_log("MC write DMA_MEMADRD %x", data);
 			set_dma_default();
+		}
+		else {
+			pdc -> dc_log("MC write DMA_MEMADR %x", data);
+		}
 	}
-	else if (offset == 0x2010)
+	else if (offset == 0x2010) {
 		DMA_SIZE = data;
-	else if (offset == 0x2018)
+		pdc -> dc_log("MC write DMA_SIZE %x", data);
+
+		DMA_COUNT = (DMA_COUNT & ~0xffff) | (data & 0xffff);
+	}
+	else if (offset == 0x2018) {
 		DMA_STRIDE = data;
-	else if (offset == 0x2020)
+		pdc -> dc_log("MC write DMA_STRIDE %x", data);
+
+		uint16_t line_zoom = (data >> 16) & 511;
+		DMA_COUNT = (DMA_COUNT & ~0xffff0000) | (line_zoom << 16);
+	}
+	else if (offset == 0x2020) {
 		DMA_GIO_ADR = data;
+		pdc -> dc_log("MC write DMA_GIO_ADR %x", data);
+	}
 	else if (offset == 0x2028 || offset == 0x2040 || offset == 0x2070)
 	{
 		if (offset == 0x2028 || offset == 0x2070)
@@ -304,12 +323,16 @@ void mc::write_32b(uint64_t offset, uint32_t data)
 		pdc -> dc_log(" DMA_GIO_ADR: %llx", DMA_GIO_ADR);
 		pdc -> dc_log(" DMA_STDMA:   %llx", DMA_STDMA);
 	}
-	else if (offset == 0x2030)
-		DMA_MODE  = data;
-	else if (offset == 0x2038)
+	else if (offset == 0x2030) {
+		DMA_MODE = data;
+		pdc -> dc_log("MC write DMA_MODE %x", data);
+	}
+	else if (offset == 0x2038) {
 		DMA_COUNT = data;
+		pdc -> dc_log("MC write DMA_COUNT %x", data);
+	}
 	else if (offset == 0x2048)
-		pdc -> dc_log("MC Should not write to DMA_RUN");
+		pdc -> dc_log("MC Should not write (%x) to DMA_RUN", data);
 	else if (offset >= 0x100000 && offset <= 0x1ffff)	// USER_SEMAPHORES
 	{
 		int nr = offset >> 13;
