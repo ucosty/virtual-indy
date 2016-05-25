@@ -359,8 +359,10 @@ void processor::r_type_27(uint32_t instruction) // DIVU
 	uint8_t rt = get_RT(instruction);
 	uint8_t rs = get_RS(instruction);
 
-	set_LO(rs / rt);
-	set_HI(rs % rt);
+	if (rt) {
+		set_LO(rs / rt);
+		set_HI(rs % rt);
+	}
 }
 
 void processor::r_type_28(uint32_t instruction)
