@@ -296,6 +296,13 @@ void mc::write_32b(uint64_t offset, uint32_t data)
 		// FIXME start DMA
 
 		pdc -> dc_log("MC start VDMA");
+		pdc -> dc_log(" DMA_MEMADDR: %llx", DMA_MEMADDR);
+		pdc -> dc_log(" DMA_SIZE:    %llx", DMA_SIZE);
+		pdc -> dc_log(" DMA_STRIDE:  %llx", DMA_STRIDE);
+		pdc -> dc_log(" DMA_MODE:    %llx", DMA_MODE);
+		pdc -> dc_log(" DMA_COUNT:   %llx", DMA_COUNT);
+		pdc -> dc_log(" DMA_GIO_ADR: %llx", DMA_GIO_ADR);
+		pdc -> dc_log(" DMA_STDMA:   %llx", DMA_STDMA);
 	}
 	else if (offset == 0x2030)
 		DMA_MODE  = data;
