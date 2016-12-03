@@ -15,6 +15,7 @@ rom::~rom()
 
 void rom::write_64b(uint64_t offset, uint64_t data)
 {
+	
 	throw processor_exception(offset, -1, 0, PEE_RMEMS, -1);
 }
 

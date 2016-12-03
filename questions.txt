@@ -5,6 +5,6 @@
 - if a 32bit action is performed, what happens to the upper 32 bit of a register? unchanged? sign extended? set to 0?
 > this is applicable for e.g. AND: an ADD has a DADD counter part which AND does not seem to have
 
-- delay slot: next instruction (the delay slot) is always executed, even when the jump is not executed?
+- delay slot: next instruction (the delay slot) is always executed, even when the jump is not executed? - yes, that's why it's often a NOP (matt)
 
-- how does a mips react when there's nothing mapped in a memory range and data is read from/written to it?
+- how does a mips react when there's nothing mapped in a memory range and data is read from/written to it? - bus error, if I remember correctly (matt)

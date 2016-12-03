@@ -3,3 +3,7 @@ miep
 testcases
 testcases.log
 sram.dat
+bla.txt
+*.out*
+*.log
+.vscode

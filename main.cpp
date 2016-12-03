@@ -2,7 +2,9 @@
 #include <signal.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <string>
 
+#include "easylogging++.h"
 #include "error.h"
 #include "processor.h"
 #include "processor_utils.h"
@@ -12,18 +14,34 @@
 #include "rom.h"
 #include "hpc3.h"
 #include "mc.h"
-#include "log.h"
+
+INITIALIZE_EASYLOGGINGPP
 
 bool single_step = false;
 const char *logfile = NULL;
 
 std::atomic_bool sig_terminate(false), sig_interrupt(false);
 
+std::string romPath = "ip24prom.070-9101-011.bin";
+std::string getRomPath() {
+	LOG(TRACE) << "Using rom " << romPath;
+	return romPath;
+}
+
+void setRomPath(std::string path) {
+	LOG(TRACE) << "Setting ROM path to " << path;
+	romPath = path;
+}
+
+bool verboseMode = false;
+
 void help()
 {
 	fprintf(stderr, "-d     debug (console) mode\n");
+	fprintf(stderr, "-r     path to ROM file (default = ip24prom.070-9101-011.bin)\n");
 	fprintf(stderr, "-S     enable single step mode\n");
 	fprintf(stderr, "-l x   logfile to write to\n");
+	fprintf(stderr, "-v     verbose mode\n");
 	fprintf(stderr, "-V     show version & exit\n");
 	fprintf(stderr, "-h     this help & exit\n");
 }
@@ -48,13 +66,20 @@ int main(int argc, char *argv[])
 {
 	int c = -1;
 	bool debug = false;
+	START_EASYLOGGINGPP(argc, argv);
+	el::Loggers::configureFromGlobal("logging.conf");
 
-	while((c = getopt(argc, argv, "dSl:")) != -1)
+	/*
+	while((c = getopt(argc, argv, "rvdSl:")) != -1)
 	{
 		switch(c)
 		{
 			case 'd':
 				debug = true;
+				break;
+
+			case 'r':
+				setRomPath(optarg);
 				break;
 
 			case 'S':
@@ -63,6 +88,10 @@ int main(int argc, char *argv[])
 
 			case 'l':
 				logfile = optarg;
+				break;
+
+			case 'v':
+				verboseMode = true;
 				break;
 
 			case 'V':
@@ -79,9 +108,9 @@ int main(int argc, char *argv[])
 				help();
 				return 1;
 		}
-	}
+	}*/
 
-	dolog("*** START ***");
+	LOG(INFO) << "Starting emulator";
 
 	signal(SIGHUP , SIG_IGN);
 	signal(SIGTERM, sig_handler);
@@ -109,7 +138,7 @@ int main(int argc, char *argv[])
 	memory *mem2 = new memory(256 * 1024 * 1024, true);
 	mb -> register_memory(0x20000000, mem2 -> get_size(), mem2);
 
-	rom *m_prom = new rom("ip24prom.070-9101-007.bin");
+	rom *m_prom = new rom(getRomPath());
 	mb -> register_memory(0xffffffff1fc00000, m_prom -> get_size(), m_prom);
 	mb -> register_memory(0xffffffff9fc00000, m_prom -> get_size(), m_prom); // KSEG0
 	mb -> register_memory(0xffffffffbfc00000, m_prom -> get_size(), m_prom); // KSEG1
@@ -182,7 +211,8 @@ int main(int argc, char *argv[])
 	delete m_prom;
 	delete hpc;
 
-	dolog("--- END ---");
+	LOG(INFO) << "Emulator terminating...";
+
 
 	return 0;
 }

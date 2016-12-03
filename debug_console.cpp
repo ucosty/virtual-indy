@@ -3,11 +3,11 @@
 #include <stdlib.h>
 #include <sys/ioctl.h>
 
+#include "easylogging++.h"
 #include "debug_console.h"
 #include "processor.h"
 #include "processor_utils.h"
 #include "exceptions.h"
-#include "log.h"
 #include "utils.h"
 
 #define SCREEN_REFRESHES_PER_SECOND	3
@@ -91,7 +91,7 @@ void debug_console::init()
 
 	recreate_terminal();
 
-	dc_log("Calibrating...");
+	LOG(INFO) << "Calibrating...";
 	wnoutrefresh(win_logs);
 	doupdate();
 
@@ -101,15 +101,13 @@ void debug_console::init()
 debug_console::~debug_console()
 {
 #ifdef _DEBUG
-	dolog("");
-	dolog("instruction usage counts");
-	dolog("------------------------");
+	LOG(INFO) << "instruction usage counts";
+	LOG(INFO) << "------------------------";
 	std::map<std::string, long int>::iterator it = instruction_counts.begin();
 
 	while(it != instruction_counts.end())
 	{
-		dolog("%s\t%ld", it -> first.c_str(), it -> second);
-
+		LOG(INFO) << it->first << "\t" << it->second;
 		it++;
 	}
 #endif
@@ -200,7 +198,7 @@ void debug_console::tick(processor *p)
 	}
 
 	std::string logline = p -> da_logline(instruction);
-	dolog(logline.c_str());
+	LOG(INFO) << logline;
 
 	std::string decoded = p -> decode_to_text(instruction);
 
@@ -324,7 +322,7 @@ void debug_console::dc_log(const char *fmt, ...)
 		if (win_logs)
 			wprintw(win_logs, "\n%s", buffer);
 
-		dolog("%s", buffer);
+		LOG(INFO) << buffer;
 
 		had_logging = true;
 	}

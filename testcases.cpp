@@ -5,11 +5,11 @@
 #include <stdint.h>
 
 #include "error.h"
-#include "log.h"
 #include "debug_console_testcases.h"
 #include "processor.h"
 #include "processor_utils.h"
 #include "exceptions.h"
+#include "easylogging++.h"
 
 #define TEST_VAL_1 0x12345678abcdefff
 #define TEST_VAL_2 0x87654321beefdead
@@ -108,7 +108,7 @@ void free_system(memory_bus *mb, memory *m1, memory *m2, memory *m3, processor *
 
 void test_make_instruction()
 {
-	dolog(" + test_make_instruction");
+	// dolog(" + test_make_instruction");
 	uint8_t rs = 13;
 	uint8_t rt = 4;
 	uint8_t function = 0x31;
@@ -145,7 +145,7 @@ void test_make_instruction()
 
 void test_count_leading()
 {
-	dolog(" + test_count_leading");
+	LOG(INFO) << " + test_count_leading";
 	// one
 	int value = 15, expected = 0;
 	int rc = count_leading_ones(32, value);
@@ -181,7 +181,7 @@ void test_count_leading()
 
 void test_rotate_right()
 {
-	dolog(" + test_rotate_right");
+	// dolog(" + test_rotate_right");
 	int value = 2;
 	uint8_t n = 2; 
 	uint8_t width = 3;
@@ -201,7 +201,7 @@ void test_rotate_right()
 
 void test_processor()
 {
-	dolog(" + test_processor");
+	// dolog(" + test_processor");
 	memory_bus *mb = NULL;
 	memory *m1 = NULL, *m2 = NULL, *m3 = NULL;
 	processor *p = NULL;
@@ -246,7 +246,7 @@ void test_processor()
 				error_exit("register %d has invalid value %x", val);
 		}
 
-		dolog("ignore the \"register 0 changed\" message");
+		// dolog("ignore the \"register 0 changed\" message");
 		p -> set_register_32b(0, cmp_val);
 		if (p -> get_register_32b_signed(0))
 			error_exit("register 0 changed value!");
@@ -280,7 +280,7 @@ void test_processor()
 				error_exit("register %d has invalid value %x", val);
 		}
 
-		dolog("ignore the \"register 0 changed\" message");
+		// dolog("ignore the \"register 0 changed\" message");
 		p -> set_register_64b(0, cmp_val);
 		if (p -> get_register_64b_unsigned(0))
 			error_exit("register 0 changed value!");
@@ -291,7 +291,7 @@ void test_processor()
 
 void test_memory()
 {
-	dolog(" + test_memory");
+	// dolog(" + test_memory");
 	memory_bus *mb = NULL;
 	memory *m1 = NULL, *m2 = NULL, *m3 = NULL;
 	processor *p = NULL;
@@ -347,7 +347,7 @@ void test_memory()
 
 void test_memory_bus()
 {
-	dolog(" + test_memory_bus");
+	// dolog(" + test_memory_bus");
 	memory_bus *mb = NULL;
 	memory *m1 = NULL, *m2 = NULL, *m3 = NULL;
 	processor *p = NULL;
@@ -381,7 +381,7 @@ void test_memory_bus()
 
 void test_twos_complement()
 {
-	dolog(" + test_twos_complement");
+	// dolog(" + test_twos_complement");
 	uint8_t bits = 8;
 	int value = -1, expected = 255;
 	int rc = twos_complement(value, bits);
@@ -405,7 +405,7 @@ void test_twos_complement()
 
 void test_untows_complement()
 {
-	dolog(" + test_untwos_complement");
+	// dolog(" + test_untwos_complement");
 	/* int untwos_complement(int value, int bits) */
 	int value = 0x80;
 	uint8_t bits = 8;
@@ -462,7 +462,7 @@ void test_untows_complement()
 
 void test_sign_extend()
 {
-	dolog(" + test_sign_extend");
+	// dolog(" + test_sign_extend");
 	uint64_t rc = sign_extend_8b(0x80), cmp = 0xffffffffffffff80ll;
 	if (rc != cmp)
 		error_exit("sign_extend_8b mismatch (%x / %x)", cmp, rc);
@@ -479,7 +479,7 @@ void test_sign_extend()
 
 void test_LW()
 {
-	dolog(" + test_LW");
+	// dolog(" + test_LW");
 	memory_bus *mb = NULL;
 	memory *m1 = NULL, *m2 = NULL, *m3 = NULL;
 	processor *p = NULL;
@@ -560,7 +560,7 @@ void test_LW()
 
 void test_SLL()
 {
-	dolog(" + test_SLL");
+	// dolog(" + test_SLL");
 	memory_bus *mb = NULL;
 	memory *m1 = NULL, *m2 = NULL, *m3 = NULL;
 	processor *p = NULL;
@@ -600,7 +600,7 @@ void test_SLL()
 
 void test_SRL()
 {
-	dolog(" + test_SRL");
+	// dolog(" + test_SRL");
 	memory_bus *mb = NULL;
 	memory *m1 = NULL, *m2 = NULL, *m3 = NULL;
 	processor *p = NULL;
@@ -640,7 +640,7 @@ void test_SRL()
 
 void test_LUI()
 {
-	dolog(" + test_LUI");
+	// dolog(" + test_LUI");
 	memory_bus *mb = NULL;
 	memory *m1 = NULL, *m2 = NULL, *m3 = NULL;
 	processor *p = NULL;
@@ -679,7 +679,7 @@ void test_LUI()
 
 void test_SW()
 {
-	dolog(" + test_SW");
+	// dolog(" + test_SW");
 	memory_bus *mb = NULL;
 	memory *m1 = NULL, *m2 = NULL, *m3 = NULL;
 	processor *p = NULL;
@@ -720,7 +720,7 @@ void test_SW()
 
 void test_SB()
 {
-	dolog(" + test_SB");
+	// dolog(" + test_SB");
 	memory_bus *mb = NULL;
 	memory *m1 = NULL, *m2 = NULL, *m3 = NULL;
 	processor *p = NULL;
@@ -761,7 +761,7 @@ void test_SB()
 
 void test_ORI()
 {
-	dolog(" + test_ORI");
+	// dolog(" + test_ORI");
 	memory_bus *mb = NULL;
 	memory *m1 = NULL, *m2 = NULL, *m3 = NULL;
 	processor *p = NULL;
@@ -798,7 +798,7 @@ void test_ORI()
 
 void test_ANDI()
 {
-	dolog(" + test_ANDI");
+	// dolog(" + test_ANDI");
 	memory_bus *mb = NULL;
 	memory *m1 = NULL, *m2 = NULL, *m3 = NULL;
 	processor *p = NULL;
@@ -835,7 +835,7 @@ void test_ANDI()
 
 void test_XORI()
 {
-	dolog(" + test_XORI");
+	// dolog(" + test_XORI");
 	memory_bus *mb = NULL;
 	memory *m1 = NULL, *m2 = NULL, *m3 = NULL;
 	processor *p = NULL;
@@ -872,7 +872,7 @@ void test_XORI()
 
 void test_ADDIU()
 {
-	dolog(" + test_ADDIU");
+	// dolog(" + test_ADDIU");
 	memory_bus *mb = NULL;
 	memory *m1 = NULL, *m2 = NULL, *m3 = NULL;
 	processor *p = NULL;
@@ -910,7 +910,7 @@ void test_ADDIU()
 
 void test_AND()
 {
-	dolog(" + test_AND");
+	// dolog(" + test_AND");
 	memory_bus *mb = NULL;
 	memory *m1 = NULL, *m2 = NULL, *m3 = NULL;
 	processor *p = NULL;
@@ -951,7 +951,7 @@ void test_AND()
 
 void test_OR()
 {
-	dolog(" + test_OR");
+	// dolog(" + test_OR");
 	memory_bus *mb = NULL;
 	memory *m1 = NULL, *m2 = NULL, *m3 = NULL;
 	processor *p = NULL;
@@ -1017,7 +1017,7 @@ all_registers_t * copy_registers(processor *p)
 
 void test_NOP()
 {
-	dolog(" + test_NOP");
+	// dolog(" + test_NOP");
 	memory_bus *mb = NULL;
 	memory *m1 = NULL, *m2 = NULL, *m3 = NULL;
 	processor *p = NULL;
@@ -1075,14 +1075,14 @@ void test_Bxx(std::string which, uint8_t function, uint8_t rs, uint8_t rt, uint6
 	// if NOT branches and br == true: OK, check pc, check delay slot processing
 	// LIKELY invoke function with rs/rs_M, rt/rt_M
 	// LIKELY if NOT branches and br == true: OK, check pc, check delay slot processing
-	dolog(" + test_%s", which.c_str());
+	// dolog(" + test_%s", which.c_str());
 	memory_bus *mb = NULL;
 	memory *m1 = NULL, *m2 = NULL, *m3 = NULL;
 	processor *p = NULL;
 	create_system(&mb, &m1, &m2, &m3, &p);
 
 	// DO branch positive offset
-	dolog(" > DO branch");
+	// dolog(" > DO branch");
 	p -> reset();
 	p -> set_PC(0);
 
@@ -1104,7 +1104,7 @@ void test_Bxx(std::string which, uint8_t function, uint8_t rs, uint8_t rt, uint6
 	{
 		uint8_t likely_rt = rs, likely_rs = 7;
 
-		dolog(" >> if the branch is taken, the instruction in the delay slot is executed");
+		// dolog(" >> if the branch is taken, the instruction in the delay slot is executed");
 		if (rt == likely_rs || rs == likely_rs)
 			error_exit("testcase failure: rs/rt cannot be %d due to testcase restrictions", likely_rs);
 		p -> set_register_64b(likely_rs, 1);
@@ -1135,7 +1135,7 @@ void test_Bxx(std::string which, uint8_t function, uint8_t rs, uint8_t rt, uint6
 	}
 
 	// DO branch negative offset
-	dolog(" > DO branch");
+	// dolog(" > DO branch");
 	p -> reset();
 	p -> set_PC(0);
 
@@ -1160,7 +1160,7 @@ void test_Bxx(std::string which, uint8_t function, uint8_t rs, uint8_t rt, uint6
 		error_exit("%s with branch (neg): expected %016llx, got %016llx", which.c_str(), expected_pc, p -> get_PC());
 
 	// DON'T branch
-	dolog(" > DON'T branch");
+	// dolog(" > DON'T branch");
 	p -> reset();
 	p -> set_PC(0);
 
@@ -1187,7 +1187,7 @@ void test_Bxx(std::string which, uint8_t function, uint8_t rs, uint8_t rt, uint6
 	// If the branch is not taken, the instruction in the delay slot is not executed.
 	if (likely)
 	{
-		dolog(" >> if the branch is not taken, the instruction in the delay slot is not executed");
+		// dolog(" >> if the branch is not taken, the instruction in the delay slot is not executed");
 		tick(p);
 
 		uint16_t cur_expected_pc = 8;
@@ -1205,7 +1205,7 @@ void test_Bxx(std::string which, uint8_t function, uint8_t rs, uint8_t rt, uint6
 
 void test_test_tc_overflow_32b()
 {
-	dolog(" + test_tc_overflow_32b");
+	// dolog(" + test_tc_overflow_32b");
 	if (test_tc_overflow_32b(1, 1))
 		error_exit("test_tc_overflow_32b: indicates overflow for 1, 1");
 
@@ -1242,7 +1242,7 @@ void test_test_tc_overflow_32b()
 
 void test_ADDI()
 {
-	dolog(" + test_ADDI");
+	// dolog(" + test_ADDI");
 	memory_bus *mb = NULL;
 	memory *m1 = NULL, *m2 = NULL, *m3 = NULL;
 	processor *p = NULL;
@@ -1300,7 +1300,7 @@ void test_ADDI()
 
 void test_SLT()
 {
-	dolog(" + test_SLT");
+	// dolog(" + test_SLT");
 	memory_bus *mb = NULL;
 	memory *m1 = NULL, *m2 = NULL, *m3 = NULL;
 	processor *p = NULL;
@@ -1339,7 +1339,7 @@ void test_SLT()
 
 void test_LB()
 {
-	dolog(" + test_LB");
+	// dolog(" + test_LB");
 	memory_bus *mb = NULL;
 	memory *m1 = NULL, *m2 = NULL, *m3 = NULL;
 	processor *p = NULL;
@@ -1420,7 +1420,7 @@ void test_LB()
 
 void test_J_JAL(bool is_JAL)
 {
-	dolog(" + test_J");
+	// dolog(" + test_J");
 	memory_bus *mb = NULL;
 	memory *m1 = NULL, *m2 = NULL, *m3 = NULL;
 	processor *p = NULL;
@@ -1481,6 +1481,8 @@ void test_J_JAL(bool is_JAL)
 
 	free_system(mb, m1, m2, m3, p);
 }
+
+INITIALIZE_EASYLOGGINGPP
 
 int main(int argc, char *argv[])
 {

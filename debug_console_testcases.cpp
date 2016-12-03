@@ -6,8 +6,8 @@
 #include "debug_console_testcases.h"
 #include "processor.h"
 #include "processor_utils.h"
-#include "log.h"
 #include "utils.h"
+#include "easylogging++.h"
 
 extern const char *logfile;
 
@@ -27,7 +27,8 @@ void debug_console_testcases::tick(processor *p)
 	(void)p -> get_mem_32b(PC, &instruction);
 
 	std::string logline = p -> da_logline(instruction);
-	dolog(logline.c_str());
+	LOG(INFO) << logline;
+
 }
 
 void debug_console_testcases::dc_log(const char *fmt, ...)
@@ -41,7 +42,7 @@ void debug_console_testcases::dc_log(const char *fmt, ...)
 		(void)vsnprintf(buffer, sizeof buffer, fmt, ap);
 		va_end(ap);
 
-		dolog("%s", buffer);
+		LOG(INFO) << buffer;
 	}
 }
 

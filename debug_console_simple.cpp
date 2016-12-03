@@ -4,7 +4,7 @@
 #include "processor.h"
 #include "debug_console_simple.h"
 #include "utils.h"
-#include "log.h"
+#include "easylogging++.h"
 
 debug_console_simple::debug_console_simple()
 {
@@ -12,7 +12,7 @@ debug_console_simple::debug_console_simple()
 
 debug_console_simple::~debug_console_simple()
 {
-	printf("cycles/sec: %f\n", double(n_ticks) / (get_ts() - start_ts));
+	LOG(INFO) << "cycles/sec: " << double(n_ticks) / (get_ts() - start_ts);
 }
 
 void debug_console_simple::init()
@@ -34,7 +34,7 @@ void debug_console_simple::dc_log(const char *fmt, ...)
 	vsnprintf(buffer, sizeof buffer, fmt, ap);
 	va_end(ap);
 
-	dolog("%s", buffer);
+	LOG(TRACE) << buffer;
 #endif
 }
 
