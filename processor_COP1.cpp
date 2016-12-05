@@ -79,7 +79,7 @@ void processor::COP1(uint32_t instruction)
 			break;
 
 		default:
-			pdc -> dc_log("COP1 fmt %02x not implemented", fmt);
+//			pdc -> dc_log("COP1 fmt %02x not implemented", fmt);
 			break;
 	}
 }
@@ -88,12 +88,12 @@ void processor::COP1X(uint32_t instruction)
 {
 	uint8_t fmt = (instruction >> 21) & MASK_5B;
 
-	DEBUG(pdc -> dc_log("COP1X fmt %02x", fmt));
+//	DEBUG(pdc -> dc_log("COP1X fmt %02x", fmt));
 
 	switch(fmt)
 	{
 		default:
-			pdc -> dc_log("COP1X fmt %02x not implemented", fmt);
+//			pdc -> dc_log("COP1X fmt %02x not implemented", fmt);
 			break;
 	}
 }

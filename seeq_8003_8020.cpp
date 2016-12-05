@@ -1,7 +1,6 @@
-#include "debug_console.h"
 #include "seeq_8003_8020.h"
 
-seeq_8003_8020::seeq_8003_8020(debug_console *pdc_in)
+seeq_8003_8020::seeq_8003_8020()
 {
 }
 

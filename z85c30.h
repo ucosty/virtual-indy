@@ -1,16 +1,12 @@
-#include "debug_console.h"
-
 class z85c30
 {
 private:
-	debug_console *pdc;
-
 	unsigned char d[16];
 	uint8_t cr;
 	bool tx_full;
 
 public:
-	z85c30(debug_console *pdc_in);
+    z85c30();
 	~z85c30();
 
 	uint8_t ser_command_read();

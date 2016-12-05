@@ -2,15 +2,12 @@
 #include "eprom.h"
 #include "z85c30.h"
 #include "seeq_8003_8020.h"
-#include "debug_console.h"
 
 typedef enum { S_BYTE, S_SHORT, S_WORD, S_DWORD } ws_t;
 
 class hpc3 : public memory
 {
 private:
-	debug_console *pdc;
-
 	z85c30 *ser1, *ser2;
 	
 	eprom *pep;
@@ -41,7 +38,7 @@ private:
 	void read_fake(ws_t ws, uint64_t offset, uint64_t *data);
 
 public:
-	hpc3(debug_console *pdc_in, std::string sram_file);
+    hpc3(std::string sram_file);
 	~hpc3();
 
 	uint64_t get_size() const { return 0x100000; }

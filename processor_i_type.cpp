@@ -106,7 +106,7 @@ void processor::i_type_11(uint32_t instruction)	// COP1
 void processor::i_type_12(uint32_t instruction)	// COP2
 {
 	// COP2(instruction);
-	pdc -> dc_log("i_type_12 (COP2) not implemented");
+    // pdc -> dc_log("i_type_12 (COP2) not implemented");
 }
 
 void processor::i_type_13(uint32_t instruction)	// COP1X
@@ -164,7 +164,7 @@ void processor::i_type_08(uint32_t instruction)	// ADDI
 
 	if (unlikely(test_tc_overflow_32b(val1, val2)))
 	{
-		DEBUG(pdc -> dc_log("ADDI overflow"));
+        // DEBUG( pdc -> dc_log("ADDI overflow"));
 		throw processor_exception(PC, status_register, 0, PE_OVF, PC);
 	}
 	else
@@ -245,22 +245,22 @@ void processor::i_type_0f(uint32_t instruction)	// LUI
 
 void processor::i_type_18(uint32_t instruction)
 {
-	pdc -> dc_log("i_type_18 not implemented");
+    // pdc -> dc_log("i_type_18 not implemented");
 }
 
 void processor::i_type_19(uint32_t instruction)
 {
-	pdc -> dc_log("i_type_19 not implemented");
+    // pdc -> dc_log("i_type_19 not implemented");
 }
 
 void processor::i_type_1a(uint32_t instruction)
 {
-	pdc -> dc_log("i_type_1a not implemented");
+    // pdc -> dc_log("i_type_1a not implemented");
 }
 
 void processor::i_type_1b(uint32_t instruction)
 {
-	pdc -> dc_log("i_type_1b not implemented");
+    // pdc -> dc_log("i_type_1b not implemented");
 }
 
 void processor::i_type_1c(uint32_t instruction)	// SPECIAL2
@@ -270,12 +270,12 @@ void processor::i_type_1c(uint32_t instruction)	// SPECIAL2
 
 void processor::i_type_1d(uint32_t instruction)
 {
-	pdc -> dc_log("i_type_1d not implemented");
+    // pdc -> dc_log("i_type_1d not implemented");
 }
 
 void processor::i_type_1e(uint32_t instruction)
 {
-	pdc -> dc_log("i_type_1e not implemented");
+    // pdc -> dc_log("i_type_1e not implemented");
 }
 
 void processor::i_type_1f(uint32_t instruction)	// SPECIAL3
@@ -305,7 +305,7 @@ void processor::i_type_21(uint32_t instruction)	// LH / LHU
 
 	if (unlikely(address & 1))
 	{
-		DEBUG(pdc -> dc_log("i-type read 16b from %016llx: unaligned", address));
+        // DEBUG( pdc -> dc_log("i-type read 16b from %016llx: unaligned", address));
 
 		cycles += 5; // FIXME
 
@@ -330,7 +330,7 @@ void processor::i_type_21(uint32_t instruction)	// LH / LHU
 
 void processor::i_type_22(uint32_t instruction)	// LWL
 {
-	pdc -> dc_log("i_type_22 not implemented");
+    // pdc -> dc_log("i_type_22 not implemented");
 }
 
 void processor::i_type_23(uint32_t instruction)	// LW / LL
@@ -339,7 +339,7 @@ void processor::i_type_23(uint32_t instruction)	// LW / LL
 
 	if (unlikely(address & 3))
 	{
-		DEBUG(pdc -> dc_log("i-type read 32b from %016llx: unaligned", address));
+        // DEBUG( pdc -> dc_log("i-type read 32b from %016llx: unaligned", address));
 
 		cycles += 5; // FIXME
 
@@ -361,12 +361,12 @@ void processor::i_type_23(uint32_t instruction)	// LW / LL
 
 void processor::i_type_26(uint32_t instruction)
 {
-	pdc -> dc_log("i_type_26 not implemented");
+    // pdc -> dc_log("i_type_26 not implemented");
 }
 
 void processor::i_type_27(uint32_t instruction)
 {
-	pdc -> dc_log("i_type_27 not implemented");
+    // pdc -> dc_log("i_type_27 not implemented");
 }
 
 void processor::i_type_28(uint32_t instruction)	// SB
@@ -388,7 +388,7 @@ void processor::i_type_29(uint32_t instruction)	// SH
 
 	if (unlikely(address & 1))
 	{
-		DEBUG(pdc -> dc_log("i-type write 16b %04x to %08x: unaligned", registers[rt] & 0xffff, address));
+        // DEBUG(pdc -> dc_log("i-type write 16b %04x to %08x: unaligned", registers[rt] & 0xffff, address));
 
 		cycles += 4; // FIXME
 
@@ -405,7 +405,7 @@ void processor::i_type_29(uint32_t instruction)	// SH
 
 void processor::i_type_2a(uint32_t instruction)
 {
-	pdc -> dc_log("i_type_2a not implemented");
+    // pdc -> dc_log("i_type_2a not implemented");
 }
 
 void processor::i_type_2b(uint32_t instruction)	// SW
@@ -416,7 +416,7 @@ void processor::i_type_2b(uint32_t instruction)	// SW
 
 	if (unlikely(address & 3))
 	{
-		DEBUG(pdc -> dc_log("i-type write 32b %08x to %08x: unaligned", registers[rt], address));
+        // DEBUG( pdc -> dc_log("i-type write 32b %08x to %08x: unaligned", registers[rt], address));
 
 		cycles += 4; // FIXME
 
@@ -432,22 +432,22 @@ void processor::i_type_2b(uint32_t instruction)	// SW
 
 void processor::i_type_2c(uint32_t instruction)
 {
-	pdc -> dc_log("i_type_2c not implemented");
+    // pdc -> dc_log("i_type_2c not implemented");
 }
 
 void processor::i_type_2d(uint32_t instruction)
 {
-	pdc -> dc_log("i_type_2d not implemented");
+    // pdc -> dc_log("i_type_2d not implemented");
 }
 
 void processor::i_type_2e(uint32_t instruction)
 {
-	pdc -> dc_log("i_type_2e not implemented");
+    // pdc -> dc_log("i_type_2e not implemented");
 }
 
 void processor::i_type_2f(uint32_t instruction)
 {
-	pdc -> dc_log("i_type_2f not implemented");
+    // pdc -> dc_log("i_type_2f not implemented");
 }
 
 void processor::i_type_31(uint32_t instruction)	// LWC1
@@ -474,12 +474,12 @@ void processor::i_type_32(uint32_t instruction)	// LWC2
 
 void processor::i_type_33(uint32_t instruction)
 {
-	pdc -> dc_log("i_type_33 not implemented");
+    // pdc -> dc_log("i_type_33 not implemented");
 }
 
 void processor::i_type_34(uint32_t instruction)
 {
-	pdc -> dc_log("i_type_34 not implemented");
+    // pdc -> dc_log("i_type_34 not implemented");
 }
 
 void processor::i_type_35(uint32_t instruction)	// LDC1
@@ -502,7 +502,7 @@ void processor::i_type_36(uint32_t instruction)	// LDC2
 
 void processor::i_type_37(uint32_t instruction)
 {
-	pdc -> dc_log("i_type_37 not implemented");
+    // pdc -> dc_log("i_type_37 not implemented");
 }
 
 void processor::i_type_38(uint32_t instruction)	// SC
@@ -516,7 +516,7 @@ void processor::i_type_38(uint32_t instruction)	// SC
 	}
 	else if (unlikely(address & 3))
 	{
-		DEBUG(pdc -> dc_log("i-type write 32b to %016llx: unaligned", address));
+        // DEBUG( pdc -> dc_log("i-type write 32b to %016llx: unaligned", address));
 
 		set_register_64b(rt, 0);
 		cycles += 5; // FIXME
@@ -555,12 +555,12 @@ void processor::i_type_3a(uint32_t instruction)	// SWC2
 
 void processor::i_type_3b(uint32_t instruction)
 {
-	pdc -> dc_log("i_type_3b not implemented");
+    // pdc -> dc_log("i_type_3b not implemented");
 }
 
 void processor::i_type_3c(uint32_t instruction)
 {
-	pdc -> dc_log("i_type_3c not implemented");
+    // pdc -> dc_log("i_type_3c not implemented");
 }
 
 void processor::i_type_3d(uint32_t instruction)	// SDC1
@@ -583,5 +583,5 @@ void processor::i_type_3e(uint32_t instruction)	// SDC2
 
 void processor::i_type_3f(uint32_t instruction)
 {
-	pdc -> dc_log("i_type_3f not implemented");
+    // pdc -> dc_log("i_type_3f not implemented");
 }

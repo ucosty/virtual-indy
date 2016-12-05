@@ -2,13 +2,12 @@
 #include <string.h>
 
 #include "debug.h"
-#include "debug_console.h"
 #include "processor.h"
 #include "processor_utils.h"
 #include "exceptions.h"
 #include "utils.h"
 
-processor::processor(debug_console *pdc_in, memory_bus *pmb_in) : pdc(pdc_in), pmb(pmb_in)
+processor::processor(memory_bus *pmb_in) : pmb(pmb_in)
 {
 	cycles = 0;
 
@@ -137,8 +136,8 @@ uint64_t processor::get_C0_register(uint8_t nr, uint8_t sel)
 // what to do with `sel'?
 // FIXME verify cpu mode? (privileged) and log msg
 
-	if (sel)
-		pdc -> dc_log("get_C0_register: handling of sel %d not implemented", sel);
+//	if (sel)
+//		pdc -> dc_log("get_C0_register: handling of sel %d not implemented", sel);
 
 	return C0_registers[nr];
 }
@@ -150,8 +149,8 @@ void processor::set_C0_register(uint8_t nr, uint8_t sel, uint64_t value)
 // what to do with `sel'?
 // FIXME verify cpu mode? (privileged) and log msg
 
-	if (sel)
-		pdc -> dc_log("set_C0_register: handling of sel %d not implemented", sel);
+//	if (sel)
+//		pdc -> dc_log("set_C0_register: handling of sel %d not implemented", sel);
 
 	C0_registers[nr] = value;
 }

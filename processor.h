@@ -6,7 +6,6 @@
 
 #include "debug.h"
 #include "optimize.h"
-#include "debug_console.h"
 #include "processor_utils.h"
 #include "memory_bus.h"
 
@@ -16,7 +15,7 @@
 class processor
 {
 private:
-	debug_console *pdc;
+//	debug_console *pdc;
 	memory_bus *pmb;
 
 	// 0		zero
@@ -190,7 +189,7 @@ private:
 	void start_RMW_sequence();
 
 public:
-	processor(debug_console *pdc_in, memory_bus *pmb_in);
+    processor(memory_bus *pmb_in);
 	~processor();
 
 	memory_bus *get_memory_bus() const { return pmb; }
@@ -276,8 +275,8 @@ public:
 
 		if (likely(nr))
 			registers[nr] = (registers[nr] & ~MASK_32B) | value;
-		else
-			pdc -> dc_log("(32b) trying to alter register 0! (%d)", nr);
+//		else
+//			pdc -> dc_log("(32b) trying to alter register 0! (%d)", nr);
 	}
 
 	inline void set_register_32b_se(uint8_t nr, int32_t value)
@@ -286,8 +285,8 @@ public:
 
 		if (likely(nr))
 			registers[nr] = value;
-		else
-			pdc -> dc_log("(32bse) trying to alter register 0! (%d)", nr);
+//		else
+//			pdc -> dc_log("(32bse) trying to alter register 0! (%d)", nr);
 	}
 
 	inline void set_register_64b(uint8_t nr, uint64_t value)
@@ -296,8 +295,8 @@ public:
 
 		if (likely(nr))
 			registers[nr] = value;
-		else
-			pdc -> dc_log("(64b) trying to alter register 0! (%d)", nr);
+//		else
+//			pdc -> dc_log("(64b) trying to alter register 0! (%d)", nr);
 	}
 };
 #endif

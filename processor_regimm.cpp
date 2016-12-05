@@ -53,6 +53,7 @@ void processor::regimm(uint32_t instruction)
 			break;
 
 		default:
-			pdc -> dc_log("i-type, opcode 0x01, REGIMM 0x%02x not implemented", function);
+            break;
+//			pdc -> dc_log("i-type, opcode 0x01, REGIMM 0x%02x not implemented", function);
 	}
 }

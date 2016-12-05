@@ -6,7 +6,7 @@
 #include "utils.h"
 #include "processor.h"
 
-mc::mc(processor *const ppIn, debug_console *pdc_in) : pp(ppIn), pdc(pdc_in)
+mc::mc(processor *const ppIn) : pp(ppIn)
 {
 	pm = NULL;
 	len = 0;
@@ -86,17 +86,17 @@ void mc::read_32b(uint64_t offset, uint32_t *data)
 
 	offset &= ~4; // 0x0c -> 0x08
 
-	pdc -> dc_log("MC read from %016llx", offset);
+    // pdc -> dc_log("MC read from %016llx", offset);
 
 	if (offset <= 0x0f)	// CPUCTRL 0 & 1
 	{
-		pdc -> dc_log("MC CPUCTRL0/1 read (%08x)", *data);
+        // pdc -> dc_log("MC CPUCTRL0/1 read (%08x)", *data);
 	}
 	else if (offset == 0x28)	// RPSS_DIVIDER 
 		*data = RPSS_DIVIDER;
 	else if (offset == 0x30)	// EEROM
 	{
-		pdc -> dc_log("MC EEROM read (%08x)", *data);
+        // pdc -> dc_log("MC EEROM read (%08x)", *data);
 
 		// bit 1: endiannes
 		// bit 2: register size (32/64)
@@ -108,40 +108,40 @@ void mc::read_32b(uint64_t offset, uint32_t *data)
 	else if (offset == 0x48)	// REF_CTR - refresh counter
 	{
 		*data = refresh_counter--;
-		pdc -> dc_log("MC REF_CTR read (%08x)", *data);
+        // pdc -> dc_log("MC REF_CTR read (%08x)", *data);
 	}
 	else if (offset == 0xc0)	// MEMCFG0
 	{
 		//*data = 0x3110;
 		std::string dummy = to_bin_str(*data, 32);
-		pdc -> dc_log("MC MEMCFG0 read (%08x) %s", *data, dummy.c_str());
+        // pdc -> dc_log("MC MEMCFG0 read (%08x) %s", *data, dummy.c_str());
 	}
 	else if (offset == 0xc8)	// MEMCFG1
 	{
 		//*data = 0;
 		std::string dummy = to_bin_str(*data, 32);
-		pdc -> dc_log("MC MEMCFG1 read (%08x) %s", *data, dummy.c_str());
+        // pdc -> dc_log("MC MEMCFG1 read (%08x) %s", *data, dummy.c_str());
 	}
 	else if (offset == 0xd0)	// CPU_MEMACC
 	{
-		pdc -> dc_log("MC CPU_MEMACC read (%08x)", *data);
+        // pdc -> dc_log("MC CPU_MEMACC read (%08x)", *data);
 	}
 	else if (offset == 0xd8)	// GIO_MEMACC
 	{
-		pdc -> dc_log("MC GIO_MEMACC read (%08x)", *data);
+        // pdc -> dc_log("MC GIO_MEMACC read (%08x)", *data);
 	}
 	else if (offset == 0xe8)	// CPU_ERROR_STAT 
 	{
-		pdc -> dc_log("MC CPU_ERROR_STAT read (%08x)", *data);
+        // pdc -> dc_log("MC CPU_ERROR_STAT read (%08x)", *data);
 	}
 	else if (offset == 0xf8)	// GIO error status
 	{
-		pdc -> dc_log("MC GIO_ERROR_STATUS read (%08x)", *data);
+        // pdc -> dc_log("MC GIO_ERROR_STATUS read (%08x)", *data);
 	}
 		// 0x10000 - 0x1f000
 	else if (offset == 0x100)	// SYS_SEMAPHORE
 	{
-		DEBUG(pdc -> dc_log("MC SYS_SEMAPHORE read (%08x)", *data));
+//        DEBUG(pdc -> dc_log("MC SYS_SEMAPHORE read (%08x)", *data));
 		pthread_mutex_lock(&semaphore_lock);
 		*data = sys_semaphore;
 		sys_semaphore = 1;
@@ -155,7 +155,7 @@ void mc::read_32b(uint64_t offset, uint32_t *data)
 		unsigned long long int cycles = pp -> get_cycle_count();
 		*data = (cycles / div) * mul;
 
-		pdc -> dc_log("MC RPSS_CTR read: %08x (%llx)", *data, cycles);
+        // pdc -> dc_log("MC RPSS_CTR read: %08x (%llx)", *data, cycles);
 	}
 	else if (offset == 0x2000 || offset == 0x2008)	// DMA_MEMADRD, like DMA_MEMADR but also sets defaults
 		*data = DMA_MEMADDR;
@@ -182,11 +182,11 @@ void mc::read_32b(uint64_t offset, uint32_t *data)
 			*data = 0;
 		}
 
-		pdc -> dc_log("MC DMA_RUN read: %x", *data);
+        // pdc -> dc_log("MC DMA_RUN read: %x", *data);
 	}
 	else if (offset >= 0x100000 && offset <= 0x1ffff)	// USER_SEMAPHORES
 	{
-		DEBUG(pdc -> dc_log("MC USER_SEMAPHORES read: %08x", *data));
+        // DEBUG( pdc -> dc_log("MC USER_SEMAPHORES read: %08x", *data));
 		int nr = offset >> 13;
 
 		pthread_mutex_lock(&semaphore_lock);
@@ -196,13 +196,13 @@ void mc::read_32b(uint64_t offset, uint32_t *data)
 	}
 	else
 	{
-		pdc -> dc_log("MC read %016llx not implemented", offset);
+        // pdc -> dc_log("MC read %016llx not implemented", offset);
 	}
 }
 
 void mc::set_dma_default()
 {
-	pdc -> dc_log("MC set VDMA defaults");
+    // pdc -> dc_log("MC set VDMA defaults");
 
 	DMA_SIZE = 0x1000c;
 	DMA_STRIDE = 0x10000;
@@ -214,53 +214,53 @@ void mc::write_32b(uint64_t offset, uint32_t data)
 {
 	offset &= ~4; // 0x0c -> 0x08
 
-	pdc -> dc_log("MC write @ %016llx: %016llx", offset, data);
+    // pdc -> dc_log("MC write @ %016llx: %016llx", offset, data);
 
 	if (offset <= 0x0f)	// CPUCTRL 0 & 1
 	{
-		pdc -> dc_log("MC CPUCTRL0/1 write: %08x", data);
+        // pdc -> dc_log("MC CPUCTRL0/1 write: %08x", data);
 	}
 	else if (offset == 0x28)	// RPSS_DIVIDER 
 	{
-		pdc -> dc_log("MC RPSS_DIVIDER write: %08x", data);
+        // pdc -> dc_log("MC RPSS_DIVIDER write: %08x", data);
 		RPSS_DIVIDER = data;
 	}
 	else if (offset == 0x30)	// EEROM
 	{
-		pdc -> dc_log("MC EEROM write @ %016llx: %016llx %c%c%c%c", offset, data, data & 8?'1':'0', data&4?'1':'0', data&2?'1':'0', data&1?'1':'0');
+        // pdc -> dc_log("MC EEROM write @ %016llx: %016llx %c%c%c%c", offset, data, data & 8?'1':'0', data&4?'1':'0', data&2?'1':'0', data&1?'1':'0');
 	}
 	else if (offset == 0x80)	// GIO64_ARB
 	{
-		pdc -> dc_log("MC GIO64_ARB write: %08x", data);
+        // pdc -> dc_log("MC GIO64_ARB write: %08x", data);
 	}
 	else if (offset == 0xc0)	// MEMCFG0
 	{
-		pdc -> dc_log("MC MEMCFG0 write: %08x", data);
-		pdc -> dc_log("MC   b0: %08lx", (data & 0xff) << 22);
-		pdc -> dc_log("MC   b1: %08lx", ((data & 0xff0000) >> 16) << 22);
+        // pdc -> dc_log("MC MEMCFG0 write: %08x", data);
+        // pdc -> dc_log("MC   b0: %08lx", (data & 0xff) << 22);
+        // pdc -> dc_log("MC   b1: %08lx", ((data & 0xff0000) >> 16) << 22);
 	}
 	else if (offset == 0xc8)	// MEMCFG1
 	{
-		pdc -> dc_log("MC MEMCFG1 write: %08x", data);
-		pdc -> dc_log("MC   b0: %08lx", (data & 0xff) << 22);
-		pdc -> dc_log("MC   b1: %08lx", ((data & 0xff0000) >> 16) << 22);
+        // pdc -> dc_log("MC MEMCFG1 write: %08x", data);
+        // pdc -> dc_log("MC   b0: %08lx", (data & 0xff) << 22);
+        // pdc -> dc_log("MC   b1: %08lx", ((data & 0xff0000) >> 16) << 22);
 	}
 	else if (offset == 0xd0)	// CPU_MEMACC
 	{
-		pdc -> dc_log("MC CPU_MEMACC write: %08x", data);
+        // pdc -> dc_log("MC CPU_MEMACC write: %08x", data);
 	}
 	else if (offset == 0xd8)	// GIO_MEMACC
 	{
-		pdc -> dc_log("MC GIO_MEMACC write: %08x", data);
+        // pdc -> dc_log("MC GIO_MEMACC write: %08x", data);
 	}
 	else if (offset == 0xe8)	// CPU_ERROR_STAT 
 	{
-		pdc -> dc_log("MC CPU_ERROR_STAT write: %08x", data);
+        // pdc -> dc_log("MC CPU_ERROR_STAT write: %08x", data);
 		data = 0;
 	}
 	else if (offset == 0xf8)	// GIO error status
 	{
-		pdc -> dc_log("MC GIO_ERROR_STATUS write: %08x", data);
+        // pdc -> dc_log("MC GIO_ERROR_STATUS write: %08x", data);
 		data = 0;
 	}
 	else if (offset == 0x100)	// SYS_SEMAPHORE
@@ -271,35 +271,35 @@ void mc::write_32b(uint64_t offset, uint32_t data)
 	}
 	else if (offset == 0x1000)	// RPSS_CTR
 	{
-		pdc -> dc_log("MC GIO_ERROR_STATUS write: %08x", data);
+        // pdc -> dc_log("MC GIO_ERROR_STATUS write: %08x", data);
 	}
 	else if (offset == 0x2000 || offset == 0x2008) {	// DMA_MEMADR, DMA_MEMADRD, like DMA_MEMADR but also sets defaults
 		DMA_MEMADDR = data;
 
 		if (offset == 0x2008) {
-			pdc -> dc_log("MC write DMA_MEMADRD %x", data);
+            // pdc -> dc_log("MC write DMA_MEMADRD %x", data);
 			set_dma_default();
 		}
 		else {
-			pdc -> dc_log("MC write DMA_MEMADR %x", data);
+            // pdc -> dc_log("MC write DMA_MEMADR %x", data);
 		}
 	}
 	else if (offset == 0x2010) {
 		DMA_SIZE = data;
-		pdc -> dc_log("MC write DMA_SIZE %x", data);
+        // pdc -> dc_log("MC write DMA_SIZE %x", data);
 
 		DMA_COUNT = (DMA_COUNT & ~0xffff) | (data & 0xffff);
 	}
 	else if (offset == 0x2018) {
 		DMA_STRIDE = data;
-		pdc -> dc_log("MC write DMA_STRIDE %x", data);
+        // pdc -> dc_log("MC write DMA_STRIDE %x", data);
 
 		uint16_t line_zoom = (data >> 16) & 511;
 		DMA_COUNT = (DMA_COUNT & ~0xffff0000) | (line_zoom << 16);
 	}
 	else if (offset == 0x2020) {
 		DMA_GIO_ADR = data;
-		pdc -> dc_log("MC write DMA_GIO_ADR %x", data);
+        // pdc -> dc_log("MC write DMA_GIO_ADR %x", data);
 	}
 	else if (offset == 0x2028 || offset == 0x2040 || offset == 0x2070)
 	{
@@ -314,27 +314,26 @@ void mc::write_32b(uint64_t offset, uint32_t data)
 		vdma_state = vdma_running;
 		// FIXME start DMA
 
-		pdc -> dc_log("MC start VDMA");
-		pdc -> dc_log(" DMA_MEMADDR: %llx", DMA_MEMADDR);
-		pdc -> dc_log(" DMA_SIZE:    %llx", DMA_SIZE);
-		pdc -> dc_log(" DMA_STRIDE:  %llx", DMA_STRIDE);
-		pdc -> dc_log(" DMA_MODE:    %llx", DMA_MODE);
-		pdc -> dc_log(" DMA_COUNT:   %llx", DMA_COUNT);
-		pdc -> dc_log(" DMA_GIO_ADR: %llx", DMA_GIO_ADR);
-		pdc -> dc_log(" DMA_STDMA:   %llx", DMA_STDMA);
+        // pdc -> dc_log("MC start VDMA");
+        // pdc -> dc_log(" DMA_MEMADDR: %llx", DMA_MEMADDR);
+        // pdc -> dc_log(" DMA_SIZE:    %llx", DMA_SIZE);
+        // pdc -> dc_log(" DMA_STRIDE:  %llx", DMA_STRIDE);
+        // pdc -> dc_log(" DMA_MODE:    %llx", DMA_MODE);
+        // pdc -> dc_log(" DMA_COUNT:   %llx", DMA_COUNT);
+        // pdc -> dc_log(" DMA_GIO_ADR: %llx", DMA_GIO_ADR);
+        // pdc -> dc_log(" DMA_STDMA:   %llx", DMA_STDMA);
 	}
 	else if (offset == 0x2030) {
 		DMA_MODE = data;
-		pdc -> dc_log("MC write DMA_MODE %x", data);
+        // pdc -> dc_log("MC write DMA_MODE %x", data);
 	}
 	else if (offset == 0x2038) {
 		DMA_COUNT = data;
-		pdc -> dc_log("MC write DMA_COUNT %x", data);
+        // pdc -> dc_log("MC write DMA_COUNT %x", data);
 	}
-	else if (offset == 0x2048)
-		pdc -> dc_log("MC Should not write (%x) to DMA_RUN", data);
-	else if (offset >= 0x100000 && offset <= 0x1ffff)	// USER_SEMAPHORES
-	{
+    else if (offset == 0x2048) {
+        // pdc -> dc_log("MC Should not write (%x) to DMA_RUN", data);
+    } else if (offset >= 0x100000 && offset <= 0x1ffff) { // USER_SEMAPHORES
 		int nr = offset >> 13;
 
 		pthread_mutex_lock(&semaphore_lock);
@@ -343,7 +342,7 @@ void mc::write_32b(uint64_t offset, uint32_t data)
 	}
 	else
 	{
-		pdc -> dc_log("MC write @ %016llx: %016llx %c%c%c%c not implemented", offset, data, data & 8?'1':'0', data&4?'1':'0', data&2?'1':'0', data&1?'1':'0');
+        // pdc -> dc_log("MC write @ %016llx: %016llx %c%c%c%c not implemented", offset, data, data & 8?'1':'0', data&4?'1':'0', data&2?'1':'0', data&1?'1':'0');
 	}
 
 	uint32_t index = offset / REGS_DIV;

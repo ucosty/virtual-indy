@@ -29,7 +29,7 @@ void processor::special2(uint32_t instruction)
 			break;
 
 		default:
-			pdc -> dc_log("special2 clo %02x not implemented", clo);
+//			pdc -> dc_log("special2 clo %02x not implemented", clo);
 			break;
 	}
 }

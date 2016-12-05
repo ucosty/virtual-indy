@@ -12,7 +12,7 @@
 uint64_t index_dist = 0, index_cnt = 0;
 #endif
 
-memory_bus::memory_bus(debug_console *pdc_in) : list(NULL), n_elements(0), pdc(pdc_in)
+memory_bus::memory_bus() : list(NULL), n_elements(0)
 {
 }
 
@@ -37,7 +37,7 @@ void memory_bus::register_memory(uint64_t offset, uint64_t size, memory *target)
 
 	list[n_elements - 1].target = target;
 
-	pdc -> dc_log("BUS: register %016llx / %016llx", offset, size);
+    // pdc -> dc_log("BUS: register %016llx / %016llx", offset, size);
 
 	last_index_i = last_index = 0;
 	last_psegment_i = last_psegment = &list[last_index];
@@ -62,7 +62,7 @@ const memory_segment_t * memory_bus::find_segment(uint64_t offset)
 		last_psegment = &list[last_index];
 	}
 
-	pdc -> dc_log("%016llx is not mapped", offset);
+    // pdc -> dc_log("%016llx is not mapped", offset);
 
 	throw processor_exception(offset, -1, -1, PEE_MEM, -1);
 
@@ -87,7 +87,7 @@ const memory_segment_t * memory_bus::find_segment_i(uint64_t offset)
 		last_psegment_i = &list[last_index_i];
 	}
 
-	pdc -> dc_log("%016llx is not mapped", offset);
+    // pdc -> dc_log("%016llx is not mapped", offset);
 
 	throw processor_exception(offset, -1, -1, PEE_MEM, -1);
 

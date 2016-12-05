@@ -18,12 +18,12 @@ std::string processor::da_logline(uint32_t instruction)
 	}
 	catch(processor_exception & pe)
 	{
-		exception = format("EXCEPTION %d at/for %016llx, PC: %016llx (1), sr: %08x", pe.get_cause(), pe.get_BadVAddr(), pe.get_EPC(), pe.get_status());
+        exception = format("EXCEPTION %x at/for %016llx, PC: %016llx (1), sr: %08x", pe.get_cause(), pe.get_BadVAddr(), pe.get_EPC(), pe.get_status());
 
 		rc = false;
 	}
 
-	std::string line = format("PC: %016llx %c / %d|%08x", cur_PC, is_delay_slot() ? 'D' : '.', rc, temp_32b);
+    std::string line = format("PC: %016llx %c / %x|%08x", cur_PC, is_delay_slot() ? 'D' : '.', rc, temp_32b);
 
 	uint8_t opcode = get_opcode(instruction);
 
@@ -57,7 +57,7 @@ std::string processor::da_logline(uint32_t instruction)
 		uint8_t rt = get_RT(instruction);
 
 		line += format("\tim: %04x", immediate);
-		line += format("\tims: %d", immediate_s);
+        line += format("\tims: %x", immediate_s);
 		line += format("\trt %s|%016llx", reg_to_name(rt), registers[rt]);
 		line += format("\trs %s|%016llx", reg_to_name(rs), registers[rs]);
 	}
@@ -78,7 +78,7 @@ std::string processor::da_logline(uint32_t instruction)
 
 			line += format("\t0 fu %02x", function);
 
-			line += format("\tsel %d", sel);
+            line += format("\tsel %x", sel);
 			line += format("\trd %02x", rd);
 			line += format("\trt %02x", rt);
 			line += format("\tC0 %08x", get_C0_register(rd, sel));
@@ -190,24 +190,24 @@ std::string processor::decode_to_text(uint32_t instruction)
 				if (sa == 0)
 					return "NOP";
 
-				return format("SLL %s,%s,%d", reg_to_name(rd), reg_to_name(rt), sa);
+                return format("SLL %s,%s,%x", reg_to_name(rd), reg_to_name(rt), sa);
 
 			case 0x02:
 				if ((rs & 1) == 0)
-					return format("SRL %s,%s,%d", reg_to_name(rd), reg_to_name(rt), sa);
+                    return format("SRL %s,%s,%x", reg_to_name(rd), reg_to_name(rt), sa);
 				else
 					return "SRL?";
 			case 0x03:
 				if ((rs & 1) == 0)
-					return format("SRA %s,%s,%d", reg_to_name(rd), reg_to_name(rt), sa);
+                    return format("SRA %s,%s,%x", reg_to_name(rd), reg_to_name(rt), sa);
 				else
 					return "SRA?";
 			case 0x04:
-				return format("SLLV %s,%s,%d", reg_to_name(rd), reg_to_name(rt), reg_to_name(rs));
+                return format("SLLV %s,%s,%x", reg_to_name(rd), reg_to_name(rt), reg_to_name(rs));
 			case 0x06:
-				return format("SRLV %s,%s,%d", reg_to_name(rd), reg_to_name(rt), reg_to_name(rs));
+                return format("SRLV %s,%s,%x", reg_to_name(rd), reg_to_name(rt), reg_to_name(rs));
 			case 0x07:
-				return format("SRAV %s,%s,%d", reg_to_name(rd), reg_to_name(rt), reg_to_name(rs));
+                return format("SRAV %s,%s,%x", reg_to_name(rd), reg_to_name(rt), reg_to_name(rs));
 			case 0x08:
 				return format("JR %s", reg_to_name(rs));
 			case 0x09:
@@ -278,45 +278,45 @@ std::string processor::decode_to_text(uint32_t instruction)
 			case 0x01:
 				return "BLTZ/BGEZ";
 			case 0x04:
-				return format("BEQ %s,%s,%d", reg_to_name(rs), reg_to_name(rt), immediate_s);
+                return format("BEQ %s,%s,%x", reg_to_name(rs), reg_to_name(rt), immediate_s);
 			case 0x05:
-				return format("BNE %s,%s,%d", reg_to_name(rs), reg_to_name(rt), immediate_s);
+                return format("BNE %s,%s,%x", reg_to_name(rs), reg_to_name(rt), immediate_s);
 			case 0x06:
-				return format("BLEZ %s,%d", reg_to_name(rs), immediate_s);
+                return format("BLEZ %s,%x", reg_to_name(rs), immediate_s);
 			case 0x07:
-				return format("BGTZ %s,%d", reg_to_name(rs), immediate_s);
+                return format("BGTZ %s,%x", reg_to_name(rs), immediate_s);
 			case 0x08:
-				return format("ADDI %s,%s,%d", reg_to_name(rt), reg_to_name(rs), immediate_s);
+                return format("ADDI %s,%s,%x", reg_to_name(rt), reg_to_name(rs), immediate_s);
 			case 0x09:
-				return format("ADDIU %s,%s,%d", reg_to_name(rt), reg_to_name(rs), immediate_s);
+                return format("ADDIU %s,%s,%x", reg_to_name(rt), reg_to_name(rs), immediate_s);
 			case 0x0a:
-				return format("SLTI %s,%s,%d", reg_to_name(rt), reg_to_name(rs), immediate_s);
+                return format("SLTI %s,%s,%x", reg_to_name(rt), reg_to_name(rs), immediate_s);
 			case 0x0b:
-				return format("SLTIU %s,%s,%d", reg_to_name(rt), reg_to_name(rs), immediate_s);
+                return format("SLTIU %s,%s,%x", reg_to_name(rt), reg_to_name(rs), immediate_s);
 			case 0x0c:
-				return format("ANDI %s,%s,%d", reg_to_name(rt), reg_to_name(rs), immediate_s);
+                return format("ANDI %s,%s,%x", reg_to_name(rt), reg_to_name(rs), immediate_s);
 			case 0x0d:
-				return format("ORI %s,%s,%d", reg_to_name(rt), reg_to_name(rs), immediate_s);
+                return format("ORI %s,%s,%x", reg_to_name(rt), reg_to_name(rs), immediate_s);
 			case 0x0e:
-				return format("XORI %s,%s,%d", reg_to_name(rt), reg_to_name(rs), immediate_s);
+                return format("XORI %s,%s,%x", reg_to_name(rt), reg_to_name(rs), immediate_s);
 			case 0x0f:
 				return format("LUI %s, 0x%08x", reg_to_name(rt), immediate << 16);
 			case 0x20:
-				return format("LB %s, %d(%s)", reg_to_name(rt), immediate_s, reg_to_name(rs));
+                return format("LB %s, %x(%s)", reg_to_name(rt), immediate_s, reg_to_name(rs));
 			case 0x21:
-				return format("LH %s, %d(%s)", reg_to_name(rt), immediate_s, reg_to_name(rs));
+                return format("LH %s, %x(%s)", reg_to_name(rt), immediate_s, reg_to_name(rs));
 			case 0x23:
-				return format("LW %s, %d(%s)", reg_to_name(rt), immediate_s, reg_to_name(rs));
+                return format("LW %s, %x(%s)", reg_to_name(rt), immediate_s, reg_to_name(rs));
 			case 0x24:
-				return format("LBU %s, %d(%s)", reg_to_name(rt), immediate_s, reg_to_name(rs));
+                return format("LBU %s, %x(%s)", reg_to_name(rt), immediate_s, reg_to_name(rs));
 			case 0x25:
-				return format("LHU %s, %d(%s)", reg_to_name(rt), immediate_s, reg_to_name(rs));
+                return format("LHU %s, %x(%s)", reg_to_name(rt), immediate_s, reg_to_name(rs));
 			case 0x28:
-				return format("SB %d(%s), %s", immediate_s, reg_to_name(rs), reg_to_name(rt));
+                return format("SB %x(%s), %s", immediate_s, reg_to_name(rs), reg_to_name(rt));
 			case 0x29:
-				return format("SH %d(%s), %s", immediate_s, reg_to_name(rs), reg_to_name(rt));
+                return format("SH %x(%s), %s", immediate_s, reg_to_name(rs), reg_to_name(rt));
 			case 0x2b:
-				return format("SW %d(%s), %s", immediate_s, reg_to_name(rs), reg_to_name(rt));
+                return format("SW %x(%s), %s", immediate_s, reg_to_name(rs), reg_to_name(rt));
 			case 0x31:
 				return "LWCL";
 			case 0x39:
@@ -349,13 +349,13 @@ std::string processor::decode_to_text(uint32_t instruction)
 			switch(function)
 			{
 				case 0x00:
-					return format("MFC0 %s,%d,%d", reg_to_name(rt), rd, sel);
+                    return format("MFC0 %s,%x,%x", reg_to_name(rt), rd, sel);
 				case 0x01:
 					return "TLBR";
 				case 0x02:
 					return "TLBWI";
 				case 0x04:
-					return format("MTC0 %s,%d,%d", reg_to_name(rt), rd, sel);
+                    return format("MTC0 %s,%x,%x", reg_to_name(rt), rd, sel);
 				case 0x06:
 					return "TLBWR";
 				case 0x08:
@@ -373,7 +373,7 @@ std::string processor::decode_to_text(uint32_t instruction)
 	{
 		// uint8_t rt = get_RT(instruction);
 
-		// return format("MFC1 %s,%d", reg_to_name(rt), (instruction >> 11) & 31);
+        // return format("MFC1 %s,%x", reg_to_name(rt), (instruction >> 11) & 31);
 		return "COP1_command";
 	}
 

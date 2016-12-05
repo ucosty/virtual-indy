@@ -1,8 +1,7 @@
 #include <pthread.h>
 
-#include "debug_console.h"
 #include "memory.h"
-
+#include "processor.h"
 #define REGS_DIV 8
 
 typedef enum { vdma_stopped, vdma_running } vdma_state_t;
@@ -12,7 +11,6 @@ class mc : public memory
 private:
 	processor *const pp;
 	uint32_t refresh_counter;
-	debug_console *pdc;
 	uint32_t regs[128];
 	uint32_t RPSS_CTR;
 
@@ -34,7 +32,7 @@ private:
 	void set_dma_default();
 
 public:
-	mc(processor *const pp, debug_console *pdc_in);
+    mc(processor *const pp);
 	~mc();
 
 	uint64_t get_size() const { return 0x100000; }

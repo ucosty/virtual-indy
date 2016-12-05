@@ -4,10 +4,8 @@
 #include "debug.h"
 #include "z85c30.h"
 
-z85c30::z85c30(debug_console *pdc_in)
+z85c30::z85c30()
 {
-	pdc = pdc_in;
-
 	memset(d, 0x00, sizeof d);
 	cr = 0;
 
@@ -30,20 +28,21 @@ void z85c30::ser_command_write(uint8_t data)
 		else
 			cr = data & 7;
 
-		pdc -> dc_log("serial: select register %d, command code %d, crc reset code %d", cr, command_code, crc_reset_code);
+        // pdc -> dc_log("serial: select register %d, command code %d, crc reset code %d", cr, command_code, crc_reset_code);
 	}
 	else
 	{
-		pdc -> dc_log("serial: write %02x to register %d", data, cr);
+        // pdc -> dc_log("serial: write %02x to register %d", data, cr);
 
 		if (cr == 8)
 		{
-			if (data == 0x0d)
-				pdc -> dc_term("\n");
-			else
-				pdc -> dc_term("%c", data);
+//			if (data == 0x0d)
+//				pdc -> dc_term("\n");
+//			else
+//				pdc -> dc_term("%c", data);
 
-			pdc -> dc_log("serial OUTPUT: %c (%02x)", data, data);
+            // LOG(INFO) << data;
+            // pdc -> dc_log("serial OUTPUT: %c (%02x)", data, data);
 			// tx_full = true; not neccessary
 		}
 
@@ -64,7 +63,7 @@ uint8_t z85c30::ser_command_read()
 
 	cr = 0;
 
-	pdc -> dc_log("serial: read from register %d: %02x", cr, ret);
+    // pdc -> dc_log("serial: read from register %d: %02x", cr, ret);
 
 	return ret;
 }
@@ -73,14 +72,14 @@ void z85c30::ser_data_write(uint8_t data)
 {
 	ASSERT(cr < 16);
 
-	pdc -> dc_term("%c", data);
+//	pdc -> dc_term("%c", data);
 
-	pdc -> dc_log("serial: write DATA %02x", data);
+    // pdc -> dc_log("serial: write DATA %02x", data);
 }
 
 uint8_t z85c30::ser_data_read()
 {
-	pdc -> dc_log("serial: read DATA");
+    // pdc -> dc_log("serial: read DATA");
 
 	return 0;
 }
